@@ -1,0 +1,71 @@
+import { Router } from "express";
+import { crudController } from "../controllers/crudController.js";
+import { dashboardSummary } from "../controllers/reportController.js";
+import { protect, permit } from "../middleware/auth.js";
+import { Assignment } from "../models/Assignment.js";
+import { Attendance } from "../models/Attendance.js";
+import { Batch } from "../models/Batch.js";
+import { Branch } from "../models/Branch.js";
+import { Certificate } from "../models/Certificate.js";
+import { Course } from "../models/Course.js";
+import { DemoClass } from "../models/DemoClass.js";
+import { Expense } from "../models/Expense.js";
+import { Faculty } from "../models/Faculty.js";
+import { Fee } from "../models/Fee.js";
+import { FollowUp } from "../models/FollowUp.js";
+import { Notification } from "../models/Notification.js";
+import { Payment } from "../models/Payment.js";
+import { Permission } from "../models/Permission.js";
+import { Role } from "../models/Role.js";
+import { Salary } from "../models/Salary.js";
+import { Setting } from "../models/Setting.js";
+import { Staff } from "../models/Staff.js";
+import { Student } from "../models/Student.js";
+import { StudyMaterial } from "../models/StudyMaterial.js";
+import { Task } from "../models/Task.js";
+import { Test } from "../models/Test.js";
+import { User } from "../models/User.js";
+import { authRoutes } from "./authRoutes.js";
+import { leadRoutes } from "./leadRoutes.js";
+import { resourceRoutes } from "./resourceRoutes.js";
+
+export const apiRoutes = Router();
+
+apiRoutes.use("/auth", authRoutes);
+apiRoutes.use(protect);
+
+const make = (model, module, searchFields = []) => {
+  const crud = crudController(model, { searchFields });
+  return resourceRoutes(crud, {
+    read: permit(`${module}:read`),
+    create: permit(`${module}:create`),
+    update: permit(`${module}:update`),
+    remove: permit(`${module}:delete`)
+  });
+};
+
+apiRoutes.use("/users", make(User, "users", ["name", "email", "mobile", "role"]));
+apiRoutes.use("/roles", make(Role, "settings", ["name"]));
+apiRoutes.use("/permissions", make(Permission, "settings", ["key", "module"]));
+apiRoutes.use("/leads", leadRoutes);
+apiRoutes.use("/follow-ups", make(FollowUp, "followups"));
+apiRoutes.use("/students", make(Student, "students", ["studentId", "name", "mobile", "email"]));
+apiRoutes.use("/courses", make(Course, "courses", ["name", "description"]));
+apiRoutes.use("/batches", make(Batch, "batches", ["name", "timing"]));
+apiRoutes.use("/faculty", make(Faculty, "staff"));
+apiRoutes.use("/staff", make(Staff, "staff", ["employeeCode", "department", "designation"]));
+apiRoutes.use("/fees", make(Fee, "fees"));
+apiRoutes.use("/payments", make(Payment, "payments", ["receiptNo", "mode"]));
+apiRoutes.use("/attendance", make(Attendance, "attendance"));
+apiRoutes.use("/demo-classes", make(DemoClass, "demos", ["studentName", "feedback"]));
+apiRoutes.use("/tasks", make(Task, "tasks", ["title", "description"]));
+apiRoutes.use("/study-materials", make(StudyMaterial, "materials", ["title", "type"]));
+apiRoutes.use("/assignments", make(Assignment, "assignments", ["title", "description"]));
+apiRoutes.use("/tests", make(Test, "tests", ["title"]));
+apiRoutes.use("/certificates", make(Certificate, "certificates", ["certificateNo"]));
+apiRoutes.use("/notifications", make(Notification, "notices", ["title", "message"]));
+apiRoutes.use("/expenses", make(Expense, "expenses", ["title", "category"]));
+apiRoutes.use("/salaries", make(Salary, "salary", ["month"]));
+apiRoutes.use("/branches", make(Branch, "settings", ["name", "code"]));
+apiRoutes.use("/settings", make(Setting, "settings", ["key", "group"]));
+apiRoutes.get("/reports/dashboard", permit("reports:read"), dashboardSummary);

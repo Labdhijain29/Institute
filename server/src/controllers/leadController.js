@@ -2,45 +2,19 @@ import { Lead } from "../models/Lead.js";
 import { Student } from "../models/Student.js";
 import { Fee } from "../models/Fee.js";
 import { Payment } from "../models/Payment.js";
+import { User } from "../models/User.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-export const assignLead = asyncHandler(async (req, res) => {
-  const lead = await Lead.findByIdAndUpdate(
-    req.params.id,
-    { telecallerAssigned: req.body.telecallerAssigned, status: "Assigned" },
-    { new: true, runValidators: true }
-  );
-  if (!lead) throw new ApiError(404, "Lead not found");
-  res.json(lead);
-});
+function sameId(left, right) {
+  return left?.toString() === right?.toString();
+}
 
-export const addCallHistory = asyncHandler(async (req, res) => {
-  const lead = await Lead.findById(req.params.id);
-  if (!lead) throw new ApiError(404, "Lead not found");
-  lead.callHistory.push({ ...req.body, by: req.user._id });
-  lead.remarks = req.body.remarks || lead.remarks;
-  lead.status = req.body.status || lead.status;
-  lead.followUpDate = req.body.followUpDate || lead.followUpDate;
-  await lead.save();
-  res.json(lead);
-});
+function canManageAnyLead(role) {
+  return ["Super Admin", "Admin", "Manager"].includes(role);
+}
 
-export const forwardToCounsellor = asyncHandler(async (req, res) => {
-  const lead = await Lead.findById(req.params.id);
-  if (!lead) throw new ApiError(404, "Lead not found");
-  lead.counsellorAssigned = req.body.counsellorAssigned;
-  lead.status = "Forwarded";
-  lead.forwardedAt = new Date();
-  lead.forwardedBy = req.user._id;
-  lead.remarks = req.body.remarks || lead.remarks;
-  await lead.save();
-  res.json(lead);
-});
-
-export const convertToAdmission = asyncHandler(async (req, res) => {
-  const lead = await Lead.findById(req.params.id);
-  if (!lead) throw new ApiError(404, "Lead not found");
+async function createAdmissionFromLead(lead, req) {
   if (lead.convertedStudent) throw new ApiError(409, "Lead already converted");
 
   const year = new Date().getFullYear();
@@ -83,10 +57,103 @@ export const convertToAdmission = asyncHandler(async (req, res) => {
     });
   }
 
-  lead.status = "Converted";
+  lead.status = "Admission Done";
+  lead.admissionStatus = "Done";
   lead.convertedStudent = student._id;
   lead.convertedAt = new Date();
   await lead.save();
 
-  res.status(201).json({ lead, student, fee, payment });
+  return { lead, student, fee, payment };
+}
+
+export const assignLead = asyncHandler(async (req, res) => {
+  const lead = await Lead.findByIdAndUpdate(
+    req.params.id,
+    { telecallerAssigned: req.body.telecallerAssigned, status: "Assigned" },
+    { new: true, runValidators: true }
+  );
+  if (!lead) throw new ApiError(404, "Lead not found");
+  res.json(lead);
+});
+
+export const addCallHistory = asyncHandler(async (req, res) => {
+  const lead = await Lead.findById(req.params.id);
+  if (!lead) throw new ApiError(404, "Lead not found");
+  lead.callHistory.push({ ...req.body, by: req.user._id });
+  lead.remarks = req.body.remarks || lead.remarks;
+  lead.status = req.body.status || lead.status;
+  lead.followUpDate = req.body.followUpDate || lead.followUpDate;
+  await lead.save();
+  res.json(lead);
+});
+
+export const facultyOptions = asyncHandler(async (_req, res) => {
+  const faculty = await User.find({ role: "Faculty", isActive: true }).sort({ name: 1 }).select("name email mobile role");
+  res.json({ items: faculty });
+});
+
+export const forwardToCounsellor = asyncHandler(async (req, res) => {
+  const lead = await Lead.findById(req.params.id);
+  if (!lead) throw new ApiError(404, "Lead not found");
+  const counsellor = req.body.counsellorAssigned
+    ? { _id: req.body.counsellorAssigned }
+    : await User.findOne({ role: "Counsellor", isActive: true }).sort({ createdAt: 1 }).select("_id");
+  if (!counsellor?._id) throw new ApiError(400, "No active counsellor found");
+  if (req.user.role === "Telecaller" && !sameId(lead.createdBy, req.user._id) && !sameId(lead.telecallerAssigned, req.user._id)) {
+    throw new ApiError(403, "Only assigned telecaller can forward this lead");
+  }
+  if (lead.convertedStudent) throw new ApiError(409, "Lead already converted");
+  lead.counsellorAssigned = counsellor._id;
+  lead.status = "Forwarded to Counsellor";
+  lead.admissionStatus = "Pending";
+  lead.forwardedAt = new Date();
+  lead.forwardedBy = req.user._id;
+  lead.remarks = req.body.remarks || lead.remarks;
+  await lead.save();
+  res.json(lead);
+});
+
+export const forwardToFaculty = asyncHandler(async (req, res) => {
+  const lead = await Lead.findById(req.params.id);
+  if (!lead) throw new ApiError(404, "Lead not found");
+  if (!req.body.facultyAssigned) throw new ApiError(400, "Faculty is required");
+  const isWithCounsellor = lead.counsellorAssigned || ["Forwarded", "Forwarded to Counsellor"].includes(lead.status);
+  if (!isWithCounsellor) throw new ApiError(400, "Lead must be with counsellor first");
+  if (!canManageAnyLead(req.user.role) && lead.counsellorAssigned && !sameId(lead.counsellorAssigned, req.user._id)) {
+    throw new ApiError(403, "Only assigned counsellor can forward this lead");
+  }
+  if (lead.convertedStudent) throw new ApiError(409, "Lead already converted");
+
+  lead.facultyAssigned = req.body.facultyAssigned;
+  lead.status = "Forwarded to Faculty";
+  lead.admissionStatus = "Pending";
+  lead.counsellorForwardedAt = new Date();
+  lead.counsellorForwardedBy = req.user._id;
+  lead.remarks = req.body.remarks || lead.remarks;
+  await lead.save();
+  res.json(lead);
+});
+
+export const approveAdmission = asyncHandler(async (req, res) => {
+  const lead = await Lead.findById(req.params.id);
+  if (!lead) throw new ApiError(404, "Lead not found");
+  if (!lead.facultyAssigned) throw new ApiError(400, "Lead must be forwarded to faculty first");
+  if (!canManageAnyLead(req.user.role) && !sameId(lead.facultyAssigned, req.user._id)) {
+    throw new ApiError(403, "Only assigned faculty can approve this lead");
+  }
+  if (!req.body.course || !req.body.totalFees) throw new ApiError(400, "Course and total fees are required");
+
+  lead.facultyApprovedAt = new Date();
+  lead.facultyApprovedBy = req.user._id;
+  lead.remarks = req.body.remarks || lead.remarks;
+  const result = await createAdmissionFromLead(lead, req);
+  res.status(201).json(result);
+});
+
+export const convertToAdmission = asyncHandler(async (req, res) => {
+  const lead = await Lead.findById(req.params.id);
+  if (!lead) throw new ApiError(404, "Lead not found");
+  if (!req.body.course || !req.body.totalFees) throw new ApiError(400, "Course and total fees are required");
+  const result = await createAdmissionFromLead(lead, req);
+  res.status(201).json(result);
 });

@@ -5,10 +5,11 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import { StatCard } from "../components/StatCard.jsx";
 import { roleDashboards } from "../data/roleConfig.js";
 
-export function DashboardPage() {
+export function DashboardPage({ module }) {
   const { user } = useAuth();
   const [summary, setSummary] = useState(null);
-  const items = roleDashboards[user.role] || [];
+  const dashboardRole = module?.dashboardRole || user.role;
+  const items = roleDashboards[dashboardRole] || [];
 
   useEffect(() => {
     api("/reports/dashboard").then(setSummary).catch(() => setSummary(null));
@@ -28,7 +29,7 @@ export function DashboardPage() {
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase text-pine">{user.role} Dashboard</p>
+            <p className="text-sm font-semibold uppercase text-pine">{dashboardRole} Dashboard</p>
             <h2 className="mt-1 text-2xl font-bold">Today&apos;s institute command center</h2>
           </div>
           <div className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white">Branch-aware RBAC enabled</div>

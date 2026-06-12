@@ -13,8 +13,10 @@ export function Shell() {
   const [open, setOpen] = useState(false);
   const menu = useMemo(() => menuForRole(user.role), [user.role]);
   const activeItem = menu.find((item) => item.path === active) || menu[0];
+  const isLeadWorkflow = Boolean(activeItem.workflowRole);
+  const isDashboard = active === "dashboard" || Boolean(activeItem.dashboardRole);
 
-  const Page = active === "dashboard" ? DashboardPage : active === "leads" ? LeadsPage : ModulePage;
+  const Page = isDashboard ? DashboardPage : isLeadWorkflow ? LeadsPage : ModulePage;
 
   return (
     <div className="min-h-screen bg-[#f6f8f7] text-ink lg:grid lg:grid-cols-[270px_1fr]">

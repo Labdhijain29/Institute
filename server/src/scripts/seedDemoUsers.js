@@ -13,9 +13,10 @@ const users = [
   { name: "Manager", email: "manager@institutecrm.in", role: "Manager", mobile: "9000000003" },
   { name: "Telecaller", email: "telecaller@institutecrm.in", role: "Telecaller", mobile: "9000000004" },
   { name: "Counsellor", email: "counsellor@institutecrm.in", role: "Counsellor", mobile: "9000000005" },
-  { name: "HR", email: "hr@institutecrm.in", role: "HR", mobile: "9000000006" },
-  { name: "Receptionist", email: "receptionist@institutecrm.in", role: "Receptionist", mobile: "9000000007" },
-  { name: "Accountant", email: "accountant@institutecrm.in", role: "Accountant", mobile: "9000000008" }
+  { name: "Faculty", email: "faculty@institutecrm.in", role: "Faculty", mobile: "9000000006" },
+  { name: "HR", email: "hr@institutecrm.in", role: "HR", mobile: "9000000007" },
+  { name: "Receptionist", email: "receptionist@institutecrm.in", role: "Receptionist", mobile: "9000000008" },
+  { name: "Accountant", email: "accountant@institutecrm.in", role: "Accountant", mobile: "9000000009" }
 ];
 
 await connectDB();

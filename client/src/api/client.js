@@ -44,3 +44,7 @@ export async function api(path, options = {}) {
   if (!response.ok) throw new Error(data.message || "Request failed");
   return data;
 }
+
+export async function publicApi(path, options = {}) {
+  return api(path, { ...options, headers: { ...(options.headers || {}) } });
+}

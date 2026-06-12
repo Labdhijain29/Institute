@@ -27,11 +27,13 @@ import { Test } from "../models/Test.js";
 import { User } from "../models/User.js";
 import { authRoutes } from "./authRoutes.js";
 import { leadRoutes } from "./leadRoutes.js";
+import { publicRoutes } from "./publicRoutes.js";
 import { resourceRoutes } from "./resourceRoutes.js";
 
 export const apiRoutes = Router();
 
 apiRoutes.use("/auth", authRoutes);
+apiRoutes.use("/public", publicRoutes);
 apiRoutes.use(protect);
 
 const make = (model, module, searchFields = []) => {

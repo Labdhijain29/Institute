@@ -1,7 +1,8 @@
 import React from "react";
-import { useState } from "react";
-import { LockKeyhole, LogIn, UserPlus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, LockKeyhole, LogIn, UserPlus } from "lucide-react";
 import { useAuth } from "../auth/AuthContext.jsx";
+import { navigateTo } from "../components/PublicLayout.jsx";
 
 const registerRoles = ["Manager", "HR", "Telecaller", "Counsellor", "Receptionist", "Accountant", "Faculty", "Student", "Parent"];
 const states = ["Delhi", "Haryana", "Punjab", "Rajasthan", "Uttar Pradesh", "Madhya Pradesh", "Maharashtra", "Gujarat", "Karnataka", "Other"];
@@ -43,13 +44,17 @@ function Field({ label, children, wide = false }) {
 
 const inputClass = "mt-1.5 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm normal-case tracking-normal outline-none focus:border-pine focus:ring-2 focus:ring-pine/10";
 
-export function LoginPage() {
+export function LoginPage({ initialMode = "login" }) {
   const { login, register } = useAuth();
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState(initialMode);
   const [form, setForm] = useState(initialForm);
   const [loginForm, setLoginForm] = useState({ email: "", password: "", remember: true });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
 
   const submitLogin = async (event) => {
     event.preventDefault();
@@ -111,6 +116,10 @@ export function LoginPage() {
       <section className="flex items-center justify-center px-5 py-6">
         {mode === "login" ? (
         <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-soft">
+          <button onClick={() => navigateTo("/")} className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-pine">
+            <ArrowLeft size={16} />
+            Back to website
+          </button>
           <div className="text-center">
             <div className="mx-auto grid h-12 w-12 place-items-center rounded-lg bg-pine text-white">
               <LockKeyhole size={24} />
@@ -147,6 +156,10 @@ export function LoginPage() {
         </div>
       ) : (
         <div className="w-full max-w-[660px] rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-soft md:px-7">
+          <button onClick={() => navigateTo("/")} className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-pine">
+            <ArrowLeft size={16} />
+            Back to website
+          </button>
           <div className="text-center">
             <div className="mx-auto grid h-11 w-11 place-items-center rounded-lg bg-pine text-white">
               <UserPlus size={22} />

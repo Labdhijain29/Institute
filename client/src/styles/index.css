@@ -12,6 +12,10 @@ body {
   background: #f6f8f7;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 button,
 input,
 select,

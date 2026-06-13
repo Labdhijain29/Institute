@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: #172026;
+  background: #f6f8f7;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.receipt-paper {
+  width: min(720px, 100%);
+  min-height: auto;
+  max-width: 100%;
+}
+
+.receipt-paper-compact {
+  min-height: auto;
+}
+
+.certificate-paper {
+  width: min(1020px, 100%);
+  aspect-ratio: 1.414 / 1;
+}
+
+.offer-letter-paper {
+  width: min(760px, 100%);
+  min-height: 980px;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #fee-receipt-print-area,
+  #fee-receipt-print-area *,
+  #certificate-print-area,
+  #certificate-print-area *,
+  #offer-letter-print-area,
+  #offer-letter-print-area * {
+    visibility: visible;
+  }
+
+  #fee-receipt-print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 210mm;
+    min-height: auto;
+    box-shadow: none;
+  }
+
+  #certificate-print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 297mm;
+    height: 210mm;
+    box-shadow: none;
+  }
+
+  #offer-letter-print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 210mm;
+    min-height: 297mm;
+    box-shadow: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

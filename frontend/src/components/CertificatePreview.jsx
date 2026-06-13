@@ -1,0 +1,93 @@
+import React from "react";
+
+const institute = {
+  name: "DeepNexusAnalytics",
+  tagline: "Innovate. Analyze. Elevate.",
+  address: "91, Ratnalok Colony, Indore, M.P",
+  phone: "7999229424",
+  email: "info@deepnexus.com",
+  website: "DeepNexusAnalytics.com",
+  trainer: "Trainer Signature",
+  director: "Lakhan Rathod"
+};
+
+const date = (value) => (value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" }) : "-");
+
+export function CertificatePreview({ certificate }) {
+  return (
+    <article id="certificate-print-area" className="certificate-paper mx-auto overflow-hidden bg-[#fbfcff] text-[#172026] shadow-sm">
+      <div className="relative flex h-full flex-col border-[10px] border-[#0b1f4d] p-6">
+        <div className="pointer-events-none absolute inset-5 border-2 border-[#d8b45a]" />
+        <div className="pointer-events-none absolute inset-9 border border-[#0f766e]/30" />
+
+        <header className="relative z-10 flex items-start justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="grid h-20 w-20 place-items-center rounded-full bg-[#0b1f4d] text-4xl font-black text-white">DN</div>
+            <div>
+              <h1 className="text-3xl font-black uppercase tracking-[0.12em] text-[#0b1f4d]">{institute.name}</h1>
+              <p className="mt-1 text-sm font-bold uppercase tracking-[0.28em] text-[#0f766e]">{institute.tagline}</p>
+            </div>
+          </div>
+          <div className="text-right text-xs font-semibold text-slate-600">
+            <p>{institute.address}</p>
+            <p>{institute.phone} | {institute.email}</p>
+            <p>{institute.website}</p>
+          </div>
+        </header>
+
+        <main className="relative z-10 grid flex-1 place-items-center py-8 text-center">
+          <div className="max-w-4xl">
+            <p className="text-sm font-bold uppercase tracking-[0.35em] text-[#d8b45a]">Certificate of Completion</p>
+            <h2 className="mt-4 font-serif text-5xl font-black text-[#0b1f4d]">This is to certify that</h2>
+            <p className="mt-6 border-b-2 border-[#d8b45a] px-14 pb-2 font-serif text-5xl italic text-[#0f766e]">{certificate.studentName || "Student Name"}</p>
+            <p className="mt-6 text-xl text-slate-700">has successfully completed the</p>
+            <p className="mt-3 text-3xl font-black uppercase tracking-wide text-[#0b1f4d]">{certificate.courseName || "Course Name"}</p>
+            <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-slate-600">
+              training program conducted by the institute. The student has demonstrated satisfactory performance and fulfilled all course requirements.
+            </p>
+          </div>
+        </main>
+
+        <section className="relative z-10 grid gap-3 rounded-md border border-[#d8b45a] bg-white/70 p-4 text-sm font-semibold md:grid-cols-4">
+          <Info label="Student ID" value={certificate.studentId} />
+          <Info label="Batch" value={certificate.batch} />
+          <Info label="Issue Date" value={date(certificate.issueDate)} />
+          <Info label="Certificate No" value={certificate.certificateNumber || certificate.certificateNo} />
+        </section>
+
+        <footer className="relative z-10 mt-8 grid grid-cols-4 items-end gap-6 text-center text-sm font-bold">
+          <Signature label={institute.trainer} />
+          <Signature label="Institute Director" name={institute.director} />
+          <div className="grid place-items-center">
+            <div className="grid h-24 w-24 place-items-center rounded-full border-4 border-[#0b1f4d] text-center text-[10px] font-black uppercase text-[#0b1f4d]">
+              Institute<br />Stamp
+            </div>
+          </div>
+          <div className="grid place-items-center">
+            <div className="grid h-24 w-24 place-items-center border-2 border-slate-800 bg-white text-center text-[10px] font-black uppercase">
+              QR<br />Verify
+            </div>
+          </div>
+        </footer>
+      </div>
+    </article>
+  );
+}
+
+function Info({ label, value }) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="mt-1 text-[#0b1f4d]">{value || "-"}</p>
+    </div>
+  );
+}
+
+function Signature({ label, name }) {
+  return (
+    <div>
+      {name && <p className="font-serif text-2xl italic text-[#0f766e]">{name}</p>}
+      <div className="mt-8 border-t border-slate-500 pt-2">{label}</div>
+    </div>
+  );
+}

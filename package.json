@@ -4,14 +4,14 @@
   "private": true,
   "description": "Full MERN CRM + ERP scaffold for an IT training institute.",
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace server\" \"npm run dev --workspace client\"",
-    "server": "npm run dev --workspace server",
-    "client": "npm run dev --workspace client",
-    "install:all": "npm install && npm install --workspace server && npm install --workspace client"
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm run dev",
+    "install:all": "npm install && npm install --workspace backend && npm install --workspace frontend"
   },
   "workspaces": [
-    "server",
-    "client"
+    "backend",
+    "frontend"
   ],
   "devDependencies": {
     "concurrently": "^9.1.0"

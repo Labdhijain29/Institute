@@ -1,0 +1,28 @@
+{
+  "name": "it-institute-crm-client",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "node --check src/main.jsx"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.5.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "vite": "^5.4.21",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
+    "lucide-react": "^0.468.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17"
+  }
+}

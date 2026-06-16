@@ -1,12 +1,13 @@
 import React from "react";
 import { amountInWords } from "../utils/amountInWords.js";
+import logoMark from "../assets/coding-wallah-mark-charcoal.png";
 
 const institute = {
-  name: "Institute CRM Coding Academy",
-  address: "2nd Floor, Knowledge Park, Main Road, India",
-  phone: "+91 98765 43210",
-  email: "accounts@institutecrm.com",
-  website: "www.institutecrm.com"
+  name: "Coding Wallah",
+  address: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010",
+  phone: "+91 9098875825",
+  email: "info@codingwallah.com",
+  website: "www.codingwallah.com"
 };
 
 const money = (value) => `Rs. ${Number(value || 0).toLocaleString("en-IN")}`;
@@ -19,11 +20,13 @@ export function ReceiptPreview({ receipt }) {
 
   return (
     <article id="fee-receipt-print-area" className="receipt-paper mx-auto bg-white p-8 text-ink shadow-sm">
-      <header className="flex items-start justify-between gap-6 border-b-2 border-ink pb-5">
+      <header className="flex items-start justify-between gap-6 border-b-4 border-[#f97316] pb-5">
         <div className="flex gap-4">
-          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-md border-2 border-pine bg-pine text-xl font-black text-white">IT</div>
+          <div className="grid h-16 w-24 shrink-0 place-items-center overflow-hidden rounded-md bg-white">
+            <img src={logoMark} alt="Coding Wallah" className="h-full w-full object-contain" />
+          </div>
           <div>
-            <h2 className="text-2xl font-black uppercase tracking-wide">{institute.name}</h2>
+            <h2 className="text-2xl font-black uppercase tracking-wide text-[#111315]">{institute.name}</h2>
             <p className="mt-1 text-sm text-slate-600">{institute.address}</p>
             <p className="mt-1 text-sm text-slate-600">
               {institute.phone} | {institute.email} | {institute.website}
@@ -31,7 +34,7 @@ export function ReceiptPreview({ receipt }) {
           </div>
         </div>
         <div className="min-w-[190px] rounded-md border border-slate-300 p-3 text-right">
-          <p className="text-lg font-black uppercase text-pine">Fee Receipt</p>
+          <p className="text-lg font-black uppercase text-[#f97316]">Fee Receipt</p>
           <p className="mt-2 text-xs text-slate-500">Receipt Number</p>
           <p className="font-bold">{receipt?.receiptNumber || "-"}</p>
           <p className="mt-2 text-xs text-slate-500">Receipt Date</p>
@@ -77,7 +80,7 @@ export function ReceiptPreview({ receipt }) {
                 <td className="px-4 py-3 text-right">{typeof value === "string" ? value : money(value)}</td>
               </tr>
             ))}
-            <tr className="border border-ink bg-slate-100 text-base font-black">
+            <tr className="border border-[#111315] bg-[#fff3e8] text-base font-black">
               <td className="px-4 py-3">Total Amount</td>
               <td className="px-4 py-3 text-right">{money(receipt?.totalAmount)}</td>
             </tr>

@@ -78,13 +78,13 @@ export function OfferLettersPage() {
             <h2 className="text-xl font-black">Offer Letters</h2>
             <p className="text-sm text-slate-500">Generate, edit, print and download student admission offer letters.</p>
           </div>
-          <button onClick={() => setGenerateOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-pine px-4 py-2 text-sm font-semibold text-white hover:bg-ink">
+          <button onClick={() => setGenerateOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
             <Plus size={17} /> Generate Offer Letter
           </button>
         </div>
       </section>
 
-      {(message || error) && <p className="no-print rounded-md border border-pine/20 bg-pine/10 px-4 py-3 text-sm font-semibold text-pine">{error || message}</p>}
+      {(message || error) && <p className="no-print rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{error || message}</p>}
 
       <div className="table-wrap rounded-lg border border-slate-200 bg-white">
         <table className="w-full min-w-[920px] text-left text-sm">
@@ -110,7 +110,7 @@ export function OfferLettersPage() {
                 <td className="px-4 py-3">{date(offer.offerDate)}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={() => setSelected(offer)} className="rounded-md border border-slate-200 p-2 text-pine hover:bg-pine/10" title="View">
+                    <button onClick={() => setSelected(offer)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="View">
                       <Eye size={16} />
                     </button>
                     <button onClick={() => setSelected(offer)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Edit">
@@ -122,7 +122,7 @@ export function OfferLettersPage() {
                     <button onClick={() => quickPdf(offer)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Download PDF">
                       <Download size={16} />
                     </button>
-                    <button onClick={() => removeOffer(offer)} className="rounded-md border border-slate-200 p-2 text-coral hover:bg-coral/10" title="Delete">
+                    <button onClick={() => removeOffer(offer)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="Delete">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -182,7 +182,7 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
               <input
                 required
                 type={type}
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine"
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]"
                 value={form[key]}
                 onChange={(event) => setForm((current) => ({ ...current, [key]: type === "number" ? Number(event.target.value) : event.target.value }))}
               />
@@ -191,14 +191,14 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
           <label className="block text-sm md:col-span-2">
             <span className="font-semibold text-slate-600">Remarks</span>
             <textarea
-              className="mt-1 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine"
+              className="mt-1 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]"
               value={form.remarks}
               onChange={(event) => setForm((current) => ({ ...current, remarks: event.target.value }))}
             />
           </label>
           <div className="flex flex-col-reverse gap-2 md:col-span-2 sm:flex-row sm:justify-end">
             <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button>
-            <button disabled={saving} className="rounded-md bg-pine px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
+            <button disabled={saving} className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315] disabled:opacity-60">
               {saving ? "Generating..." : "Generate Offer Letter"}
             </button>
           </div>

@@ -33,17 +33,17 @@ export function DashboardPage({ module }) {
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase text-pine">{dashboardRole} Dashboard</p>
+            <p className="text-sm font-semibold uppercase text-[#f97316]">{dashboardRole} Dashboard</p>
             <h2 className="mt-1 text-2xl font-bold">Today&apos;s institute command center</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             {showReceiptManager && (
-              <button onClick={() => setReceiptOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-pine px-4 py-2 text-sm font-semibold text-white">
+              <button onClick={() => setReceiptOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
                 <ReceiptIndianRupee size={17} />
                 Fee Receipt
               </button>
             )}
-            <div className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white">Branch-aware RBAC enabled</div>
+            <div className="rounded-md bg-[#111315] px-4 py-2 text-sm font-semibold text-white">Branch-aware RBAC enabled</div>
           </div>
         </div>
       </section>
@@ -65,7 +65,7 @@ export function DashboardPage({ module }) {
                   <span className="font-semibold">{72 + index * 6}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-slate-100">
-                  <div className="h-2 rounded-full bg-pine" style={{ width: `${72 + index * 6}%` }} />
+                  <div className="h-2 rounded-full bg-[#f97316]" style={{ width: `${72 + index * 6}%` }} />
                 </div>
               </div>
             ))}

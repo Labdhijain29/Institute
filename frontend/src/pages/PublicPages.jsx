@@ -1,16 +1,16 @@
 import React, { useMemo, useState } from "react";
-import { ArrowRight, CheckCircle2, ChevronRight, Mail, MapPin, Phone, Search, Send } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronRight, Mail, MapPin, Phone, Search, Send, X } from "lucide-react";
 import { publicApi } from "../api/client.js";
 import { navigateTo, Footer } from "../components/PublicLayout.jsx";
 import { courses, partners, services, stats, testimonials, trainers, trustMilestones, values, whyChoose } from "../data/publicContent.js";
 
 const sectionClass = "mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8";
-const inputClass = "h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-ink outline-none focus:border-pine focus:ring-2 focus:ring-pine/15 dark:border-white/10 dark:bg-white/5 dark:text-white";
+const inputClass = "h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white";
 
 function SectionHeader({ eyebrow, title, text }) {
   return (
     <div className="mb-8 max-w-3xl">
-      <p className="text-sm font-bold uppercase tracking-[0.16em] text-coral">{eyebrow}</p>
+      <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#f97316]">{eyebrow}</p>
       <h2 className="mt-3 text-3xl font-black leading-tight md:text-4xl">{title}</h2>
       {text && <p className="mt-3 text-base leading-7 text-slate-600 dark:text-slate-300">{text}</p>}
     </div>
@@ -19,7 +19,7 @@ function SectionHeader({ eyebrow, title, text }) {
 
 function PrimaryButton({ children, to = "/courses" }) {
   return (
-    <button onClick={() => navigateTo(to)} className="inline-flex h-12 items-center gap-2 rounded-md bg-pine px-5 text-sm font-bold text-white shadow-soft hover:bg-ink">
+    <button onClick={() => navigateTo(to)} className="inline-flex h-12 items-center gap-2 rounded-md bg-[#f97316] px-5 text-sm font-bold text-white shadow-[0_14px_30px_rgba(249,115,22,0.22)] transition hover:bg-[#111315]">
       {children}
       <ArrowRight size={17} />
     </button>
@@ -28,20 +28,20 @@ function PrimaryButton({ children, to = "/courses" }) {
 
 function SecondaryButton({ children, to = "/login" }) {
   return (
-    <button onClick={() => navigateTo(to)} className="inline-flex h-12 items-center gap-2 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-ink hover:border-pine hover:text-pine dark:border-white/15 dark:bg-white/5 dark:text-white">
+    <button onClick={() => navigateTo(to)} className="inline-flex h-12 items-center gap-2 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-[#111315] shadow-sm transition hover:border-[#f97316] hover:text-[#c2410c] dark:border-white/15 dark:bg-white/5 dark:text-white">
       {children}
     </button>
   );
 }
 
-function CourseCard({ course }) {
+function CourseCard({ course, onLearnMore }) {
   return (
     <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10 dark:bg-white/5">
       <img src={course.image} alt={`${course.name} course`} className="h-44 w-full object-cover" loading="lazy" />
       <div className="p-5">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-lg font-black">{course.name}</h3>
-          <span className="rounded-md bg-amberline/20 px-2.5 py-1 text-xs font-bold text-[#7a4a00] dark:text-amberline">{course.level}</span>
+          <span className="rounded-md bg-[#fff3e8] px-2.5 py-1 text-xs font-bold text-[#c2410c] dark:bg-[#f97316]/15 dark:text-[#fdba74]">{course.level}</span>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <p className="rounded-md bg-slate-50 p-3 dark:bg-white/5">
@@ -60,7 +60,7 @@ function CourseCard({ course }) {
             </span>
           ))}
         </div>
-        <button onClick={() => navigateTo("/contact")} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-pine">
+        <button onClick={() => (onLearnMore ? onLearnMore(course) : navigateTo("/contact"))} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#ea580c] transition hover:text-[#111315] dark:text-[#fdba74]">
           Learn More
           <ChevronRight size={16} />
         </button>
@@ -69,12 +69,59 @@ function CourseCard({ course }) {
   );
 }
 
+function CourseDetailsModal({ course, onClose }) {
+  if (!course) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-ink/60 px-4 py-6 backdrop-blur-sm">
+      <article className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-soft dark:border-white/10 dark:bg-[#12181c]">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-white/10">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#f97316]">{course.level} Course</p>
+            <h2 className="mt-2 text-2xl font-black">{course.name}</h2>
+          </div>
+          <button onClick={onClose} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-slate-200 text-slate-500 hover:border-[#f97316] hover:text-[#f97316] dark:border-white/10 dark:text-slate-300">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="grid gap-5 p-5 md:grid-cols-[0.9fr_1.1fr]">
+          <img src={course.image} alt={`${course.name} course`} className="h-56 w-full rounded-md object-cover md:h-full" />
+          <div>
+            <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{course.overview}</p>
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <p className="rounded-md bg-slate-50 p-3 dark:bg-white/5">
+                <span className="block text-xs text-slate-500 dark:text-slate-400">Duration</span>
+                <span className="font-bold">{course.duration}</span>
+              </p>
+              <p className="rounded-md bg-slate-50 p-3 dark:bg-white/5">
+                <span className="block text-xs text-slate-500 dark:text-slate-400">Fees</span>
+                <span className="font-bold">{course.fees}</span>
+              </p>
+            </div>
+            <div className="mt-4 space-y-3 text-sm leading-6">
+              <p><strong>Syllabus:</strong> {course.syllabus}</p>
+              <p><strong>Career opportunities:</strong> {course.careers}</p>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {course.skills.map((skill) => (
+                <span key={skill} className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:border-white/10 dark:text-slate-300">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  );
+}
+
 function CTA() {
   return (
-    <section className="bg-ink text-white dark:bg-pine">
+    <section className="bg-ink text-white">
       <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-12 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.16em] text-amberline">Admissions Open</p>
+          <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#fdba74]">Admissions Open</p>
           <h2 className="mt-3 text-3xl font-black">Start your coding career with guided mentorship.</h2>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -90,13 +137,14 @@ export function HomePage() {
   return (
     <>
       <main>
-        <section className="relative min-h-[calc(100vh-64px)] overflow-hidden bg-ink text-white">
-          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=80" alt="Students learning coding together" className="absolute inset-0 h-full w-full object-cover opacity-45" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(23,32,38,.92),rgba(15,118,110,.66),rgba(232,93,79,.24))]" />
-          <div className="relative mx-auto flex min-h-[calc(100vh-64px)] max-w-7xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-8">
+        <section className="relative min-h-[calc(100vh-76px)] overflow-hidden bg-[#111315] text-white">
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=80" alt="Students learning coding together" className="absolute inset-0 h-full w-full object-cover opacity-70" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,19,21,.92)_0%,rgba(17,19,21,.72)_42%,rgba(17,19,21,.18)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#111315]/70 to-transparent" />
+          <div className="relative mx-auto flex min-h-[calc(100vh-76px)] max-w-7xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-8">
             <div className="max-w-3xl">
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-amberline">Coding Institute Website & Management System</p>
-              <h1 className="mt-5 text-4xl font-black leading-tight md:text-6xl">CodeVista Institute</h1>
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fdba74]">Coding Institute Website & Management System</p>
+              <h1 className="mt-5 text-4xl font-black leading-tight md:text-6xl">Coding Wallah</h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-100">Professional coding courses with live classes, real projects, placement support, and a role-based management system for every student journey.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <PrimaryButton to="/courses">Explore Courses</PrimaryButton>
@@ -110,7 +158,7 @@ export function HomePage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map(([label, value]) => (
               <div key={label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
-                <p className="text-3xl font-black text-pine">{value}</p>
+                <p className="text-3xl font-black text-[#f97316]">{value}</p>
                 <p className="mt-1 text-sm font-semibold text-slate-600 dark:text-slate-300">{label}</p>
               </div>
             ))}
@@ -123,7 +171,7 @@ export function HomePage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {whyChoose.map(([title, text, Icon]) => (
                 <div key={title} className="rounded-lg border border-slate-200 p-5 dark:border-white/10">
-                  <Icon className="text-coral" size={26} />
+                  <Icon className="text-[#f97316]" size={26} />
                   <h3 className="mt-4 text-lg font-black">{title}</h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{text}</p>
                 </div>
@@ -151,7 +199,7 @@ export function HomePage() {
                     <img src={item.image} alt={item.name} className="h-12 w-12 rounded-md object-cover" loading="lazy" />
                     <div>
                       <h3 className="font-black">{item.name}</h3>
-                      <p className="text-sm text-pine">{item.course}</p>
+                      <p className="text-sm text-[#ea580c]">{item.course}</p>
                     </div>
                   </div>
                   <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">{item.feedback}</p>
@@ -179,10 +227,10 @@ export function AboutPage() {
     <>
       <main>
         <section className={sectionClass}>
-          <SectionHeader eyebrow="About CodeVista" title="A modern coding institute with a management backbone." text="We combine classroom training, project mentorship, admissions workflows, fee tracking, and role-based dashboards so learning and operations stay connected." />
+          <SectionHeader eyebrow="About Coding Wallah" title="A modern coding institute with a management backbone." text="We combine classroom training, project mentorship, admissions workflows, fee tracking, and role-based dashboards so learning and operations stay connected." />
           <div className="grid gap-5 lg:grid-cols-3">
             {[
-              ["Institute Story", "CodeVista was created for students who want structured technical learning without losing the practical rhythm of real software teams."],
+              ["Institute Story", "Coding Wallah was created for students who want structured technical learning without losing the practical rhythm of real software teams."],
               ["Mission", "To help learners build job-ready coding skills through live teaching, disciplined practice, and transparent progress tracking."],
               ["Vision", "To become a trusted training partner for students, companies, and institutions seeking dependable digital talent."]
             ].map(([title, text]) => (
@@ -200,7 +248,7 @@ export function AboutPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {values.map(([title, text, Icon]) => (
                 <div key={title} className="rounded-lg border border-slate-200 p-5 dark:border-white/10">
-                  <Icon className="text-pine" size={26} />
+                  <Icon className="text-[#f97316]" size={26} />
                   <h3 className="mt-4 font-black">{title}</h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{text}</p>
                 </div>
@@ -217,7 +265,7 @@ export function AboutPage() {
                 <img src={trainer.image} alt={trainer.name} className="h-64 w-full object-cover" loading="lazy" />
                 <div className="p-5">
                   <h3 className="text-lg font-black">{trainer.name}</h3>
-                  <p className="mt-1 text-sm text-pine">{trainer.expertise}</p>
+                  <p className="mt-1 text-sm text-[#ea580c]">{trainer.expertise}</p>
                   <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{trainer.experience} experience</p>
                 </div>
               </article>
@@ -226,7 +274,7 @@ export function AboutPage() {
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {trustMilestones.map(([value, label, Icon]) => (
               <div key={label} className="rounded-lg border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
-                <Icon className="text-coral" size={24} />
+                <Icon className="text-[#f97316]" size={24} />
                 <p className="mt-4 text-3xl font-black">{value}</p>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{label}</p>
               </div>
@@ -242,6 +290,7 @@ export function AboutPage() {
 export function CoursesPage() {
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState("All");
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const filtered = useMemo(
     () => courses.filter((course) => (level === "All" || course.level === level) && course.name.toLowerCase().includes(query.toLowerCase())),
     [query, level]
@@ -258,7 +307,7 @@ export function CoursesPage() {
           </label>
           <div className="flex flex-wrap gap-2">
             {["All", "Beginner", "Intermediate", "Advanced"].map((item) => (
-              <button key={item} onClick={() => setLevel(item)} className={`h-12 rounded-md px-4 text-sm font-bold ${level === item ? "bg-pine text-white" : "border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5"}`}>
+              <button key={item} onClick={() => setLevel(item)} className={`h-12 rounded-md px-4 text-sm font-bold ${level === item ? "bg-[#f97316] text-white" : "border border-slate-200 bg-white hover:border-[#f97316] hover:text-[#c2410c] dark:border-white/10 dark:bg-white/5"}`}>
                 {item}
               </button>
             ))}
@@ -266,22 +315,10 @@ export function CoursesPage() {
         </div>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((course) => (
-            <CourseCard key={course.name} course={course} />
+            <CourseCard key={course.name} course={course} onLearnMore={setSelectedCourse} />
           ))}
         </div>
-        <div className="mt-12 grid gap-5 lg:grid-cols-2">
-          {filtered.map((course) => (
-            <article key={`${course.name}-details`} className="rounded-lg border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
-              <h2 className="text-xl font-black">{course.name} Details</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{course.overview}</p>
-              <div className="mt-4 space-y-2 text-sm">
-                <p><strong>Syllabus:</strong> {course.syllabus}</p>
-                <p><strong>Duration:</strong> {course.duration}</p>
-                <p><strong>Career opportunities:</strong> {course.careers}</p>
-              </div>
-            </article>
-          ))}
-        </div>
+        <CourseDetailsModal course={selectedCourse} onClose={() => setSelectedCourse(null)} />
       </main>
       <Footer />
     </>
@@ -296,10 +333,10 @@ export function ServicesPage() {
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {services.map(([title, text, Icon]) => (
             <article key={title} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10 dark:bg-white/5">
-              <Icon className="text-coral" size={28} />
+              <Icon className="text-[#f97316]" size={28} />
               <h2 className="mt-5 text-xl font-black">{title}</h2>
               <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{text}</p>
-              <button onClick={() => navigateTo("/contact")} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-pine">
+              <button onClick={() => navigateTo("/contact")} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#ea580c] hover:text-[#111315]">
                 Learn More
                 <ChevronRight size={16} />
               </button>
@@ -313,7 +350,8 @@ export function ServicesPage() {
 }
 
 export function ContactPage() {
-  const [form, setForm] = useState({ fullName: "", mobile: "", email: "", course: "MERN Stack", message: "" });
+  const defaultCourse = courses[0]?.name || "";
+  const [form, setForm] = useState({ fullName: "", mobile: "", email: "", course: defaultCourse, message: "" });
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
 
@@ -327,7 +365,7 @@ export function ContactPage() {
         body: JSON.stringify(form)
       });
       setStatus("Thanks. Our admissions team will contact you shortly.");
-      setForm({ fullName: "", mobile: "", email: "", course: "MERN Stack", message: "" });
+      setForm({ fullName: "", mobile: "", email: "", course: defaultCourse, message: "" });
     } catch (err) {
       setError(err.message);
     }
@@ -362,12 +400,12 @@ export function ContactPage() {
               </label>
               <label className="text-sm font-bold md:col-span-2">
                 Message
-                <textarea required rows="5" className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-3 text-sm text-ink outline-none focus:border-pine focus:ring-2 focus:ring-pine/15 dark:border-white/10 dark:bg-white/5 dark:text-white" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} />
+                <textarea required rows="5" className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} />
               </label>
             </div>
             {status && <p className="mt-4 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700"><CheckCircle2 size={18} />{status}</p>}
             {error && <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
-            <button className="mt-5 inline-flex h-12 items-center gap-2 rounded-md bg-pine px-5 text-sm font-bold text-white hover:bg-ink">
+            <button className="mt-5 inline-flex h-12 items-center gap-2 rounded-md bg-[#f97316] px-5 text-sm font-bold text-white hover:bg-[#111315]">
               <Send size={17} />
               Submit Enquiry
             </button>
@@ -375,12 +413,12 @@ export function ContactPage() {
 
           <aside className="space-y-5">
             {[
-              [Phone, "Phone Number", "+91 98765 43210"],
-              [Mail, "Email", "admissions@codevista.in"],
-              [MapPin, "Address", "2nd Floor, Tech Park Road, New Delhi"]
+              [Phone, "Phone Number", "+91 9098875825"],
+              [Mail, "Email", "info@codingwallah.com"],
+              [MapPin, "Address", "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010"]
             ].map(([Icon, title, text]) => (
               <div key={title} className="rounded-lg border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
-                <Icon className="text-coral" size={24} />
+                <Icon className="text-[#f97316]" size={24} />
                 <h2 className="mt-4 font-black">{title}</h2>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{text}</p>
               </div>

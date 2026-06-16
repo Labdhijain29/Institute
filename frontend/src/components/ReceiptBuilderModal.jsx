@@ -2,14 +2,15 @@ import React, { useMemo, useRef, useState } from "react";
 import { Download, Printer, Save, X } from "lucide-react";
 import { amountInWords } from "../utils/amountInWords.js";
 import { downloadReceiptPdf } from "../utils/pdf.js";
+import logoMark from "../assets/coding-wallah-mark-charcoal.png";
 
 const defaultReceipt = {
-  instituteName: "DeepNexusAnalytics",
-  tagline: "INNOVATE * BUILD * ELEVATE",
-  address: "91, Ratnalok Colony, Indore, M.P",
-  phone: "7999229424",
-  email: "info@deepnexus.com",
-  website: "DeepNexusAnalytics.com",
+  instituteName: "Coding Wallah",
+  tagline: "LEARN * BUILD * GET HIRED",
+  address: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010",
+  phone: "+91 9098875825",
+  email: "info@codingwallah.com",
+  website: "www.codingwallah.com",
   receiptNumber: "AIV/24-25/01235",
   receiptDate: "2024-05-25",
   studentName: "Arjun Verma",
@@ -138,12 +139,12 @@ export function ReceiptBuilderModal({ open, onClose }) {
               <button onClick={() => downloadReceiptPdf(printRef.current, receipt.receiptNumber)} className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50">
                 <Download size={16} /> PDF
               </button>
-              <button onClick={saveDraft} className="inline-flex items-center justify-center gap-2 rounded-md bg-pine px-3 py-2 text-sm font-semibold text-white">
+              <button onClick={saveDraft} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-3 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
                 <Save size={16} /> Save
               </button>
-              <button onClick={loadDraft} className="rounded-md bg-ink px-3 py-2 text-sm font-semibold text-white">Load Draft</button>
+              <button onClick={loadDraft} className="rounded-md bg-[#111315] px-3 py-2 text-sm font-semibold text-white hover:bg-[#f97316]">Load Draft</button>
             </div>
-            {saved && <p className="mt-2 text-xs font-semibold text-pine">Draft saved in this browser.</p>}
+            {saved && <p className="mt-2 text-xs font-semibold text-[#ea580c]">Draft saved in this browser.</p>}
             <p className="mt-3 rounded-md bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
               Edit student name, course, dates, payment mode and fees from the fields below. The receipt preview updates live.
             </p>
@@ -158,7 +159,7 @@ export function ReceiptBuilderModal({ open, onClose }) {
                     <label key={key} className="block text-sm">
                       <span className="font-semibold text-slate-600">{label}</span>
                       <input
-                        className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-pine"
+                        className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-[#f97316]"
                         type={type}
                         value={receipt[key] ?? ""}
                         onChange={(event) => updateField(key, event.target.value, type)}
@@ -188,17 +189,19 @@ function ReceiptTemplate({ receipt, totalAmount }) {
   return (
     <article id="fee-receipt-print-area" className="receipt-paper receipt-paper-compact mx-auto bg-white p-3 text-[#121826] shadow-sm">
       <div className="border border-slate-300 p-2">
-        <header className="flex items-start justify-between gap-3 border-b-[3px] border-[#2510a3] pb-2.5">
+        <header className="flex items-start justify-between gap-3 border-b-[3px] border-[#f97316] pb-2.5">
           <div className="flex items-center gap-3">
-            <div className="grid h-14 w-14 place-items-center rounded-full border-[3px] border-[#2510a3] text-2xl font-black italic text-[#04a9df]">A</div>
+            <div className="grid h-14 w-20 place-items-center overflow-hidden rounded-md bg-white">
+              <img src={logoMark} alt="Coding Wallah" className="h-full w-full object-contain" />
+            </div>
             <div>
-              <h1 className="text-2xl font-black tracking-[0.12em] text-[#141a2f]">{receipt.instituteName}</h1>
-              <p className="text-center text-sm font-black tracking-[0.34em] text-[#2510a3]">TECH</p>
+              <h1 className="text-2xl font-black tracking-[0.12em] text-[#111315]">{receipt.instituteName}</h1>
+              <p className="text-center text-sm font-black tracking-[0.34em] text-[#f97316]">TECH</p>
               <p className="text-center text-[9px] font-bold tracking-[0.22em] text-slate-600">{receipt.tagline}</p>
             </div>
           </div>
           <div className="min-w-[180px] text-right">
-            <p className="rounded-md bg-[#2510a3] px-4 py-1.5 text-center text-lg font-black uppercase text-white">Fee Receipt</p>
+            <p className="rounded-md bg-[#111315] px-4 py-1.5 text-center text-lg font-black uppercase text-white">Fee Receipt</p>
             <p className="mt-2 text-xs">
               Receipt No. <span className="font-black text-red-600">{receipt.receiptNumber}</span>
             </p>
@@ -228,7 +231,7 @@ function ReceiptTemplate({ receipt, totalAmount }) {
 
         <table className="mt-2.5 w-full border-collapse text-xs">
           <thead>
-            <tr className="bg-[#080e3f] text-white">
+            <tr className="bg-[#111315] text-white">
               <th className="border border-slate-400 px-3 py-2 text-left uppercase">Particulars</th>
               <th className="border border-slate-400 px-3 py-2 text-right uppercase">Amount (Rs.)</th>
             </tr>
@@ -249,10 +252,10 @@ function ReceiptTemplate({ receipt, totalAmount }) {
 
         <section className="mt-2.5 grid gap-3 md:grid-cols-[1fr_120px_170px]">
           <div>
-            <p className="text-xs font-black text-[#2510a3]">Amount in Words</p>
+            <p className="text-xs font-black text-[#f97316]">Amount in Words</p>
             <p className="mt-0.5 text-xs font-semibold">{amountInWords(totalAmount)}</p>
 
-            <p className="mt-3 text-xs font-black text-[#2510a3]">Payment Details:</p>
+            <p className="mt-3 text-xs font-black text-[#f97316]">Payment Details:</p>
             <dl className="mt-1 space-y-0.5 text-xs">
               <Detail label="Mode of Payment" value={receipt.paymentMode} />
               <Detail label="Transaction ID" value={receipt.transactionId} />
@@ -260,18 +263,18 @@ function ReceiptTemplate({ receipt, totalAmount }) {
             </dl>
           </div>
           <div className="grid place-items-center">
-            <div className="grid h-24 w-24 place-items-center rounded-full border-[3px] border-[#2510a3] text-center text-[9px] font-black uppercase text-[#2510a3]">
+            <div className="grid h-24 w-24 place-items-center rounded-full border-[3px] border-[#f97316] text-center text-[9px] font-black uppercase text-[#f97316]">
               Authorized<br />Signature
             </div>
           </div>
           <div className="flex flex-col items-center justify-end">
-            <p className="font-serif text-xl italic text-[#2510a3]">{receipt.authorizedName}</p>
+            <p className="font-serif text-xl italic text-[#f97316]">{receipt.authorizedName}</p>
             <div className="mt-3 w-full border-t border-slate-500 pt-1.5 text-center text-xs font-semibold">Authorized Signatory</div>
           </div>
         </section>
 
         <section className="mt-3 text-[11px]">
-          <p className="font-black text-[#2510a3]">Notes:</p>
+          <p className="font-black text-[#f97316]">Notes:</p>
           <ul className="mt-1 list-disc space-y-1 pl-4">
             <li>{receipt.noteOne}</li>
             <li>{receipt.noteTwo}</li>
@@ -279,7 +282,7 @@ function ReceiptTemplate({ receipt, totalAmount }) {
           </ul>
         </section>
 
-        <footer className="mt-3 grid gap-2 rounded-md bg-[#080e3f] px-3 py-2 text-[11px] font-semibold text-white md:grid-cols-4">
+        <footer className="mt-3 grid gap-2 rounded-md bg-[#111315] px-3 py-2 text-[11px] font-semibold text-white md:grid-cols-4">
           <p>{receipt.address}</p>
           <p>{receipt.phone}</p>
           <p>{receipt.website}</p>

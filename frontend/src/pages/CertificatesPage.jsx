@@ -93,13 +93,13 @@ export function CertificatesPage() {
             <h2 className="text-xl font-black">Certificate Dashboard</h2>
             <p className="text-sm text-slate-500">Generate, edit, print and download premium completion certificates.</p>
           </div>
-          <button onClick={() => setGenerateOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-pine px-4 py-2 text-sm font-semibold text-white hover:bg-ink">
+          <button onClick={() => setGenerateOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
             <Plus size={17} /> Generate Certificate
           </button>
         </div>
         <form onSubmit={searchCertificates} className="mt-4 flex flex-col gap-2 md:flex-row">
           <input
-            className="min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine"
+            className="min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]"
             placeholder="Search by Student Name, Student ID, Certificate Number"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -109,7 +109,7 @@ export function CertificatesPage() {
       </section>
 
       {(message || error || localError) && (
-        <p className={`no-print rounded-md border px-4 py-3 text-sm font-semibold ${localError || error ? "border-coral/30 bg-coral/10 text-coral" : "border-pine/20 bg-pine/10 text-pine"}`}>
+        <p className={`no-print rounded-md border px-4 py-3 text-sm font-semibold ${localError || error ? "border-red-200 bg-red-50 text-red-700" : "border-[#f97316]/20 bg-[#fff3e8] text-[#c2410c]"}`}>
           {localError || error || message}
         </p>
       )}
@@ -138,7 +138,7 @@ export function CertificatesPage() {
                 <td className="px-4 py-3">{date(certificate.issueDate)}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={() => setSelected(certificate)} className="rounded-md border border-slate-200 p-2 text-pine hover:bg-pine/10" title="View">
+                    <button onClick={() => setSelected(certificate)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="View">
                       <Eye size={16} />
                     </button>
                     <button onClick={() => setSelected(certificate)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Edit">
@@ -150,7 +150,7 @@ export function CertificatesPage() {
                     <button onClick={() => quickPdf(certificate)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Download PDF">
                       <Download size={16} />
                     </button>
-                    <button onClick={() => removeCertificate(certificate)} className="rounded-md border border-slate-200 p-2 text-coral hover:bg-coral/10" title="Delete">
+                    <button onClick={() => removeCertificate(certificate)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="Delete">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -208,7 +208,7 @@ function GenerateCertificateModal({ open, form, setForm, saving, onSubmit, onClo
               <input
                 required
                 type={type}
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine"
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]"
                 value={form[key]}
                 onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
               />
@@ -216,7 +216,7 @@ function GenerateCertificateModal({ open, form, setForm, saving, onSubmit, onClo
           ))}
           <div className="flex flex-col-reverse gap-2 md:col-span-2 sm:flex-row sm:justify-end">
             <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button>
-            <button disabled={saving} className="rounded-md bg-pine px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
+            <button disabled={saving} className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315] disabled:opacity-60">
               {saving ? "Generating..." : "Generate Certificate"}
             </button>
           </div>

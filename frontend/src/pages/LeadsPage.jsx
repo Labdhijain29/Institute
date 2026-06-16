@@ -206,12 +206,12 @@ export function LeadsPage({ module }) {
 
     if (canWorkTelecaller && !row.counsellorAssigned && !row.convertedStudent) {
       actions.push(
-        <button key="followup" onClick={() => openFollowUp(row)} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-2 text-xs font-semibold text-pine hover:bg-pine/10" title="Follow Up">
+        <button key="followup" onClick={() => openFollowUp(row)} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-2 text-xs font-semibold text-[#ea580c] hover:bg-[#fff3e8]" title="Follow Up">
           <PhoneCall size={15} /> Follow Up
         </button>
       );
       actions.push(
-        <button key="counsellor" onClick={() => forward(row)} className="rounded-md border border-slate-200 p-2 text-pine hover:bg-pine/10" title="Forward to counsellor">
+        <button key="counsellor" onClick={() => forward(row)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="Forward to counsellor">
           <Send size={16} />
         </button>
       );
@@ -219,14 +219,14 @@ export function LeadsPage({ module }) {
 
     if (canWorkCounsellor && isCounsellorLead(row) && !isFacultyLead(row) && !row.convertedStudent) {
       actions.push(
-        <button key="followup" onClick={() => openFollowUp(row)} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-2 text-xs font-semibold text-pine hover:bg-pine/10" title="Follow Up">
+        <button key="followup" onClick={() => openFollowUp(row)} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-2 text-xs font-semibold text-[#ea580c] hover:bg-[#fff3e8]" title="Follow Up">
           <PhoneCall size={15} /> Follow Up
         </button>
       );
       actions.push(
         <div key="faculty" className="flex min-w-[220px] items-center gap-2">
           <select
-            className="h-9 min-w-[150px] rounded-md border border-slate-300 px-2 text-sm outline-none focus:border-pine"
+            className="h-9 min-w-[150px] rounded-md border border-slate-300 px-2 text-sm outline-none focus:border-[#f97316]"
             value={facultySelections[row._id] || facultyUsers[0]?._id || ""}
             onChange={(event) => setFacultySelections({ ...facultySelections, [row._id]: event.target.value })}
           >
@@ -235,7 +235,7 @@ export function LeadsPage({ module }) {
               <option key={faculty._id} value={faculty._id}>{faculty.name}</option>
             ))}
           </select>
-          <button onClick={() => forwardFaculty(row)} disabled={!facultyUsers.length} className="rounded-md border border-slate-200 p-2 text-pine hover:bg-pine/10 disabled:cursor-not-allowed disabled:opacity-50" title="Forward to faculty">
+          <button onClick={() => forwardFaculty(row)} disabled={!facultyUsers.length} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8] disabled:cursor-not-allowed disabled:opacity-50" title="Forward to faculty">
             <Send size={16} />
           </button>
         </div>
@@ -244,7 +244,7 @@ export function LeadsPage({ module }) {
 
     if (canWorkFaculty && isFacultyLead(row) && admissionStatus(row) !== "Done") {
       actions.push(
-        <button key="approve" onClick={() => approveAdmission(row)} className="rounded-md border border-slate-200 p-2 text-coral hover:bg-coral/10" title="Approve admission">
+        <button key="approve" onClick={() => approveAdmission(row)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="Approve admission">
           <UserCheck size={16} />
         </button>
       );
@@ -299,13 +299,13 @@ export function LeadsPage({ module }) {
               <p className="mt-1 text-sm text-slate-500">{pageDescription}</p>
             </div>
             {canCreateLead && (
-              <button onClick={() => setCreateOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-pine px-4 py-2 text-sm font-semibold text-white hover:bg-ink">
+              <button onClick={() => setCreateOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
                 <Plus size={17} /> Create Lead
               </button>
             )}
           </div>
         </div>
-        {message && <p className="rounded-md border border-pine/20 bg-pine/10 px-4 py-3 text-sm font-semibold text-pine">{message}</p>}
+        {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
         <DataTable columns={columns} rows={visibleLeads} />
       </section>
       <CreateLeadModal open={createOpen} form={form} setForm={setForm} onSubmit={createLead} onClose={() => setCreateOpen(false)} isTelecallerFlow={isTelecallerFlow} />
@@ -321,17 +321,17 @@ function CreateLeadModal({ open, form, setForm, onSubmit, onClose, isTelecallerF
     <ModalShell title={isTelecallerFlow ? "Generate Lead" : "New Lead"} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-3">
         {["name", "mobile", "email", "source"].map((field) => (
-          <input key={field} className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine" placeholder={field} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
+          <input key={field} className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" placeholder={field} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
         ))}
-        <select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
+        <select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
           <option>Hot</option>
           <option>Warm</option>
           <option>Cold</option>
         </select>
-        <textarea className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine" placeholder="remarks" value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} />
+        <textarea className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" placeholder="remarks" value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} />
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button>
-          <button className="rounded-md bg-pine px-4 py-2 text-sm font-semibold text-white">Create Lead</button>
+          <button className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">Create Lead</button>
         </div>
       </form>
     </ModalShell>
@@ -344,22 +344,22 @@ function FollowUpModal({ open, lead, form, setForm, followUps, onSubmit, onClose
     <ModalShell title={`Follow Up${lead?.name ? ` - ${lead.name}` : ""}`} onClose={onClose} wide>
       <form onSubmit={onSubmit} className="grid gap-3 md:grid-cols-2">
         <Field label="Follow-up Date">
-          <input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine" value={form.followUpDate} onChange={(e) => setForm({ ...form, followUpDate: e.target.value })} required />
+          <input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.followUpDate} onChange={(e) => setForm({ ...form, followUpDate: e.target.value })} required />
         </Field>
         <Field label="Next Follow-up Date">
-          <input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine" value={form.nextFollowUpDate} onChange={(e) => setForm({ ...form, nextFollowUpDate: e.target.value })} />
+          <input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.nextFollowUpDate} onChange={(e) => setForm({ ...form, nextFollowUpDate: e.target.value })} />
         </Field>
         <Field label="Status">
-          <select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+          <select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
             {followUpStatuses.map((status) => <option key={status}>{status}</option>)}
           </select>
         </Field>
         <Field label="Remarks" className="md:col-span-2">
-          <textarea className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-pine" value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} />
+          <textarea className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} />
         </Field>
         <div className="flex flex-col-reverse gap-2 md:col-span-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button>
-          <button className="rounded-md bg-pine px-4 py-2 text-sm font-semibold text-white">Save Follow Up</button>
+          <button className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">Save Follow Up</button>
         </div>
       </form>
       <FollowUpHistory followUps={followUps} />

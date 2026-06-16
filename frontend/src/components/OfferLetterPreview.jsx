@@ -1,12 +1,12 @@
 import React from "react";
+import logoMark from "../assets/coding-wallah-mark-charcoal.png";
 
 const institute = {
-  name: "DeepNexusAnalytics",
-  logo: "DN",
-  address: "91, Ratnalok Colony, Indore, M.P",
-  phone: "7999229424",
-  email: "info@deepnexus.com",
-  website: "DeepNexusAnalytics.com",
+  name: "Coding Wallah",
+  address: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010",
+  phone: "+91 9098875825",
+  email: "info@codingwallah.com",
+  website: "www.codingwallah.com",
   signature: "Lakhan Rathod"
 };
 
@@ -15,13 +15,15 @@ const money = (value) => `Rs. ${Number(value || 0).toLocaleString("en-IN")}`;
 
 export function OfferLetterPreview({ offer }) {
   return (
-    <article id="offer-letter-print-area" className="offer-letter-paper mx-auto bg-white p-8 text-[#172026] shadow-sm">
+    <article id="offer-letter-print-area" className="offer-letter-paper mx-auto bg-white p-8 text-[#111315] shadow-sm">
       <div className="flex min-h-full flex-col border border-slate-200 p-7">
-        <header className="flex items-start justify-between gap-5 border-b-4 border-pine pb-5">
+        <header className="flex items-start justify-between gap-5 border-b-4 border-[#f97316] pb-5">
           <div className="flex items-center gap-4">
-            <div className="grid h-16 w-16 place-items-center rounded-md bg-pine text-2xl font-black text-white">{institute.logo}</div>
+            <div className="grid h-16 w-24 place-items-center overflow-hidden rounded-md bg-white">
+              <img src={logoMark} alt="Coding Wallah" className="h-full w-full object-contain" />
+            </div>
             <div>
-              <h1 className="text-3xl font-black uppercase tracking-wide text-ink">{institute.name}</h1>
+              <h1 className="text-3xl font-black uppercase tracking-wide text-[#111315]">{institute.name}</h1>
               <p className="mt-1 text-sm font-semibold text-slate-600">{institute.address}</p>
               <p className="text-sm text-slate-500">
                 {institute.phone} | {institute.email} | {institute.website}
@@ -30,17 +32,17 @@ export function OfferLetterPreview({ offer }) {
           </div>
           <div className="rounded-md border border-slate-200 px-4 py-3 text-right text-sm">
             <p className="font-bold text-slate-500">Offer Date</p>
-            <p className="mt-1 font-black text-ink">{date(offer.offerDate)}</p>
+            <p className="mt-1 font-black text-[#111315]">{date(offer.offerDate)}</p>
           </div>
         </header>
 
         <main className="flex-1 py-8">
-          <p className="text-center text-sm font-black uppercase tracking-[0.35em] text-pine">Offer Letter</p>
-          <section className="mt-8 rounded-md border border-slate-200 bg-slate-50 p-6 text-center">
+          <p className="text-center text-sm font-black uppercase tracking-[0.35em] text-[#f97316]">Offer Letter</p>
+          <section className="mt-8 rounded-md border border-orange-100 bg-[#fff8f1] p-6 text-center">
             <p className="text-lg text-slate-600">This is to formally offer admission to</p>
-            <h2 className="mt-3 font-serif text-4xl font-black text-ink">{offer.studentName || "Student Name"}</h2>
+            <h2 className="mt-3 font-serif text-4xl font-black text-[#111315]">{offer.studentName || "Student Name"}</h2>
             <p className="mt-6 text-lg text-slate-600">for the course</p>
-            <h3 className="mt-2 text-2xl font-black uppercase tracking-wide text-pine">{offer.courseName || "Course Name"}</h3>
+            <h3 className="mt-2 text-2xl font-black uppercase tracking-wide text-[#f97316]">{offer.courseName || "Course Name"}</h3>
           </section>
 
           <section className="mt-7 grid gap-3 rounded-md border border-slate-200 p-5 text-sm md:grid-cols-2">
@@ -65,7 +67,7 @@ export function OfferLetterPreview({ offer }) {
         <footer className="grid gap-5 pt-8 text-center text-sm font-semibold md:grid-cols-3">
           <Signature name={institute.signature} label="Authorized Signature" />
           <div className="grid place-items-center">
-            <div className="grid h-24 w-24 place-items-center rounded-full border-4 border-pine text-center text-[10px] font-black uppercase text-pine">
+            <div className="grid h-24 w-24 place-items-center rounded-full border-4 border-[#f97316] text-center text-[10px] font-black uppercase text-[#f97316]">
               Institute<br />Stamp
             </div>
           </div>
@@ -82,7 +84,7 @@ function Info({ label, value }) {
   return (
     <div className="rounded-md bg-white px-4 py-3">
       <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-1 font-black text-ink">{value || "-"}</p>
+      <p className="mt-1 font-black text-[#111315]">{value || "-"}</p>
     </div>
   );
 }
@@ -90,7 +92,7 @@ function Info({ label, value }) {
 function Signature({ name, label }) {
   return (
     <div>
-      <p className="font-serif text-2xl italic text-pine">{name}</p>
+      <p className="font-serif text-2xl italic text-[#f97316]">{name}</p>
       <div className="mt-6 border-t border-slate-400 pt-2">{label}</div>
     </div>
   );

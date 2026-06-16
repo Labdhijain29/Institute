@@ -32,11 +32,11 @@ export function ReceiptsPage({ embedded = false }) {
             <h2 className="text-xl font-bold">Fee Receipts</h2>
             <p className="text-sm text-slate-500">View, edit, print and export institute fee receipts.</p>
           </div>
-          <div className="rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white">A4 ready</div>
+          <div className="rounded-md bg-[#111315] px-4 py-2 text-sm font-semibold text-white">A4 ready</div>
         </section>
       )}
 
-      {error && <p className="rounded-md border border-coral/30 bg-coral/10 px-4 py-3 text-sm text-coral">{error}</p>}
+      {error && <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 
       <div className="table-wrap rounded-lg border border-slate-200 bg-white">
         <table className="w-full min-w-[900px] text-left text-sm">
@@ -62,7 +62,7 @@ export function ReceiptsPage({ embedded = false }) {
                   <td className="px-4 py-3">{date(receipt.paymentDate)}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      <button onClick={() => openReceipt(receipt._id)} className="inline-flex items-center gap-1 rounded-md bg-pine px-3 py-2 text-xs font-semibold text-white">
+                      <button onClick={() => openReceipt(receipt._id)} className="inline-flex items-center gap-1 rounded-md bg-[#f97316] px-3 py-2 text-xs font-semibold text-white hover:bg-[#111315]">
                         <Eye size={14} /> View Receipt
                       </button>
                       <button onClick={() => openReceipt(receipt._id, "print")} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold">

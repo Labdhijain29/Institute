@@ -2,10 +2,10 @@ import React from "react";
 
 export function StatCard({ label, value, tone = "pine" }) {
   const tones = {
-    pine: "border-pine/20 bg-pine/10 text-pine",
-    coral: "border-coral/20 bg-coral/10 text-coral",
-    amber: "border-amberline/30 bg-amberline/15 text-amber-700",
-    ink: "border-ink/15 bg-ink/10 text-ink"
+    pine: "border-[#f97316]/25 bg-[#fff3e8] text-[#c2410c]",
+    coral: "border-[#111315]/15 bg-[#111315]/5 text-[#111315]",
+    amber: "border-[#f59e0b]/25 bg-[#fffbeb] text-[#b45309]",
+    ink: "border-slate-300 bg-slate-100 text-slate-700"
   };
 
   return (

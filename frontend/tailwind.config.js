@@ -7,13 +7,13 @@ export default {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
       },
       colors: {
-        ink: "#172026",
-        pine: "#0f766e",
-        coral: "#e85d4f",
-        amberline: "#f5b942"
+        ink: "#111315",
+        pine: "#f97316",
+        coral: "#ff8a00",
+        amberline: "#ffd166"
       },
       boxShadow: {
-        soft: "0 16px 40px rgba(23, 32, 38, 0.10)"
+        soft: "0 18px 44px rgba(17, 19, 21, 0.13)"
       }
     }
   },

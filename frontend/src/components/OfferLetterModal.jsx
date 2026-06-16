@@ -78,10 +78,10 @@ export function OfferLetterModal({ open, offer, onClose }) {
               <button onClick={() => downloadOfferPdf(printRef.current, preview.studentId)} className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50">
                 <Download size={16} /> PDF
               </button>
-              <button onClick={() => setEditing((value) => !value)} className="inline-flex items-center justify-center gap-2 rounded-md bg-pine px-3 py-2 text-sm font-semibold text-white">
+              <button onClick={() => setEditing((value) => !value)} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-3 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
                 <Edit3 size={16} /> Edit
               </button>
-              <button onClick={save} disabled={!editing || saving} className="inline-flex items-center justify-center gap-2 rounded-md bg-ink px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">
+              <button onClick={save} disabled={!editing || saving} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#111315] px-3 py-2 text-sm font-semibold text-white hover:bg-[#f97316] disabled:opacity-50">
                 <Save size={16} /> Save
               </button>
             </div>
@@ -95,7 +95,7 @@ export function OfferLetterModal({ open, offer, onClose }) {
                 {type === "textarea" ? (
                   <textarea
                     disabled={!editing}
-                    className="mt-1 min-h-20 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-pine disabled:bg-slate-50"
+                    className="mt-1 min-h-20 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-[#f97316] disabled:bg-slate-50"
                     value={form[key] || ""}
                     onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
                   />
@@ -103,7 +103,7 @@ export function OfferLetterModal({ open, offer, onClose }) {
                   <input
                     disabled={!editing}
                     type={type}
-                    className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-pine disabled:bg-slate-50"
+                    className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-[#f97316] disabled:bg-slate-50"
                     value={form[key] ?? ""}
                     onChange={(event) =>
                       setForm((current) => ({ ...current, [key]: type === "number" ? Number(event.target.value) : event.target.value }))

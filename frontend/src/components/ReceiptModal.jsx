@@ -80,7 +80,7 @@ export function ReceiptModal({ open, onClose, downloadOnReady = false, onDownloa
             <button onClick={() => downloadReceiptPdf(printRef.current, selected?.receiptNumber)} className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold hover:bg-slate-50">
               <Download size={16} /> Download PDF
             </button>
-            <button onClick={() => setEditing((value) => !value)} className="inline-flex items-center gap-2 rounded-md bg-pine px-3 py-2 text-sm font-semibold text-white">
+            <button onClick={() => setEditing((value) => !value)} className="inline-flex items-center gap-2 rounded-md bg-[#f97316] px-3 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
               <Edit3 size={16} /> Edit
             </button>
             <button onClick={close} className="rounded-md border border-slate-200 p-2 hover:bg-slate-50" aria-label="Close receipt">
@@ -89,7 +89,7 @@ export function ReceiptModal({ open, onClose, downloadOnReady = false, onDownloa
           </div>
         </div>
 
-        {error && <p className="no-print mx-4 mt-4 rounded-md border border-coral/30 bg-coral/10 px-4 py-3 text-sm text-coral">{error}</p>}
+        {error && <p className="no-print mx-4 mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 
         <div className="grid min-h-0 flex-1 overflow-y-auto lg:grid-cols-[1fr_340px] print:block print:overflow-visible">
           <div className="bg-slate-100 p-4 print:bg-white print:p-0">
@@ -134,7 +134,7 @@ export function ReceiptModal({ open, onClose, downloadOnReady = false, onDownloa
                 </label>
               ))}
             </div>
-            <button onClick={save} disabled={saving || !selected} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
+            <button onClick={save} disabled={saving || !selected} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#111315] px-4 py-2 text-sm font-semibold text-white hover:bg-[#f97316] disabled:opacity-60">
               <Save size={16} /> {saving ? "Saving..." : "Save Changes"}
             </button>
           </aside>

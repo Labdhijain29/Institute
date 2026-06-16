@@ -40,7 +40,7 @@ export function ModulePage({ module }) {
           <h2 className="text-xl font-bold">{module.label}</h2>
           <p className="text-sm text-slate-500">Search, filters, pagination and CRUD APIs are ready for this module.</p>
         </div>
-        <button className="inline-flex items-center justify-center gap-2 rounded-md bg-pine px-4 py-2 text-sm font-semibold text-white">
+        <button className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
           <Plus size={17} />
           New Record
         </button>

@@ -1,8 +1,4 @@
-const API_URLS = [
-  import.meta.env.VITE_API_URL,
-  "http://127.0.0.1:5001/api",
-  "http://localhost:5001/api"
-].filter(Boolean);
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
 
 export function getToken() {
   return localStorage.getItem("crm_token");
@@ -25,19 +21,10 @@ export async function api(path, options = {}) {
   };
 
   let response;
-  let networkError;
-
-  for (const baseUrl of API_URLS) {
-    try {
-      response = await fetch(`${baseUrl}${path}`, request);
-      break;
-    } catch (error) {
-      networkError = error;
-    }
-  }
-
-  if (!response) {
-    throw new Error(`API not reachable on port 5000. Check backend server. ${networkError?.message || ""}`.trim());
+  try {
+    response = await fetch(`${API_BASE}${path}`, request);
+  } catch (error) {
+    throw new Error(`API not reachable. Check backend server. ${error?.message || ""}`.trim());
   }
 
   const data = await response.json().catch(() => ({}));

@@ -34,7 +34,7 @@ function SecondaryButton({ children, to = "/login" }) {
   );
 }
 
-function CourseCard({ course, onLearnMore }) {
+function CourseCard({ course, onLearnMore, onCounsellor }) {
   return (
     <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10 dark:bg-white/5">
       <img src={course.image} alt={`${course.name} course`} className="h-44 w-full object-cover" loading="lazy" />
@@ -60,10 +60,18 @@ function CourseCard({ course, onLearnMore }) {
             </span>
           ))}
         </div>
-        <button onClick={() => (onLearnMore ? onLearnMore(course) : navigateTo("/contact"))} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#ea580c] transition hover:text-[#111315] dark:text-[#fdba74]">
-          Learn More
-          <ChevronRight size={16} />
-        </button>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <button onClick={() => (onLearnMore ? onLearnMore(course) : navigateTo("/contact"))} className="inline-flex items-center gap-2 text-sm font-bold text-[#ea580c] transition hover:text-[#111315] dark:text-[#fdba74]">
+            Learn More
+            <ChevronRight size={16} />
+          </button>
+          {onCounsellor && (
+            <button onClick={() => onCounsellor(course)} className="inline-flex h-9 items-center gap-2 rounded-md bg-[#f97316] px-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#111315] dark:hover:bg-white/10">
+              Counsellor
+              <Send size={15} />
+            </button>
+          )}
+        </div>
       </div>
     </article>
   );
@@ -111,6 +119,85 @@ function CourseDetailsModal({ course, onClose }) {
             </div>
           </div>
         </div>
+      </article>
+    </div>
+  );
+}
+
+function CounsellorLeadModal({ course, onClose }) {
+  const [form, setForm] = useState({ fullName: "", mobile: "", course: course?.name || "", message: "" });
+  const [status, setStatus] = useState("");
+  const [error, setError] = useState("");
+
+  if (!course) return null;
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setStatus("");
+    setError("");
+    try {
+      await publicApi("/public/enquiries", {
+        method: "POST",
+        body: JSON.stringify({
+          fullName: form.fullName,
+          mobile: form.mobile,
+          course: form.course,
+          message: form.message,
+          sendToCounsellor: true
+        })
+      });
+      setStatus("Submitted. A counsellor will contact to you shortly.");
+      setForm({ fullName: "", mobile: "", course: course.name, message: "" });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-ink/60 px-4 py-6 backdrop-blur-sm">
+      <article className="w-full max-w-lg overflow-hidden rounded-lg border border-slate-200 bg-white shadow-soft dark:border-white/10 dark:bg-[#12181c]">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-white/10">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#f97316]">Counsellor Enquiry</p>
+            <h2 className="mt-2 text-2xl font-black">{course.name}</h2>
+          </div>
+          <button onClick={onClose} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-slate-200 text-slate-500 hover:border-[#f97316] hover:text-[#f97316] dark:border-white/10 dark:text-slate-300">
+            <X size={18} />
+          </button>
+        </div>
+        <form onSubmit={submit} className="space-y-4 p-5">
+          <label className="block text-sm font-bold">
+            Name
+            <input required className={`${inputClass} mt-2`} value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} />
+          </label>
+          <label className="block text-sm font-bold">
+            Contact No.
+            <input required inputMode="numeric" className={`${inputClass} mt-2`} value={form.mobile} onChange={(event) => setForm({ ...form, mobile: event.target.value })} />
+          </label>
+          <label className="block text-sm font-bold">
+            Course Interested In
+            <select className={`${inputClass} mt-2`} value={form.course} onChange={(event) => setForm({ ...form, course: event.target.value })}>
+              {courses.map((item) => (
+                <option key={item.name}>{item.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm font-bold">
+            Message
+            <textarea rows="3" className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} />
+          </label>
+          {status && <p className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{status}</p>}
+          {error && <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-bold">
+              Cancel
+            </button>
+            <button className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-bold text-white hover:bg-[#111315]">
+              <Send size={16} />
+              Submit
+            </button>
+          </div>
+        </form>
       </article>
     </div>
   );
@@ -291,6 +378,7 @@ export function CoursesPage() {
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState("All");
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [counsellorCourse, setCounsellorCourse] = useState(null);
   const filtered = useMemo(
     () => courses.filter((course) => (level === "All" || course.level === level) && course.name.toLowerCase().includes(query.toLowerCase())),
     [query, level]
@@ -315,10 +403,11 @@ export function CoursesPage() {
         </div>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((course) => (
-            <CourseCard key={course.name} course={course} onLearnMore={setSelectedCourse} />
+            <CourseCard key={course.name} course={course} onLearnMore={setSelectedCourse} onCounsellor={setCounsellorCourse} />
           ))}
         </div>
         <CourseDetailsModal course={selectedCourse} onClose={() => setSelectedCourse(null)} />
+        <CounsellorLeadModal course={counsellorCourse} onClose={() => setCounsellorCourse(null)} />
       </main>
       <Footer />
     </>

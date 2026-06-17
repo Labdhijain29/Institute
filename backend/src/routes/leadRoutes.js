@@ -20,7 +20,15 @@ const crud = crudController(Lead, {
   filter(req) {
     if (["Super Admin", "Admin", "Manager"].includes(req.user.role)) return {};
     if (req.user.role === "Telecaller") return { $or: [{ createdBy: req.user._id }, { telecallerAssigned: req.user._id }] };
-    if (req.user.role === "Counsellor") return { $or: [{ counsellorAssigned: req.user._id }, { status: { $in: ["Forwarded", "Forwarded to Counsellor"] } }] };
+    if (req.user.role === "Counsellor") {
+      return {
+        $or: [
+          { counsellorAssigned: req.user._id },
+          { status: { $in: ["Forwarded", "Forwarded to Counsellor"] } },
+          { source: "Website", remarks: /Interested Course|Course Counsellor Request/i }
+        ]
+      };
+    }
     if (req.user.role === "Faculty") return { $or: [{ facultyAssigned: req.user._id }, { status: "Forwarded to Faculty" }] };
     return { createdBy: req.user._id };
   }

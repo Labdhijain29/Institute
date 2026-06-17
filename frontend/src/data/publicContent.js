@@ -163,6 +163,39 @@ export const courses = [
     careers: "SOC Analyst Trainee, Cyber Security Intern, Security Support Executive"
   },
   {
+    name: "Networking",
+    level: "Beginner",
+    duration: "4 Months",
+    fees: "Rs. 32,000",
+    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80",
+    skills: ["TCP/IP", "Routing", "Switching", "Troubleshooting"],
+    overview: "Build strong computer networking fundamentals through practical labs, device configuration, and real troubleshooting scenarios.",
+    syllabus: "Network fundamentals, OSI/TCP-IP models, IP addressing, subnetting, routing, switching, DNS, DHCP, firewalls, basic network security.",
+    careers: "Network Support Engineer, IT Support Executive, NOC Trainee"
+  },
+  {
+    name: "Automation Testing",
+    level: "Intermediate",
+    duration: "4 Months",
+    fees: "Rs. 38,000",
+    image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=900&q=80",
+    skills: ["Selenium", "Java", "TestNG", "CI/CD"],
+    overview: "Learn to automate web application testing with structured frameworks, reusable test scripts, reporting, and CI integration.",
+    syllabus: "Testing basics, Java essentials, Selenium WebDriver, locators, waits, TestNG, page object model, Maven, Git, reporting, CI basics.",
+    careers: "Automation Test Engineer, QA Automation Trainee, SDET Intern"
+  },
+  {
+    name: "Manual Testing",
+    level: "Beginner",
+    duration: "3 Months",
+    fees: "Rs. 28,000",
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80",
+    skills: ["Test Cases", "Bug Reports", "SDLC", "Jira"],
+    overview: "Understand software quality assurance from the ground up with test planning, execution, defect reporting, and project workflows.",
+    syllabus: "SDLC, STLC, testing types, test case design, test scenarios, defect lifecycle, bug reporting, Jira basics, Agile QA workflow.",
+    careers: "Manual Tester, QA Trainee, Software Test Engineer"
+  },
+  {
     name: "iOS Development with Gen AI",
     level: "Intermediate",
     duration: "6 Months",
@@ -251,7 +284,14 @@ export const testimonials = [
   }
 ];
 
-export const partners = ["TCS", "Infosys", "Wipro", "HCLTech", "Accenture", "Zoho"];
+export const partners = [
+  { name: "Accenture", logo: "https://logo.clearbit.com/accenture.com", fallbackLogo: "https://cdn.simpleicons.org/accenture/A100FF" },
+  { name: "Wipro", logo: "https://logo.clearbit.com/wipro.com", fallbackLogo: "https://cdn.simpleicons.org/wipro/341C53" },
+  { name: "Deloitte", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Logo%20of%20Deloitte.svg", fallbackLogo: "https://logo.clearbit.com/deloitte.com" },
+  { name: "Infosys", logo: "https://logo.clearbit.com/infosys.com", fallbackLogo: "https://cdn.simpleicons.org/infosys/007CC3" },
+  { name: "TCS", logoText: "TCS" },
+  { name: "HCLTech", logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/HCLTech-new-logo.svg", fallbackLogo: "https://logo.clearbit.com/hcltech.com" }
+];
 
 export const trainers = [
   {

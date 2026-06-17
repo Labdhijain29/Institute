@@ -27,6 +27,24 @@ textarea {
   overflow-x: auto;
 }
 
+.partner-marquee {
+  animation: partner-marquee 24s linear infinite;
+}
+
+.partner-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes partner-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .receipt-paper {
   width: min(720px, 100%);
   min-height: auto;

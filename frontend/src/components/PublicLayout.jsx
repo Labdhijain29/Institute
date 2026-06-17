@@ -97,7 +97,15 @@ export function Footer() {
     <footer className="border-t border-white/10 bg-ink text-white">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.2fr_0.8fr_1fr_1fr] lg:px-8">
         <div>
-          <p className="text-lg font-black">Coding Wallah</p>
+          <button onClick={() => go("/")} className="flex items-center gap-3 text-left" aria-label="Go home">
+            <span className="grid h-14 w-[88px] place-items-center overflow-hidden">
+              <img src={logoMark} alt="Coding Wallah logo" className="h-full w-full object-contain" />
+            </span>
+            <span>
+              <span className="block text-lg font-black leading-tight">Coding Wallah</span>
+              <span className="block text-xs font-medium text-slate-300">Learn. Build. Get hired.</span>
+            </span>
+          </button>
           <p className="mt-3 max-w-sm text-sm leading-6 text-slate-300">Professional coding programs, lead management, admissions, and student success workflows under one roof.</p>
         </div>
         <div>

@@ -34,7 +34,7 @@ function SecondaryButton({ children, to = "/login" }) {
   );
 }
 
-function CourseCard({ course, onLearnMore, onCounsellor }) {
+function CourseCard({ course, onLearnMore, onCounsellor, showFees = true }) {
   return (
     <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10 dark:bg-white/5">
       <img src={course.image} alt={`${course.name} course`} className="h-44 w-full object-cover" loading="lazy" />
@@ -43,15 +43,17 @@ function CourseCard({ course, onLearnMore, onCounsellor }) {
           <h3 className="text-lg font-black">{course.name}</h3>
           <span className="rounded-md bg-[#fff3e8] px-2.5 py-1 text-xs font-bold text-[#c2410c] dark:bg-[#f97316]/15 dark:text-[#fdba74]">{course.level}</span>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+        <div className={`mt-4 grid gap-3 text-sm ${showFees ? "grid-cols-2" : "grid-cols-1"}`}>
           <p className="rounded-md bg-slate-50 p-3 dark:bg-white/5">
             <span className="block text-xs text-slate-500 dark:text-slate-400">Duration</span>
             <span className="font-bold">{course.duration}</span>
           </p>
-          <p className="rounded-md bg-slate-50 p-3 dark:bg-white/5">
-            <span className="block text-xs text-slate-500 dark:text-slate-400">Fees</span>
-            <span className="font-bold">{course.fees}</span>
-          </p>
+          {showFees && (
+            <p className="rounded-md bg-slate-50 p-3 dark:bg-white/5">
+              <span className="block text-xs text-slate-500 dark:text-slate-400">Fees</span>
+              <span className="font-bold">{course.fees}</span>
+            </p>
+          )}
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           {course.skills.map((skill) => (
@@ -225,9 +227,10 @@ export function HomePage() {
     <>
       <main>
         <section className="relative min-h-[calc(100vh-76px)] overflow-hidden bg-[#111315] text-white">
-          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=80" alt="Students learning coding together" className="absolute inset-0 h-full w-full object-cover opacity-70" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,19,21,.92)_0%,rgba(17,19,21,.72)_42%,rgba(17,19,21,.18)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#111315]/70 to-transparent" />
+          <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=2000&q=85" alt="Futuristic technology workspace with code screens" className="absolute inset-0 h-full w-full object-cover object-center opacity-90" />
+          <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(17,19,21,.97)_0%,rgba(17,19,21,.84)_40%,rgba(17,19,21,.36)_72%,rgba(249,115,22,.18)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_32%,rgba(56,189,248,.28),transparent_32%),radial-gradient(circle_at_84%_70%,rgba(249,115,22,.28),transparent_28%),linear-gradient(180deg,rgba(17,19,21,.12)_0%,rgba(17,19,21,.7)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#111315] via-[#111315]/55 to-transparent" />
           <div className="relative mx-auto flex min-h-[calc(100vh-76px)] max-w-7xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-8">
             <div className="max-w-3xl">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fdba74]">Coding Institute Website & Management System</p>
@@ -293,12 +296,30 @@ export function HomePage() {
                 </article>
               ))}
             </div>
-            <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {partners.map((partner) => (
-                <div key={partner} className="grid h-16 place-items-center rounded-md border border-slate-200 bg-slate-50 text-sm font-black text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-                  {partner}
-                </div>
-              ))}
+            <div className="mt-10 overflow-hidden border-y border-slate-200 py-5 dark:border-white/10">
+              <div className="partner-marquee flex w-max items-center gap-4">
+                {[...partners, ...partners].map((partner, index) => (
+                  <div key={`${partner.name}-${index}`} className="flex h-24 w-40 shrink-0 flex-col items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-5 shadow-sm dark:border-white/10 dark:bg-white/5">
+                    {partner.logoText ? (
+                      <span className="text-3xl font-black tracking-wide text-[#6f2cff]">{partner.logoText}</span>
+                    ) : (
+                      <img
+                        src={partner.logo}
+                        alt=""
+                        title={partner.name}
+                        className="max-h-10 max-w-32 object-contain"
+                        loading="lazy"
+                        onError={(event) => {
+                          if (event.currentTarget.src !== partner.fallbackLogo) {
+                            event.currentTarget.src = partner.fallbackLogo;
+                          }
+                        }}
+                      />
+                    )}
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-300">{partner.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -387,7 +408,7 @@ export function CoursesPage() {
   return (
     <>
       <main className={sectionClass}>
-        <SectionHeader eyebrow="Courses" title="Search courses by skill level and career path." text="Each program includes course structure, syllabus direction, duration, fees, and career outcomes." />
+        <SectionHeader eyebrow="Courses" title="Search courses by skill level and career path." text="Each program includes course structure, syllabus direction, duration, and career outcomes." />
         <div className="mb-7 grid gap-3 md:grid-cols-[1fr_auto]">
           <label className="flex h-12 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 dark:border-white/10 dark:bg-white/5">
             <Search size={18} className="text-slate-400" />
@@ -403,7 +424,7 @@ export function CoursesPage() {
         </div>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((course) => (
-            <CourseCard key={course.name} course={course} onLearnMore={setSelectedCourse} onCounsellor={setCounsellorCourse} />
+            <CourseCard key={course.name} course={course} onLearnMore={setSelectedCourse} onCounsellor={setCounsellorCourse} showFees={false} />
           ))}
         </div>
         <CourseDetailsModal course={selectedCourse} onClose={() => setSelectedCourse(null)} />

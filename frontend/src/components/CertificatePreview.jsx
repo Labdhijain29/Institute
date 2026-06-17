@@ -3,7 +3,7 @@ import logoMark from "../assets/coding-wallah-mark-charcoal.png";
 
 const institute = {
   name: "Coding Wallah",
-  tagline: "Learn. Build. Get hired.",
+  tagline: "From Learning to Earning.",
   address: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010",
   phone: "+91 9098875825",
   email: "info@codingwallah.com",

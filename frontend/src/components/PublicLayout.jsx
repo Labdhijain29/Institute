@@ -27,7 +27,7 @@ export function PublicLayout({ children, path, dark, setDark }) {
               </span>
               <span>
                 <span className="block text-base font-black leading-tight text-white">Coding Wallah</span>
-                <span className="block text-xs font-medium text-slate-300">Learn. Build. Get hired.</span>
+                <span className="block text-xs font-medium text-slate-300">From Learning to Earning</span>
               </span>
             </button>
 
@@ -103,7 +103,7 @@ export function Footer() {
             </span>
             <span>
               <span className="block text-lg font-black leading-tight">Coding Wallah</span>
-              <span className="block text-xs font-medium text-slate-300">Learn. Build. Get hired.</span>
+              <span className="block text-xs font-medium text-slate-300">From Learning to Earning.</span>
             </span>
           </button>
           <p className="mt-3 max-w-sm text-sm leading-6 text-slate-300">Professional coding programs, lead management, admissions, and student success workflows under one roof.</p>

@@ -12,6 +12,9 @@ export const protect = asyncHandler(async (req, _res, next) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
   const user = await User.findById(decoded.id).select("-password");
   if (!user || !user.isActive) throw new ApiError(401, "Invalid or inactive user");
+  if (user.role !== "Student" && (user.approvalStatus || "Approved") !== "Approved") {
+    throw new ApiError(403, "Admin approval required");
+  }
 
   req.user = user;
   next();

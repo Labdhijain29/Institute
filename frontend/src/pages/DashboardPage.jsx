@@ -1,16 +1,29 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { ReceiptIndianRupee } from "lucide-react";
+import { Plus, ReceiptIndianRupee } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { ReceiptBuilderModal } from "../components/ReceiptBuilderModal.jsx";
 import { StatCard } from "../components/StatCard.jsx";
 import { roleDashboards } from "../data/roleConfig.js";
+import { CreateLeadModal } from "./LeadsPage.jsx";
+
+const emptyLead = {
+  name: "",
+  mobile: "",
+  email: "",
+  source: "Website",
+  priority: "Warm",
+  remarks: ""
+};
 
 export function DashboardPage({ module }) {
   const { user } = useAuth();
   const [summary, setSummary] = useState(null);
   const [receiptOpen, setReceiptOpen] = useState(false);
+  const [createLeadOpen, setCreateLeadOpen] = useState(false);
+  const [leadForm, setLeadForm] = useState(emptyLead);
+  const [message, setMessage] = useState("");
   const dashboardRole = module?.dashboardRole || user.role;
   const items = roleDashboards[dashboardRole] || [];
   const showReceiptManager = ["Admin", "Manager"].includes(dashboardRole);
@@ -18,6 +31,20 @@ export function DashboardPage({ module }) {
   useEffect(() => {
     api("/reports/dashboard").then(setSummary).catch(() => setSummary(null));
   }, []);
+
+  const createLead = async (event) => {
+    event.preventDefault();
+    try {
+      await api("/leads", { method: "POST", body: JSON.stringify(leadForm) });
+      setLeadForm(emptyLead);
+      setCreateLeadOpen(false);
+      setMessage("Lead created successfully");
+      const nextSummary = await api("/reports/dashboard");
+      setSummary(nextSummary);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
 
   const values = [
     summary?.totalBranches ?? 0,
@@ -43,10 +70,17 @@ export function DashboardPage({ module }) {
                 Fee Receipt
               </button>
             )}
-            <div className="rounded-md bg-[#111315] px-4 py-2 text-sm font-semibold text-white">Branch-aware RBAC enabled</div>
+            {showReceiptManager && (
+              <button onClick={() => setCreateLeadOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#111315] px-4 py-2 text-sm font-semibold text-white hover:bg-[#f97316]">
+                <Plus size={17} />
+                Create Lead
+              </button>
+            )}
           </div>
         </div>
       </section>
+
+      {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {items.map((item, index) => (
@@ -82,6 +116,7 @@ export function DashboardPage({ module }) {
       </section>
 
       <ReceiptBuilderModal open={receiptOpen} onClose={() => setReceiptOpen(false)} />
+      <CreateLeadModal open={createLeadOpen} form={leadForm} setForm={setLeadForm} onSubmit={createLead} onClose={() => setCreateLeadOpen(false)} />
     </div>
   );
 }

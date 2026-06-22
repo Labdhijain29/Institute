@@ -31,12 +31,19 @@ import { offerRoutes } from "./offerRoutes.js";
 import { publicRoutes } from "./publicRoutes.js";
 import { receiptRoutes } from "./receiptRoutes.js";
 import { resourceRoutes } from "./resourceRoutes.js";
+import { studentPortalRoutes } from "./studentPortalRoutes.js";
+import { studentEnrollmentRoutes } from "./studentEnrollmentRoutes.js";
+import { digitalMarketingRoutes } from "./digitalMarketingRoutes.js";
+import { userApprovalRoutes } from "./userApprovalRoutes.js";
 
 export const apiRoutes = Router();
 
 apiRoutes.use("/auth", authRoutes);
 apiRoutes.use("/public", publicRoutes);
 apiRoutes.use(protect);
+apiRoutes.use("/student-portal", studentPortalRoutes);
+apiRoutes.use("/student-enrollment", studentEnrollmentRoutes);
+apiRoutes.use("/digital-marketing", digitalMarketingRoutes);
 
 const make = (model, module, searchFields = []) => {
   const crud = crudController(model, { searchFields });
@@ -48,6 +55,7 @@ const make = (model, module, searchFields = []) => {
   });
 };
 
+apiRoutes.use("/users", userApprovalRoutes);
 apiRoutes.use("/users", make(User, "users", ["name", "email", "mobile", "role"]));
 apiRoutes.use("/roles", make(Role, "settings", ["name"]));
 apiRoutes.use("/permissions", make(Permission, "settings", ["key", "module"]));

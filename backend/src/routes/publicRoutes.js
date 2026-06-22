@@ -2,8 +2,25 @@ import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Lead } from "../models/Lead.js";
 import { User } from "../models/User.js";
+import { City, State } from "country-state-city";
 
 export const publicRoutes = Router();
+
+publicRoutes.get("/locations/states", (_req, res) => {
+  const items = State.getStatesOfCountry("IN")
+    .map(({ name, isoCode }) => ({ name, isoCode }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  res.json({ items });
+});
+
+publicRoutes.get("/locations/cities", (req, res) => {
+  const stateCode = String(req.query.stateCode || "").toUpperCase();
+  const isIndianState = State.getStatesOfCountry("IN").some((state) => state.isoCode === stateCode);
+  if (!isIndianState) return res.status(400).json({ message: "Valid Indian state code is required" });
+  const items = [...new Set(City.getCitiesOfState("IN", stateCode).map((city) => city.name))]
+    .sort((a, b) => a.localeCompare(b));
+  res.json({ items });
+});
 
 publicRoutes.post(
   "/enquiries",

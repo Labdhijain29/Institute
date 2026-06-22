@@ -2,23 +2,14 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { ArrowLeft, LockKeyhole, LogIn, UserPlus } from "lucide-react";
 import { useAuth } from "../auth/AuthContext.jsx";
+import { publicApi } from "../api/client.js";
 import { navigateTo } from "../components/PublicLayout.jsx";
+import { SearchableSelect } from "../components/SearchableSelect.jsx";
 import logoMark from "../assets/coding-wallah-mark-transparent.png";
 
 const registerRoles = ["Manager", "HR", "Telecaller", "Counsellor", "Receptionist", "Accountant", "Faculty", "Student", "Parent"];
-const states = ["Delhi", "Haryana", "Punjab", "Rajasthan", "Uttar Pradesh", "Madhya Pradesh", "Maharashtra", "Gujarat", "Karnataka", "Other"];
-const citiesByState = {
-  Delhi: ["New Delhi", "Dwarka", "Rohini"],
-  Haryana: ["Gurugram", "Faridabad", "Panipat"],
-  Punjab: ["Ludhiana", "Amritsar", "Jalandhar"],
-  Rajasthan: ["Jaipur", "Jodhpur", "Udaipur"],
-  "Uttar Pradesh": ["Noida", "Lucknow", "Kanpur"],
-  "Madhya Pradesh": ["Indore", "Bhopal", "Gwalior"],
-  Maharashtra: ["Mumbai", "Pune", "Nagpur"],
-  Gujarat: ["Ahmedabad", "Surat", "Vadodara"],
-  Karnataka: ["Bengaluru", "Mysuru", "Mangaluru"],
-  Other: ["Other"]
-};
+const roleOptions = registerRoles.map((role) => ({ value: role, label: role }));
+const today = new Date().toLocaleDateString("en-CA");
 
 const initialForm = {
   name: "",
@@ -31,7 +22,7 @@ const initialForm = {
   state: "",
   city: "",
   pincode: "",
-  dateOfJoining: ""
+  dateOfJoining: today
 };
 
 function Field({ label, children, wide = false }) {
@@ -52,10 +43,19 @@ export function LoginPage({ initialMode = "login" }) {
   const [loginForm, setLoginForm] = useState({ email: "", password: "", remember: true });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [indiaStates, setIndiaStates] = useState([]);
+  const [cityOptions, setCityOptions] = useState([]);
+  const [citiesLoading, setCitiesLoading] = useState(false);
 
   useEffect(() => {
     setMode(initialMode);
   }, [initialMode]);
+
+  useEffect(() => {
+    publicApi("/public/locations/states")
+      .then((data) => setIndiaStates(data.items || []))
+      .catch(() => setIndiaStates([]));
+  }, []);
 
   const submitLogin = async (event) => {
     event.preventDefault();
@@ -73,7 +73,7 @@ export function LoginPage({ initialMode = "login" }) {
     setError("");
     setSuccess("");
     try {
-      await register({
+      const result = await register({
         name: form.name,
         email: form.email,
         password: form.password,
@@ -88,7 +88,7 @@ export function LoginPage({ initialMode = "login" }) {
         },
         dateOfJoining: form.dateOfJoining
       });
-      setSuccess("Registration successful. Ab aap email aur password se login karein.");
+      setSuccess(result.message);
       setLoginForm({ email: form.email, password: "", remember: true });
       setForm(initialForm);
       setMode("login");
@@ -97,7 +97,22 @@ export function LoginPage({ initialMode = "login" }) {
     }
   };
 
-  const selectedCities = form.state ? citiesByState[form.state] || ["Other"] : [];
+  const stateOptions = indiaStates.map((state) => ({ value: state.name, label: state.name }));
+  const selectState = async (stateName) => {
+    setForm((current) => ({ ...current, state: stateName, city: "" }));
+    setCityOptions([]);
+    const state = indiaStates.find((item) => item.name === stateName);
+    if (!state) return;
+    setCitiesLoading(true);
+    try {
+      const data = await publicApi(`/public/locations/cities?stateCode=${encodeURIComponent(state.isoCode)}`);
+      setCityOptions((data.items || []).map((city) => ({ value: city, label: city })));
+    } catch {
+      setCityOptions([]);
+    } finally {
+      setCitiesLoading(false);
+    }
+  };
 
   return (
     <main className="grid min-h-screen grid-cols-1 bg-[#f8f5ef] text-[#111315] lg:grid-cols-[1.05fr_0.95fr]">
@@ -115,10 +130,10 @@ export function LoginPage({ initialMode = "login" }) {
             </span>
             <div>
               <p className="text-sm font-black">Coding Wallah</p>
-              <p className="text-xs text-slate-300">ERP Control Panel</p>
+              <p className="text-xs text-slate-300">From Learning to Earning</p>
             </div>
           </div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#fdba74]">Coding Wallah</p>
+          {/* <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#fdba74]">Coding Wallah</p> */}
           <h1 className="mt-4 text-4xl font-bold leading-tight md:text-6xl">Run every branch, lead, batch and fee workflow from one control room.</h1>
         </div>
       </section>
@@ -192,11 +207,7 @@ export function LoginPage({ initialMode = "login" }) {
             </Field>
             <div className="hidden md:block" />
             <Field label="Role" wide>
-              <select className={inputClass} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-                {registerRoles.map((role) => (
-                  <option key={role}>{role}</option>
-                ))}
-              </select>
+              <SearchableSelect options={roleOptions} value={form.role} onChange={(role) => setForm({ ...form, role })} placeholder="Select role..." searchPlaceholder="Search role..." />
             </Field>
             <Field label="Permanent Address">
               <input className={inputClass} value={form.permanentAddress} onChange={(e) => setForm({ ...form, permanentAddress: e.target.value })} />
@@ -205,26 +216,16 @@ export function LoginPage({ initialMode = "login" }) {
               <input className={inputClass} value={form.currentAddress} onChange={(e) => setForm({ ...form, currentAddress: e.target.value })} />
             </Field>
             <Field label="State">
-              <select className={inputClass} value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value, city: "" })}>
-                <option value="">Select state...</option>
-                {states.map((state) => (
-                  <option key={state}>{state}</option>
-                ))}
-              </select>
+              <SearchableSelect options={stateOptions} value={form.state} onChange={selectState} placeholder="Select state..." searchPlaceholder="Search state..." />
             </Field>
             <Field label="City">
-              <select className={inputClass} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} disabled={!form.state}>
-                <option value="">{form.state ? "Select city..." : "Select state first"}</option>
-                {selectedCities.map((city) => (
-                  <option key={city}>{city}</option>
-                ))}
-              </select>
+              <SearchableSelect options={cityOptions} value={form.city} onChange={(city) => setForm({ ...form, city })} disabled={!form.state || citiesLoading} placeholder={citiesLoading ? "Loading cities..." : form.state ? "Select city..." : "Select state first"} searchPlaceholder="Search city..." />
             </Field>
             <Field label="Pincode">
               <input inputMode="numeric" maxLength="6" className={inputClass} value={form.pincode} onChange={(e) => setForm({ ...form, pincode: e.target.value })} />
             </Field>
             <Field label="Date of Joining">
-              <input type="date" className={inputClass} value={form.dateOfJoining} onChange={(e) => setForm({ ...form, dateOfJoining: e.target.value })} />
+              <input type="date" min={today} className={inputClass} value={form.dateOfJoining} onChange={(e) => setForm({ ...form, dateOfJoining: e.target.value })} />
             </Field>
             {error && <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm normal-case tracking-normal text-red-700 md:col-span-2">{error}</p>}
             <button className="h-11 rounded-md bg-[#111315] text-sm font-bold normal-case tracking-normal text-white hover:bg-[#f97316] md:col-span-2">Register</button>

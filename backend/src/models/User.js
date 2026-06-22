@@ -33,6 +33,9 @@ const userSchema = new mongoose.Schema(
     documents: [userDocumentSchema],
     avatar: String,
     isActive: { type: Boolean, default: true },
+    approvalStatus: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Approved" },
+    approvalReviewedBy: objectId("User"),
+    approvalReviewedAt: Date,
     lastLoginAt: Date
   },
   baseOptions

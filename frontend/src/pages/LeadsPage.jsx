@@ -316,7 +316,7 @@ export function LeadsPage({ module }) {
   );
 }
 
-function CreateLeadModal({ open, form, setForm, onSubmit, onClose, isTelecallerFlow }) {
+export function CreateLeadModal({ open, form, setForm, onSubmit, onClose, isTelecallerFlow = false }) {
   if (!open) return null;
   return (
     <ModalShell title={isTelecallerFlow ? "Generate Lead" : "New Lead"} onClose={onClose}>

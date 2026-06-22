@@ -45,6 +45,8 @@ const leadSchema = new mongoose.Schema(
     telecallerAssigned: objectId("User"),
     counsellorAssigned: objectId("User"),
     facultyAssigned: objectId("User"),
+    digitalMarketingAssigned: objectId("User"),
+    digitalMarketingAssignedAt: Date,
     followUpDate: Date,
     remarks: String,
     callHistory: [callHistorySchema],

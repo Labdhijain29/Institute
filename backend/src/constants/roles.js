@@ -8,6 +8,7 @@ export const ROLES = [
   "Faculty",
   "Accountant",
   "Receptionist",
+  "Digital Marketing Executive",
   "Student",
   "Parent"
 ];
@@ -22,6 +23,7 @@ export const ROLE_PERMISSIONS = {
   Faculty: ["leads:read", "leads:approve", "batches:read", "students:read", "students:create", "attendance:*", "materials:*", "assignments:*", "tests:*"],
   Accountant: ["fees:*", "payments:*", "receipts:*", "expenses:*", "salary:*", "reports:read"],
   Receptionist: ["leads:create", "leads:read", "demos:create", "visitors:*"],
+  "Digital Marketing Executive": ["digital-marketing:own"],
   Student: ["profile:read", "attendance:read", "fees:read", "materials:read", "assignments:read", "tests:read", "certificates:read"],
   Parent: ["student-progress:read", "fees:read", "notices:read"]
 };

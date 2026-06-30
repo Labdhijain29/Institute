@@ -10,11 +10,31 @@ import { downloadOfferPdf } from "../utils/offerPdf.js";
 const emptyOffer = {
   studentName: "",
   studentId: "",
+  email: "",
+  phone: "",
+  address: "",
   courseName: "",
   batch: "",
+  department: "",
+  duration: "",
   feeOffered: 0,
+  scholarship: 0,
+  finalAmount: 0,
+  paymentSchedule: "As per institute fee plan",
   startDate: new Date().toISOString().slice(0, 10),
+  endDate: "",
   offerDate: new Date().toISOString().slice(0, 10),
+  joiningDate: "",
+  validTill: "",
+  authorizedSignatory: "Lakhan Rathod",
+  hrContact: "info@codingwallah.com",
+  branchLocation: "Indore",
+  reportingManager: "Academic Coordinator",
+  trainingLocation: "Coding Walla, Indore",
+  mode: "Offline",
+  documentNumber: "",
+  offerLetterId: "",
+  companyCinGst: "",
   remarks: ""
 };
 
@@ -59,7 +79,7 @@ export function OfferLettersPage() {
     const root = createRoot(container);
     root.render(<OfferLetterPreview offer={offer} />);
     setTimeout(async () => {
-      await downloadOfferPdf(container.firstChild, offer.studentId);
+      await downloadOfferPdf(container.firstChild, offer);
       root.unmount();
       container.remove();
     }, 100);
@@ -155,9 +175,10 @@ export function OfferLettersPage() {
 
 function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) {
   if (!open) return null;
+  const requiredFields = new Set(["studentName", "studentId", "courseName", "batch", "feeOffered", "startDate", "offerDate"]);
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-ink/50 p-3">
-      <div className="w-full max-w-2xl rounded-lg bg-white shadow-soft">
+      <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-soft">
         <div className="flex items-center justify-between border-b border-slate-200 p-4">
           <div>
             <h2 className="text-lg font-black">Generate Offer Letter</h2>
@@ -171,16 +192,33 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
           {[
             ["studentName", "Student Name", "text"],
             ["studentId", "Student ID", "text"],
+            ["email", "Email", "email"],
+            ["phone", "Phone", "text"],
+            ["address", "Address", "text"],
             ["courseName", "Course Name", "text"],
+            ["department", "Department", "text"],
             ["batch", "Batch", "text"],
-            ["feeOffered", "Fee Offered", "number"],
+            ["duration", "Duration", "text"],
+            ["feeOffered", "Total Fee", "number"],
+            ["scholarship", "Scholarship/Discount", "number"],
+            ["finalAmount", "Final Amount", "number"],
+            ["paymentSchedule", "Payment Schedule", "text"],
+            ["offerDate", "Offer Date", "date"],
+            ["joiningDate", "Joining Date", "date"],
+            ["validTill", "Valid Till Date", "date"],
             ["startDate", "Start Date", "date"],
-            ["offerDate", "Offer Date", "date"]
+            ["endDate", "End Date", "date"],
+            ["authorizedSignatory", "Authorized Signatory", "text"],
+            ["hrContact", "HR Contact", "text"],
+            ["branchLocation", "Branch Location", "text"],
+            ["reportingManager", "Reporting Manager", "text"],
+            ["trainingLocation", "Training Location", "text"],
+            ["mode", "Mode", "text"]
           ].map(([key, label, type]) => (
             <label key={key} className="block text-sm">
               <span className="font-semibold text-slate-600">{label}</span>
               <input
-                required
+                required={requiredFields.has(key)}
                 type={type}
                 className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]"
                 value={form[key]}

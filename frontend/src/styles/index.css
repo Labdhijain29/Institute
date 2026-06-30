@@ -65,6 +65,20 @@ textarea {
   min-height: 980px;
 }
 
+.offer-letter-document {
+  width: min(210mm, 100%);
+}
+
+.offer-letter-page {
+  width: 210mm;
+  min-height: 297mm;
+  page-break-after: always;
+}
+
+.offer-letter-page:last-child {
+  page-break-after: auto;
+}
+
 @page {
   size: A4;
   margin: 0;
@@ -108,8 +122,26 @@ textarea {
     position: absolute;
     inset: 0 auto auto 0;
     width: 210mm;
+    box-shadow: none;
+  }
+
+  .offer-letter-document {
+    width: 210mm;
+    max-width: 210mm;
+    margin: 0;
+  }
+
+  .offer-letter-page {
+    width: 210mm;
     min-height: 297mm;
     box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .offer-letter-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
   }
 
   .no-print {

@@ -296,6 +296,7 @@ export function HomePage() {
                 </article>
               ))}
             </div>
+            <p className="mt-10 text-center text-sm font-bold uppercase tracking-[0.16em] text-[#f97316]">Our Hiring Partners</p>
             <div className="mt-10 overflow-hidden border-y border-slate-200 py-5 dark:border-white/10">
               <div className="partner-marquee flex w-max items-center gap-4">
                 {[...partners, ...partners].map((partner, index) => (

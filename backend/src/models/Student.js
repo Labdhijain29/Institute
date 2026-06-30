@@ -11,6 +11,7 @@ const studentSchema = new mongoose.Schema(
     parentMobile: String,
     address: addressSchema,
     course: objectId("Course"),
+    courseName: String,
     batch: objectId("Batch"),
     user: objectId("User"),
     admissionDate: Date,

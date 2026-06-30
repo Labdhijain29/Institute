@@ -5,10 +5,43 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import { publicApi } from "../api/client.js";
 import { navigateTo } from "../components/PublicLayout.jsx";
 import { SearchableSelect } from "../components/SearchableSelect.jsx";
+import { courses as publicCourses } from "../data/publicContent.js";
 import logoMark from "../assets/coding-wallah-mark-transparent.png";
 
-const registerRoles = ["Manager", "HR", "Telecaller", "Counsellor", "Receptionist", "Accountant", "Faculty", "Student", "Parent"];
-const roleOptions = registerRoles.map((role) => ({ value: role, label: role }));
+const registerRoles = [
+  ["Manager", "Manager"],
+  ["HR", "HR"],
+  ["Telecaller", "Telecaller"],
+  ["Counsellor", "Counsellor"],
+  ["Receptionist", "Receptionist"],
+  ["Accountant", "Accountant"],
+  ["Faculty", "Faculty"],
+  ["Digital Marketing Executive", "Digital Marketing"],
+  ["Student", "Student"],
+  ["Parent", "Parent"]
+];
+const roleOptions = registerRoles.map(([value, label]) => ({ value, label }));
+const courseOptions = publicCourses.map((course) => ({ value: course.name, label: course.name }));
+const facultyOptions = [
+  "Java",
+  "Python",
+  "MERN",
+  "MEAN",
+  "AI/ML",
+  "Data Science",
+  "Data Analytics",
+  "Full Stack Development",
+  "Cloud Computing",
+  "AWS",
+  "DevOps",
+  "Cyber Security",
+  "Networking",
+  "Automation Testing",
+  "Manual Testing",
+  "iOS Development",
+  "Android Development",
+  "Flutter Development"
+].map((item) => ({ value: item, label: item }));
 const today = new Date().toLocaleDateString("en-CA");
 
 const initialForm = {
@@ -22,6 +55,8 @@ const initialForm = {
   state: "",
   city: "",
   pincode: "",
+  courseName: "",
+  facultySpecialty: "",
   dateOfJoining: today
 };
 
@@ -61,6 +96,14 @@ export function LoginPage({ initialMode = "login" }) {
     event.preventDefault();
     setError("");
     setSuccess("");
+    if (form.role === "Student" && !form.courseName) {
+      setError("Please select a course for student registration.");
+      return;
+    }
+    if (form.role === "Faculty" && !form.facultySpecialty) {
+      setError("Please select a faculty for faculty registration.");
+      return;
+    }
     try {
       await login(loginForm.email, loginForm.password);
     } catch (err) {
@@ -79,6 +122,8 @@ export function LoginPage({ initialMode = "login" }) {
         password: form.password,
         mobile: form.mobile,
         role: form.role,
+        courseName: form.role === "Student" ? form.courseName : "",
+        facultySpecialty: form.role === "Faculty" ? form.facultySpecialty : "",
         address: {
           permanent: form.permanentAddress,
           current: form.currentAddress,
@@ -207,8 +252,18 @@ export function LoginPage({ initialMode = "login" }) {
             </Field>
             <div className="hidden md:block" />
             <Field label="Role" wide>
-              <SearchableSelect options={roleOptions} value={form.role} onChange={(role) => setForm({ ...form, role })} placeholder="Select role..." searchPlaceholder="Search role..." />
+              <SearchableSelect options={roleOptions} value={form.role} onChange={(role) => setForm({ ...form, role, courseName: role === "Student" ? form.courseName : "", facultySpecialty: role === "Faculty" ? form.facultySpecialty : "" })} placeholder="Select role..." searchPlaceholder="Search role..." />
             </Field>
+            {form.role === "Student" && (
+              <Field label="Course" wide>
+                <SearchableSelect options={courseOptions} value={form.courseName} onChange={(courseName) => setForm({ ...form, courseName })} placeholder="Select course..." searchPlaceholder="Search course..." />
+              </Field>
+            )}
+            {form.role === "Faculty" && (
+              <Field label="Faculties" wide>
+                <SearchableSelect options={facultyOptions} value={form.facultySpecialty} onChange={(facultySpecialty) => setForm({ ...form, facultySpecialty })} placeholder="Select faculty..." searchPlaceholder="Search faculty..." />
+              </Field>
+            )}
             <Field label="Permanent Address">
               <input className={inputClass} value={form.permanentAddress} onChange={(e) => setForm({ ...form, permanentAddress: e.target.value })} />
             </Field>

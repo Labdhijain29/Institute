@@ -28,6 +28,9 @@ const userSchema = new mongoose.Schema(
       city: String,
       pincode: String
     },
+    course: objectId("Course"),
+    courseName: String,
+    facultySpecialty: String,
     dateOfJoining: Date,
     franchise: { type: String, default: "No Franchise" },
     documents: [userDocumentSchema],

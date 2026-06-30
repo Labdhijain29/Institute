@@ -32,6 +32,9 @@ export const register = asyncHandler(async (req, res) => {
     alternateMobile,
     branch,
     address,
+    course,
+    courseName,
+    facultySpecialty,
     dateOfJoining,
     franchise,
     documents = []
@@ -40,7 +43,6 @@ export const register = asyncHandler(async (req, res) => {
   const userCount = await User.countDocuments();
   if (role === "Super Admin" && userCount > 0) throw new ApiError(403, "Super Admin can only be bootstrapped as the first user");
   if (role === "Admin") throw new ApiError(403, "Admin accounts cannot be created from public registration");
-  if (role === "Digital Marketing Executive") throw new ApiError(403, "Digital Marketing accounts can only be created by an administrator");
   if (dateOfJoining) {
     const joiningDate = new Date(dateOfJoining);
     const today = new Date();
@@ -60,6 +62,9 @@ export const register = asyncHandler(async (req, res) => {
     alternateMobile,
     branch,
     address,
+    course,
+    courseName,
+    facultySpecialty,
     dateOfJoining,
     franchise,
     documents,
@@ -72,6 +77,8 @@ export const register = asyncHandler(async (req, res) => {
       email: user.email,
       mobile: user.mobile,
       user: user._id,
+      course: user.course,
+      courseName: user.courseName,
       admissionDate: user.dateOfJoining || new Date(),
       status: "Active"
     });

@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { Eye, PhoneCall, Plus, Send, UserCheck, X } from "lucide-react";
+import { Edit3, Eye, PhoneCall, Plus, Send, UserCheck, X } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
@@ -36,16 +36,37 @@ const followUpStatuses = ["Interested", "Not Interested", "Call Back Later", "De
 const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-IN") : "-");
 const idOf = (value) => (typeof value === "object" ? value?._id : value);
 const objectIdPattern = /^[a-f\d]{24}$/i;
+const dateInput = (value) => (value ? new Date(value).toISOString().slice(0, 10) : "");
 
 export function normalizeLeadPayload(values) {
   const payload = { ...values };
   if (payload.courseInterested && !objectIdPattern.test(payload.courseInterested)) {
     payload.courseName = payload.courseInterested;
-    delete payload.courseInterested;
+    payload.courseInterested = null;
+  } else if (payload.courseInterested) {
+    payload.courseName = "";
   }
-  if (!payload.courseInterested) delete payload.courseInterested;
+  if (!payload.courseInterested && !payload.courseName) {
+    payload.courseInterested = null;
+    payload.courseName = "";
+  }
   if (!payload.leadDate) delete payload.leadDate;
+  delete payload._id;
   return payload;
+}
+
+function leadToForm(lead) {
+  return {
+    name: lead.name || "",
+    mobile: lead.mobile || "",
+    courseInterested: lead.courseName || idOf(lead.courseInterested) || "",
+    leadDate: dateInput(lead.leadDate || lead.createdAt) || new Date().toISOString().slice(0, 10),
+    college: lead.college || "",
+    source: lead.source || "Website",
+    priority: lead.priority || "Warm",
+    remarks: lead.remarks || "",
+    status: lead.status || "New"
+  };
 }
 
 function readFacultyHandoffs() {
@@ -69,6 +90,7 @@ export function LeadsPage({ module }) {
   const [facultyHandoffs, setFacultyHandoffs] = useState(() => readFacultyHandoffs());
   const [form, setForm] = useState(emptyLead);
   const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [followUpOpen, setFollowUpOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [activeLead, setActiveLead] = useState(null);
@@ -115,6 +137,23 @@ export function LeadsPage({ module }) {
     setForm(emptyLead);
     setCreateOpen(false);
     setMessage("Lead created successfully");
+    await loadLeads();
+  };
+
+  const openEditLead = (lead) => {
+    setActiveLead(lead);
+    setForm(leadToForm(lead));
+    setEditOpen(true);
+  };
+
+  const updateLead = async (event) => {
+    event.preventDefault();
+    if (!activeLead?._id) return;
+    await api(`/leads/${activeLead._id}`, { method: "PATCH", body: JSON.stringify(normalizeLeadPayload(form)) });
+    setForm(emptyLead);
+    setActiveLead(null);
+    setEditOpen(false);
+    setMessage("Lead updated successfully");
     await loadLeads();
   };
 
@@ -232,6 +271,14 @@ export function LeadsPage({ module }) {
   const renderActions = (row) => {
     const actions = [];
 
+    if ((canWorkTelecaller || canWorkCounsellor) && !row.convertedStudent) {
+      actions.push(
+        <button key="edit" onClick={() => openEditLead(row)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Edit lead">
+          <Edit3 size={16} />
+        </button>
+      );
+    }
+
     if (canWorkTelecaller && !row.counsellorAssigned && !row.convertedStudent) {
       actions.push(
         <button key="followup" onClick={() => openFollowUp(row)} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-2 text-xs font-semibold text-[#ea580c] hover:bg-[#fff3e8]" title="Follow Up">
@@ -330,7 +377,7 @@ export function LeadsPage({ module }) {
               <p className="mt-1 text-sm text-slate-500">{pageDescription}</p>
             </div>
             {canCreateLead && (
-              <button onClick={() => setCreateOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
+              <button onClick={() => { setForm(emptyLead); setCreateOpen(true); }} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
                 <Plus size={17} /> Create Lead
               </button>
             )}
@@ -339,14 +386,15 @@ export function LeadsPage({ module }) {
         {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
         <DataTable columns={columns} rows={visibleLeads} />
       </section>
-      <CreateLeadModal open={createOpen} form={form} setForm={setForm} courses={courses} onSubmit={createLead} onClose={() => setCreateOpen(false)} isTelecallerFlow={isTelecallerFlow} />
+      <CreateLeadModal open={createOpen} form={form} setForm={setForm} courses={courses} onSubmit={createLead} onClose={() => { setCreateOpen(false); setForm(emptyLead); }} isTelecallerFlow={isTelecallerFlow} />
+      <CreateLeadModal open={editOpen} form={form} setForm={setForm} courses={courses} onSubmit={updateLead} onClose={() => { setEditOpen(false); setActiveLead(null); setForm(emptyLead); }} title="Edit Lead" submitLabel="Update Lead" />
       <FollowUpModal open={followUpOpen} lead={activeLead} form={followUpForm} setForm={setFollowUpForm} followUps={followUps} onSubmit={saveFollowUp} onClose={() => setFollowUpOpen(false)} />
       <LeadDetailsModal open={detailsOpen} lead={activeLead} courses={courses} followUps={followUps} onClose={() => setDetailsOpen(false)} />
     </div>
   );
 }
 
-export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, onClose, isTelecallerFlow = false }) {
+export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, onClose, isTelecallerFlow = false, title, submitLabel = "Create Lead" }) {
   if (!open) return null;
   const courseOptions = [
     ...courses.map((course) => ({ value: course._id, label: course.name })),
@@ -354,7 +402,7 @@ export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, o
   ].filter((course, index, list) => course.label && list.findIndex((item) => item.label === course.label) === index);
 
   return (
-    <ModalShell title={isTelecallerFlow ? "Generate Lead" : "New Lead"} onClose={onClose}>
+    <ModalShell title={title || (isTelecallerFlow ? "Generate Lead" : "New Lead")} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-3">
         {["name", "mobile", "college", "source"].map((field) => (
           <input key={field} className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" placeholder={field} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
@@ -372,10 +420,15 @@ export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, o
           <option>Warm</option>
           <option>Cold</option>
         </select>
+        {form.status !== undefined && (
+          <select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+            {["New", "Assigned", "Contacted", "Interested", "Not Interested", "Follow-up", "Forwarded", "Forwarded to Counsellor", "Forwarded to Faculty", "Demo Scheduled", "Converted", "Lost"].map((status) => <option key={status}>{status}</option>)}
+          </select>
+        )}
         <textarea className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" placeholder="remarks" value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} />
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button>
-          <button className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">Create Lead</button>
+          <button className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">{submitLabel}</button>
         </div>
       </form>
     </ModalShell>

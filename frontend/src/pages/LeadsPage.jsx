@@ -4,11 +4,15 @@ import { Eye, PhoneCall, Plus, Send, UserCheck, X } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
+import { SearchableSelect } from "../components/SearchableSelect.jsx";
+import { courses as publicCourses } from "../data/publicContent.js";
 
 const emptyLead = {
   name: "",
   mobile: "",
-  email: "",
+  courseInterested: "",
+  leadDate: new Date().toISOString().slice(0, 10),
+  college: "",
   source: "Website",
   priority: "Warm",
   remarks: ""
@@ -29,6 +33,21 @@ const emptyFollowUp = {
 };
 const followUpStatuses = ["Interested", "Not Interested", "Call Back Later", "Demo Scheduled", "Converted", "Lost"];
 
+const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-IN") : "-");
+const idOf = (value) => (typeof value === "object" ? value?._id : value);
+const objectIdPattern = /^[a-f\d]{24}$/i;
+
+export function normalizeLeadPayload(values) {
+  const payload = { ...values };
+  if (payload.courseInterested && !objectIdPattern.test(payload.courseInterested)) {
+    payload.courseName = payload.courseInterested;
+    delete payload.courseInterested;
+  }
+  if (!payload.courseInterested) delete payload.courseInterested;
+  if (!payload.leadDate) delete payload.leadDate;
+  return payload;
+}
+
 function readFacultyHandoffs() {
   try {
     return JSON.parse(localStorage.getItem(FACULTY_HANDOFF_KEY) || "{}");
@@ -44,6 +63,7 @@ function writeFacultyHandoffs(handoffs) {
 export function LeadsPage({ module }) {
   const { user } = useAuth();
   const [leads, setLeads] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [facultyUsers, setFacultyUsers] = useState([]);
   const [facultySelections, setFacultySelections] = useState({});
   const [facultyHandoffs, setFacultyHandoffs] = useState(() => readFacultyHandoffs());
@@ -77,6 +97,12 @@ export function LeadsPage({ module }) {
   }, [workflowRole]);
 
   useEffect(() => {
+    api("/courses?limit=100")
+      .then((data) => setCourses(data.items || []))
+      .catch((err) => setMessage(err.message));
+  }, []);
+
+  useEffect(() => {
     if (!isCounsellorFlow) return;
     api("/leads/faculty-options")
       .then((data) => setFacultyUsers(data.items?.length ? data.items : dummyFacultyUsers))
@@ -85,7 +111,7 @@ export function LeadsPage({ module }) {
 
   const createLead = async (event) => {
     event.preventDefault();
-    await api("/leads", { method: "POST", body: JSON.stringify(form) });
+    await api("/leads", { method: "POST", body: JSON.stringify(normalizeLeadPayload(form)) });
     setForm(emptyLead);
     setCreateOpen(false);
     setMessage("Lead created successfully");
@@ -193,6 +219,7 @@ export function LeadsPage({ module }) {
   const isCounsellorLead = (lead) => ["Forwarded", "Forwarded to Counsellor"].includes(lead.status) || Boolean(lead.counsellorAssigned) || isCourseWebsiteLead(lead);
   const isFacultyLead = (lead) => lead.status === "Forwarded to Faculty" || Boolean(lead.facultyAssigned) || Boolean(facultyHandoffs[lead._id]);
   const admissionStatus = (lead) => lead.admissionStatus || facultyHandoffs[lead._id]?.status || (lead.convertedStudent || lead.status === "Admission Done" || lead.status === "Converted" ? "Done" : "Pending");
+  const courseName = (row) => row.courseName || courses.find((course) => course._id === idOf(row.courseInterested))?.name || (typeof row.courseInterested === "object" ? row.courseInterested?.name : "") || "-";
 
   const visibleLeads = leads.filter((lead) => {
     if (isTelecallerFlow) return !isCounsellorLead(lead) && !isFacultyLead(lead) && !lead.convertedStudent;
@@ -275,6 +302,9 @@ export function LeadsPage({ module }) {
     { key: "name", label: "Name" },
     { key: "mobile", label: "Mobile" },
     { key: "email", label: "Email" },
+    { key: "courseInterested", label: "Course", render: (row) => courseName(row) },
+    { key: "leadDate", label: "Date", render: (row) => formatDate(row.leadDate || row.createdAt) },
+    { key: "college", label: "College" },
     { key: "source", label: "Source" },
     { key: "priority", label: "Priority" },
     { key: "status", label: "Status" },
@@ -309,21 +339,34 @@ export function LeadsPage({ module }) {
         {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
         <DataTable columns={columns} rows={visibleLeads} />
       </section>
-      <CreateLeadModal open={createOpen} form={form} setForm={setForm} onSubmit={createLead} onClose={() => setCreateOpen(false)} isTelecallerFlow={isTelecallerFlow} />
+      <CreateLeadModal open={createOpen} form={form} setForm={setForm} courses={courses} onSubmit={createLead} onClose={() => setCreateOpen(false)} isTelecallerFlow={isTelecallerFlow} />
       <FollowUpModal open={followUpOpen} lead={activeLead} form={followUpForm} setForm={setFollowUpForm} followUps={followUps} onSubmit={saveFollowUp} onClose={() => setFollowUpOpen(false)} />
-      <LeadDetailsModal open={detailsOpen} lead={activeLead} followUps={followUps} onClose={() => setDetailsOpen(false)} />
+      <LeadDetailsModal open={detailsOpen} lead={activeLead} courses={courses} followUps={followUps} onClose={() => setDetailsOpen(false)} />
     </div>
   );
 }
 
-export function CreateLeadModal({ open, form, setForm, onSubmit, onClose, isTelecallerFlow = false }) {
+export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, onClose, isTelecallerFlow = false }) {
   if (!open) return null;
+  const courseOptions = [
+    ...courses.map((course) => ({ value: course._id, label: course.name })),
+    ...publicCourses.map((course) => ({ value: course.name, label: course.name }))
+  ].filter((course, index, list) => course.label && list.findIndex((item) => item.label === course.label) === index);
+
   return (
     <ModalShell title={isTelecallerFlow ? "Generate Lead" : "New Lead"} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-3">
-        {["name", "mobile", "email", "source"].map((field) => (
+        {["name", "mobile", "college", "source"].map((field) => (
           <input key={field} className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" placeholder={field} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
         ))}
+        <SearchableSelect
+          options={courseOptions}
+          value={form.courseInterested}
+          onChange={(courseInterested) => setForm({ ...form, courseInterested })}
+          placeholder="Select course..."
+          searchPlaceholder="Search course..."
+        />
+        <input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.leadDate} onChange={(e) => setForm({ ...form, leadDate: e.target.value })} />
         <select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
           <option>Hot</option>
           <option>Warm</option>
@@ -368,8 +411,9 @@ function FollowUpModal({ open, lead, form, setForm, followUps, onSubmit, onClose
   );
 }
 
-function LeadDetailsModal({ open, lead, followUps, onClose }) {
+function LeadDetailsModal({ open, lead, courses = [], followUps, onClose }) {
   if (!open) return null;
+  const courseName = lead?.courseName || courses.find((course) => course._id === idOf(lead?.courseInterested))?.name || (typeof lead?.courseInterested === "object" ? lead?.courseInterested?.name : lead?.courseInterested);
   return (
     <ModalShell title={`Lead Details${lead?.name ? ` - ${lead.name}` : ""}`} onClose={onClose} wide>
       <div className="grid gap-3 text-sm md:grid-cols-2">
@@ -377,6 +421,9 @@ function LeadDetailsModal({ open, lead, followUps, onClose }) {
           ["Name", lead?.name],
           ["Mobile", lead?.mobile],
           ["Email", lead?.email],
+          ["Course", courseName],
+          ["Date", formatDate(lead?.leadDate || lead?.createdAt)],
+          ["College", lead?.college],
           ["Source", lead?.source],
           ["Priority", lead?.priority],
           ["Status", lead?.status],

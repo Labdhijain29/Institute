@@ -23,10 +23,10 @@ export function PublicLayout({ children, path, dark, setDark }) {
           <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
             <button onClick={() => go("/")} className="flex items-center gap-3 text-left" aria-label="Go home">
               <span className="grid h-12 w-[76px] place-items-center overflow-hidden p-0">
-                <img src={logoMark} alt="Coding Wallah logo" className="h-full w-full object-contain" />
+                <img src={logoMark} alt="Coding Walla logo" className="h-full w-full object-contain" />
               </span>
               <span>
-                <span className="block text-base font-black leading-tight text-white">Coding Wallah</span>
+                <span className="block text-base font-black leading-tight text-white">Coding Walla</span>
                 <span className="block text-xs font-medium text-slate-300">From Learning to Earning</span>
               </span>
             </button>
@@ -99,10 +99,10 @@ export function Footer() {
         <div>
           <button onClick={() => go("/")} className="flex items-center gap-3 text-left" aria-label="Go home">
             <span className="grid h-14 w-[88px] place-items-center overflow-hidden">
-              <img src={logoMark} alt="Coding Wallah logo" className="h-full w-full object-contain" />
+              <img src={logoMark} alt="Coding Walla logo" className="h-full w-full object-contain" />
             </span>
             <span>
-              <span className="block text-lg font-black leading-tight">Coding Wallah</span>
+              <span className="block text-lg font-black leading-tight">Coding Walla</span>
               <span className="block text-xs font-medium text-slate-300">From Learning to Earning.</span>
             </span>
           </button>

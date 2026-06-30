@@ -16,7 +16,7 @@ import { Lead } from "../models/Lead.js";
 
 export const leadRoutes = Router();
 const crud = crudController(Lead, {
-  searchFields: ["name", "mobile", "email", "source", "remarks"],
+  searchFields: ["name", "mobile", "email", "college", "source", "remarks"],
   filter(req) {
     if (["Super Admin", "Admin", "Manager"].includes(req.user.role)) return {};
     if (req.user.role === "Telecaller") return { $or: [{ createdBy: req.user._id }, { telecallerAssigned: req.user._id }] };

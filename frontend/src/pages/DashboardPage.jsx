@@ -6,12 +6,14 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import { ReceiptBuilderModal } from "../components/ReceiptBuilderModal.jsx";
 import { StatCard } from "../components/StatCard.jsx";
 import { roleDashboards } from "../data/roleConfig.js";
-import { CreateLeadModal } from "./LeadsPage.jsx";
+import { CreateLeadModal, normalizeLeadPayload } from "./LeadsPage.jsx";
 
 const emptyLead = {
   name: "",
   mobile: "",
-  email: "",
+  courseInterested: "",
+  leadDate: new Date().toISOString().slice(0, 10),
+  college: "",
   source: "Website",
   priority: "Warm",
   remarks: ""
@@ -23,6 +25,7 @@ export function DashboardPage({ module }) {
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [createLeadOpen, setCreateLeadOpen] = useState(false);
   const [leadForm, setLeadForm] = useState(emptyLead);
+  const [courses, setCourses] = useState([]);
   const [message, setMessage] = useState("");
   const dashboardRole = module?.dashboardRole || user.role;
   const items = roleDashboards[dashboardRole] || [];
@@ -32,10 +35,16 @@ export function DashboardPage({ module }) {
     api("/reports/dashboard").then(setSummary).catch(() => setSummary(null));
   }, []);
 
+  useEffect(() => {
+    api("/courses?limit=100")
+      .then((data) => setCourses(data.items || []))
+      .catch((error) => setMessage(error.message));
+  }, []);
+
   const createLead = async (event) => {
     event.preventDefault();
     try {
-      await api("/leads", { method: "POST", body: JSON.stringify(leadForm) });
+      await api("/leads", { method: "POST", body: JSON.stringify(normalizeLeadPayload(leadForm)) });
       setLeadForm(emptyLead);
       setCreateLeadOpen(false);
       setMessage("Lead created successfully");
@@ -116,7 +125,7 @@ export function DashboardPage({ module }) {
       </section>
 
       <ReceiptBuilderModal open={receiptOpen} onClose={() => setReceiptOpen(false)} />
-      <CreateLeadModal open={createLeadOpen} form={leadForm} setForm={setLeadForm} onSubmit={createLead} onClose={() => setCreateLeadOpen(false)} />
+      <CreateLeadModal open={createLeadOpen} form={leadForm} setForm={setLeadForm} courses={courses} onSubmit={createLead} onClose={() => setCreateLeadOpen(false)} />
     </div>
   );
 }

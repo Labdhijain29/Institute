@@ -2,7 +2,7 @@ import React from "react";
 import logoMark from "../assets/coding-wallah-mark-charcoal.png";
 
 const institute = {
-  name: "Coding Wallah",
+  name: "Coding Walla",
   address: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010",
   phone: "+91 9098875825",
   email: "info@codingwallah.com",
@@ -20,7 +20,7 @@ export function OfferLetterPreview({ offer }) {
         <header className="flex items-start justify-between gap-5 border-b-4 border-[#f97316] pb-5">
           <div className="flex items-center gap-4">
             <div className="grid h-16 w-24 place-items-center overflow-hidden rounded-md bg-white">
-              <img src={logoMark} alt="Coding Wallah" className="h-full w-full object-contain" />
+              <img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" />
             </div>
             <div>
               <h1 className="text-3xl font-black uppercase tracking-wide text-[#111315]">{institute.name}</h1>

@@ -126,14 +126,14 @@ export function LoginPage({ initialMode = "login" }) {
         <div className="relative max-w-2xl">
           <div className="mb-6 flex items-center gap-3">
             <span className="grid h-14 w-20 place-items-center rounded-md bg-[#111315] p-1.5 shadow-sm ring-1 ring-white/10">
-              <img src={logoMark} alt="Coding Wallah" className="h-full w-full object-contain" />
+              <img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" />
             </span>
             <div>
-              <p className="text-sm font-black">Coding Wallah</p>
+              <p className="text-sm font-black">Coding Walla</p>
               <p className="text-xs text-slate-300">From Learning to Earning</p>
             </div>
           </div>
-          {/* <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#fdba74]">Coding Wallah</p> */}
+          {/* <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#fdba74]">Coding Walla</p> */}
           <h1 className="mt-4 text-4xl font-bold leading-tight md:text-6xl">Run every branch, lead, batch and fee workflow from one control room.</h1>
         </div>
       </section>

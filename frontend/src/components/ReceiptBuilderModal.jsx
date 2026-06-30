@@ -5,7 +5,7 @@ import { downloadReceiptPdf } from "../utils/pdf.js";
 import logoMark from "../assets/coding-wallah-mark-charcoal.png";
 
 const defaultReceipt = {
-  instituteName: "Coding Wallah",
+  instituteName: "Coding Walla",
   tagline: "LEARN * BUILD * GET HIRED",
   address: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010",
   phone: "+91 9098875825",
@@ -192,7 +192,7 @@ function ReceiptTemplate({ receipt, totalAmount }) {
         <header className="flex items-start justify-between gap-3 border-b-[3px] border-[#f97316] pb-2.5">
           <div className="flex items-center gap-3">
             <div className="grid h-14 w-20 place-items-center overflow-hidden rounded-md bg-white">
-              <img src={logoMark} alt="Coding Wallah" className="h-full w-full object-contain" />
+              <img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" />
             </div>
             <div>
               <h1 className="text-2xl font-black tracking-[0.12em] text-[#111315]">{receipt.instituteName}</h1>

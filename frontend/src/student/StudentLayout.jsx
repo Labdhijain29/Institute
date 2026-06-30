@@ -33,7 +33,7 @@ export function StudentLayout({ path, student, children }) {
       {menuOpen && <button className="fixed inset-0 z-20 bg-black/30 lg:hidden" onClick={() => setMenuOpen(false)} aria-label="Close navigation" />}
       <aside className={`fixed inset-y-0 left-0 z-30 w-[270px] border-r border-slate-200 bg-white transition-transform lg:static lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5">
-          <div className="flex items-center"><div className="grid h-10 w-14 place-items-center overflow-hidden rounded-md bg-white p-1"><img src={logoMark} alt="Coding Wallah" className="h-full w-full object-contain" /></div><div className="ml-3"><p className="text-sm font-bold">Coding Wallah</p><p className="text-xs text-slate-500">Student Portal</p></div></div>
+          <div className="flex items-center"><div className="grid h-10 w-14 place-items-center overflow-hidden rounded-md bg-white p-1"><img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" /></div><div className="ml-3"><p className="text-sm font-bold">Coding Walla</p><p className="text-xs text-slate-500">Student Portal</p></div></div>
           <button className="lg:hidden" onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={18} /></button>
         </div>
         <nav className="space-y-1 p-3">

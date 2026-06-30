@@ -234,7 +234,7 @@ export function HomePage() {
           <div className="relative mx-auto flex min-h-[calc(100vh-76px)] max-w-7xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-8">
             <div className="max-w-3xl">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fdba74]">Coding Institute Website & Management System</p>
-              <h1 className="mt-5 text-4xl font-black leading-tight md:text-6xl">Coding Wallah</h1>
+              <h1 className="mt-5 text-4xl font-black leading-tight md:text-6xl">Coding Walla</h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-100">Professional coding courses with live classes, real projects, placement support, and a role-based management system for every student journey.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <PrimaryButton to="/courses">Explore Courses</PrimaryButton>
@@ -335,10 +335,10 @@ export function AboutPage() {
     <>
       <main>
         <section className={sectionClass}>
-          <SectionHeader eyebrow="About Coding Wallah" title="A modern coding institute with a management backbone." text="We combine classroom training, project mentorship, admissions workflows, fee tracking, and role-based dashboards so learning and operations stay connected." />
+          <SectionHeader eyebrow="About Coding Walla" title="A modern coding institute with a management backbone." text="We combine classroom training, project mentorship, admissions workflows, fee tracking, and role-based dashboards so learning and operations stay connected." />
           <div className="grid gap-5 lg:grid-cols-3">
             {[
-              ["Institute Story", "Coding Wallah was created for students who want structured technical learning without losing the practical rhythm of real software teams."],
+              ["Institute Story", "Coding Walla was created for students who want structured technical learning without losing the practical rhythm of real software teams."],
               ["Mission", "To help learners build job-ready coding skills through live teaching, disciplined practice, and transparent progress tracking."],
               ["Vision", "To become a trusted training partner for students, companies, and institutions seeking dependable digital talent."]
             ].map(([title, text]) => (

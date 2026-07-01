@@ -20,6 +20,9 @@ import {
   UserCheck,
   UsersRound
 } from "lucide-react";
+import trainer1Image from "../assets/trainer1.jpeg";
+import trainer2Image from "../assets/trainer2.jpeg";
+import trainer3Image from "../assets/trainer3.jpeg";
 
 export const navItems = [
   { label: "Home", path: "/" },
@@ -295,22 +298,22 @@ export const partners = [
 
 export const trainers = [
   {
-    name: "Neha Sharma",
-    expertise: "Full Stack Engineering",
+    name: "Lakhan Rathod",
+    expertise: "Senior Java Developer",
+    experience: "7+ years",
+    image: trainer1Image
+  },
+  {
+    name: "Shazia Khan",
+    expertise: "Senior Data Scientist",
+    experience: "9+ years",
+    image: trainer2Image
+  },
+  {
+    name: "Shivprasad Suryawanshi",
+    expertise: "Data Scientist",
     experience: "9 years",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=500&q=80"
-  },
-  {
-    name: "Vikram Rao",
-    expertise: "Python, Data Science",
-    experience: "11 years",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=500&q=80"
-  },
-  {
-    name: "Ananya Kapoor",
-    expertise: "Java, DSA, Interviews",
-    experience: "8 years",
-    image: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=500&q=80"
+    image: trainer3Image
   }
 ];
 

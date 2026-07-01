@@ -50,7 +50,7 @@ export function CertificatesPage() {
       setSelected(created);
       setMessage(`Certificate ${created.certificateNumber || created.certificateNo} generated successfully`);
     } catch (err) {
-      setLocalError(err?.message || "Certificate generate nahi ho pa raha. Backend restart karke dobara try karein.");
+      setLocalError(err?.message || "Unable to generate the certificate. Please restart the backend server and try again.");
     }
   }
 

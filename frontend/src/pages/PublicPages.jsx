@@ -148,7 +148,7 @@ function CounsellorLeadModal({ course, onClose }) {
           sendToCounsellor: true
         })
       });
-      setStatus("Submitted. A counsellor will contact to you shortly.");
+      setStatus("Submitted. A counsellor will contact you shortly.");
       setForm({ fullName: "", mobile: "", course: course.name, message: "" });
     } catch (err) {
       setError(err.message);
@@ -233,7 +233,7 @@ export function HomePage() {
           <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#111315] via-[#111315]/55 to-transparent" />
           <div className="relative mx-auto flex min-h-[calc(100vh-76px)] max-w-7xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-8">
             <div className="max-w-3xl">
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fdba74]">Coding Institute Website & Management System</p>
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fdba74]">Coding Walla Website & Management System</p>
               <h1 className="mt-5 text-4xl font-black leading-tight md:text-6xl">Coding Walla</h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-100">Professional coding courses with live classes, real projects, placement support, and a role-based management system for every student journey.</p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -336,7 +336,7 @@ export function AboutPage() {
     <>
       <main>
         <section className={sectionClass}>
-          <SectionHeader eyebrow="About Coding Walla" title="A modern coding institute with a management backbone." text="We combine classroom training, project mentorship, admissions workflows, fee tracking, and role-based dashboards so learning and operations stay connected." />
+          <SectionHeader eyebrow="About Coding Walla" title="A modern Coding Walla with a management backbone." text="We combine classroom training, project mentorship, admissions workflows, fee tracking, and role-based dashboards so learning and operations stay connected." />
           <div className="grid gap-5 lg:grid-cols-3">
             {[
               ["Institute Story", "Coding Walla was created for students who want structured technical learning without losing the practical rhythm of real software teams."],
@@ -367,11 +367,11 @@ export function AboutPage() {
         </section>
 
         <section className={sectionClass}>
-          <SectionHeader eyebrow="Trainers" title="Mentors with classroom clarity and industry depth." />
+          <SectionHeader eyebrow="Our Industry Trainers" title="Mentors with classroom clarity and industry depth." />
           <div className="grid gap-5 md:grid-cols-3">
             {trainers.map((trainer) => (
               <article key={trainer.name} className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5">
-                <img src={trainer.image} alt={trainer.name} className="h-64 w-full object-cover" loading="lazy" />
+                <img src={trainer.image} alt={trainer.name} className="h-72 w-full object-cover object-top md:h-80 lg:h-96" loading="lazy" />
                 <div className="p-5">
                   <h3 className="text-lg font-black">{trainer.name}</h3>
                   <p className="mt-1 text-sm text-[#ea580c]">{trainer.expertise}</p>

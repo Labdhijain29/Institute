@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pencil, Plus, X } from "lucide-react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { api } from "../api/client.js";
 import { DataTable } from "../components/DataTable.jsx";
 
@@ -24,12 +24,20 @@ export function CourseManagementPage() {
       setOpen(false); setMessage(editing ? "Course updated successfully" : "Course created successfully"); await load();
     } catch (error) { setMessage(error.message); }
   };
+  const removeCourse = async (course) => {
+    if (!window.confirm(`Delete course ${course.name}?`)) return;
+    try {
+      await api(`/courses/${course._id}`, { method: "DELETE" });
+      setMessage("Course deleted successfully");
+      await load();
+    } catch (error) { setMessage(error.message); }
+  };
 
   const columns = [
     { key: "name", label: "Course Name" }, { key: "duration", label: "Duration" },
     { key: "fees", label: "Total Fees", render: (row) => `₹${Number(row.fees || 0).toLocaleString("en-IN")}` },
     { key: "isActive", label: "Status", render: (row) => row.isActive === false ? "Inactive" : "Active" },
-    { key: "actions", label: "Actions", render: (row) => <button onClick={() => showEdit(row)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="Edit course"><Pencil size={16} /></button> }
+    { key: "actions", label: "Actions", render: (row) => <div className="flex gap-2"><button onClick={() => showEdit(row)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="Edit course"><Pencil size={16} /></button><button onClick={() => removeCourse(row)} className="rounded-md border border-red-200 p-2 text-red-600 hover:bg-red-50" title="Delete course"><Trash2 size={16} /></button></div> }
   ];
 
   return <div className="space-y-5">

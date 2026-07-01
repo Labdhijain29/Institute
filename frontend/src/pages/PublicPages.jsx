@@ -1,11 +1,55 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2, ChevronRight, Mail, MapPin, Phone, Search, Send, X } from "lucide-react";
-import { publicApi } from "../api/client.js";
+import { api, publicApi } from "../api/client.js";
 import { navigateTo, Footer } from "../components/PublicLayout.jsx";
-import { courses, partners, services, stats, testimonials, trainers, trustMilestones, values, whyChoose } from "../data/publicContent.js";
+import { courses as staticCourses, partners, services, stats, testimonials, trainers, trustMilestones, values, whyChoose } from "../data/publicContent.js";
 
 const sectionClass = "mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8";
 const inputClass = "h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white";
+
+function normalizePublicCourse(course, index) {
+  const fallback = staticCourses[index % staticCourses.length] || staticCourses[0];
+  return {
+    ...fallback,
+    name: course.name || fallback.name,
+    level: course.level || fallback.level || "Beginner",
+    duration: course.duration || fallback.duration,
+    fees: course.fees !== undefined ? `Rs. ${Number(course.fees || 0).toLocaleString("en-IN")}` : fallback.fees,
+    image: course.image || fallback.image,
+    skills: course.skills?.length ? course.skills : course.modules?.length ? course.modules : course.technologies?.length ? course.technologies : fallback.skills,
+    overview: course.description || course.overview || fallback.overview,
+    syllabus: course.syllabus || fallback.syllabus || "Contact admissions for the detailed syllabus.",
+    careers: course.careers || fallback.careers || "Career guidance is shared during counselling."
+  };
+}
+
+function usePublicCourses() {
+  const [items, setItems] = useState(staticCourses);
+
+  useEffect(() => {
+    let active = true;
+    const loadCourses = async () => {
+      try {
+        return await publicApi("/public/courses");
+      } catch {
+        return api("/courses?limit=100");
+      }
+    };
+
+    loadCourses()
+      .then((data) => {
+        if (!active) return;
+        const nextCourses = (data.items || []).map(normalizePublicCourse);
+        setItems(nextCourses.length ? nextCourses : staticCourses);
+      })
+      .catch(() => {
+        if (active) setItems(staticCourses);
+      });
+    return () => { active = false; };
+  }, []);
+
+  return items;
+}
 
 function SectionHeader({ eyebrow, title, text }) {
   return (
@@ -126,7 +170,7 @@ function CourseDetailsModal({ course, onClose }) {
   );
 }
 
-function CounsellorLeadModal({ course, onClose }) {
+function CounsellorLeadModal({ course, courseOptions, onClose }) {
   const [form, setForm] = useState({ fullName: "", mobile: "", course: course?.name || "", message: "" });
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -179,7 +223,7 @@ function CounsellorLeadModal({ course, onClose }) {
           <label className="block text-sm font-bold">
             Course Interested In
             <select className={`${inputClass} mt-2`} value={form.course} onChange={(event) => setForm({ ...form, course: event.target.value })}>
-              {courses.map((item) => (
+              {(courseOptions || staticCourses).map((item) => (
                 <option key={item.name}>{item.name}</option>
               ))}
             </select>
@@ -223,6 +267,8 @@ function CTA() {
 }
 
 export function HomePage() {
+  const publicCourses = usePublicCourses();
+
   return (
     <>
       <main>
@@ -273,7 +319,7 @@ export function HomePage() {
         <section className={sectionClass}>
           <SectionHeader eyebrow="Popular Courses" title="Pick a path and build proof of skill." />
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course) => (
+            {publicCourses.map((course) => (
               <CourseCard key={course.name} course={course} />
             ))}
           </div>
@@ -397,13 +443,15 @@ export function AboutPage() {
 }
 
 export function CoursesPage() {
+  const publicCourses = usePublicCourses();
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState("All");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [counsellorCourse, setCounsellorCourse] = useState(null);
+  const levels = useMemo(() => ["All", ...new Set(publicCourses.map((course) => course.level).filter(Boolean))], [publicCourses]);
   const filtered = useMemo(
-    () => courses.filter((course) => (level === "All" || course.level === level) && course.name.toLowerCase().includes(query.toLowerCase())),
-    [query, level]
+    () => publicCourses.filter((course) => (level === "All" || course.level === level) && course.name.toLowerCase().includes(query.toLowerCase())),
+    [publicCourses, query, level]
   );
 
   return (
@@ -416,7 +464,7 @@ export function CoursesPage() {
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search courses" className="w-full bg-transparent text-sm outline-none" />
           </label>
           <div className="flex flex-wrap gap-2">
-            {["All", "Beginner", "Intermediate", "Advanced"].map((item) => (
+            {levels.map((item) => (
               <button key={item} onClick={() => setLevel(item)} className={`h-12 rounded-md px-4 text-sm font-bold ${level === item ? "bg-[#f97316] text-white" : "border border-slate-200 bg-white hover:border-[#f97316] hover:text-[#c2410c] dark:border-white/10 dark:bg-white/5"}`}>
                 {item}
               </button>
@@ -429,7 +477,7 @@ export function CoursesPage() {
           ))}
         </div>
         <CourseDetailsModal course={selectedCourse} onClose={() => setSelectedCourse(null)} />
-        <CounsellorLeadModal course={counsellorCourse} onClose={() => setCounsellorCourse(null)} />
+        <CounsellorLeadModal course={counsellorCourse} courseOptions={publicCourses} onClose={() => setCounsellorCourse(null)} />
       </main>
       <Footer />
     </>
@@ -461,10 +509,15 @@ export function ServicesPage() {
 }
 
 export function ContactPage() {
-  const defaultCourse = courses[0]?.name || "";
+  const publicCourses = usePublicCourses();
+  const defaultCourse = publicCourses[0]?.name || "";
   const [form, setForm] = useState({ fullName: "", mobile: "", email: "", course: defaultCourse, message: "" });
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (defaultCourse && !form.course) setForm((current) => ({ ...current, course: defaultCourse }));
+  }, [defaultCourse, form.course]);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -504,7 +557,7 @@ export function ContactPage() {
               <label className="text-sm font-bold">
                 Interested Course
                 <select className={`${inputClass} mt-2`} value={form.course} onChange={(event) => setForm({ ...form, course: event.target.value })}>
-                  {courses.map((course) => (
+                  {publicCourses.map((course) => (
                     <option key={course.name}>{course.name}</option>
                   ))}
                 </select>

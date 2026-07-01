@@ -2,6 +2,7 @@ import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Lead } from "../models/Lead.js";
 import { User } from "../models/User.js";
+import { Course } from "../models/Course.js";
 import { City, State } from "country-state-city";
 
 export const publicRoutes = Router();
@@ -21,6 +22,16 @@ publicRoutes.get("/locations/cities", (req, res) => {
     .sort((a, b) => a.localeCompare(b));
   res.json({ items });
 });
+
+publicRoutes.get(
+  "/courses",
+  asyncHandler(async (_req, res) => {
+    const items = await Course.find({ isActive: { $ne: false } })
+      .sort({ createdAt: -1 })
+      .select("name duration fees description modules technologies syllabus isActive createdAt");
+    res.json({ items });
+  })
+);
 
 publicRoutes.post(
   "/enquiries",

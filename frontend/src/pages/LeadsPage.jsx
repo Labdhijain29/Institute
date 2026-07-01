@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Edit3, Eye, PhoneCall, Plus, Send, UserCheck, X } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext.jsx";
@@ -97,6 +97,9 @@ export function LeadsPage({ module }) {
   const [followUpForm, setFollowUpForm] = useState(emptyFollowUp);
   const [followUps, setFollowUps] = useState([]);
   const [message, setMessage] = useState("");
+  const [sortBy, setSortBy] = useState("date");
+  const [sortDirection, setSortDirection] = useState("desc");
+  const [leadStatusFilter, setLeadStatusFilter] = useState("");
   const role = user?.role || "";
   const workflowRole = module?.workflowRole || role;
 
@@ -110,7 +113,7 @@ export function LeadsPage({ module }) {
   const canWorkFaculty = isFacultyFlow && ["Super Admin", "Admin", "Manager", "Faculty"].includes(role);
 
   const loadLeads = async () => {
-    const data = await api("/leads");
+    const data = await api("/leads?limit=100");
     setLeads(data.items || []);
   };
 
@@ -198,8 +201,7 @@ export function LeadsPage({ module }) {
     try {
       await api(`/leads/${lead._id}/forward`, { method: "POST", body: JSON.stringify({ remarks: "Forwarded for counselling" }) });
       setMessage("Lead forwarded to counsellor");
-      const data = await api("/leads");
-      setLeads(data.items || []);
+      await loadLeads();
     } catch (error) {
       setMessage(error.message);
     }
@@ -227,8 +229,7 @@ export function LeadsPage({ module }) {
       setFacultyHandoffs(nextHandoffs);
       writeFacultyHandoffs(nextHandoffs);
       setMessage("Lead forwarded to faculty");
-      const data = await api("/leads");
-      setLeads(data.items || []);
+      await loadLeads();
     } catch (error) {
       setMessage(error.message);
     }
@@ -247,8 +248,7 @@ export function LeadsPage({ module }) {
         body: JSON.stringify({ status: "Converted", admissionStatus: "Done", remarks: "Admission done" })
       });
       setMessage("Faculty approved lead and admission is done");
-      const data = await api("/leads");
-      setLeads(data.items || []);
+      await loadLeads();
     } catch (error) {
       setMessage(error.message);
     }
@@ -259,6 +259,17 @@ export function LeadsPage({ module }) {
   const isFacultyLead = (lead) => lead.status === "Forwarded to Faculty" || Boolean(lead.facultyAssigned) || Boolean(facultyHandoffs[lead._id]);
   const admissionStatus = (lead) => lead.admissionStatus || facultyHandoffs[lead._id]?.status || (lead.convertedStudent || lead.status === "Admission Done" || lead.status === "Converted" ? "Done" : "Pending");
   const courseName = (row) => row.courseName || courses.find((course) => course._id === idOf(row.courseInterested))?.name || (typeof row.courseInterested === "object" ? row.courseInterested?.name : "") || "-";
+  const telecallerLeadStatus = (lead) => {
+    if (["Not Interested", "Lost"].includes(lead.status)) return "Rejected";
+    if (["New"].includes(lead.status)) return "Pending";
+    return "Active";
+  };
+
+  const statusBadgeClass = (status) => {
+    if (status === "Rejected") return "border-red-200 bg-red-50 text-red-700";
+    if (status === "Active") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-amber-200 bg-amber-50 text-amber-700";
+  };
 
   const visibleLeads = leads.filter((lead) => {
     if (isTelecallerFlow) return !isCounsellorLead(lead) && !isFacultyLead(lead) && !lead.convertedStudent;
@@ -267,6 +278,27 @@ export function LeadsPage({ module }) {
     if (isAdmissionsFlow) return admissionStatus(lead) === "Done";
     return true;
   });
+
+  const sortedLeads = useMemo(() => {
+    const filtered = isTelecallerFlow && leadStatusFilter
+      ? visibleLeads.filter((lead) => telecallerLeadStatus(lead) === leadStatusFilter)
+      : visibleLeads;
+    const direction = sortDirection === "asc" ? 1 : -1;
+    return [...filtered].sort((left, right) => {
+      const leftValue = sortBy === "name"
+        ? left.name || ""
+        : sortBy === "course"
+          ? courseName(left)
+          : new Date(left.createdAt || left.leadDate || 0).getTime();
+      const rightValue = sortBy === "name"
+        ? right.name || ""
+        : sortBy === "course"
+          ? courseName(right)
+          : new Date(right.createdAt || right.leadDate || 0).getTime();
+      if (typeof leftValue === "number" && typeof rightValue === "number") return (leftValue - rightValue) * direction;
+      return String(leftValue).localeCompare(String(rightValue), undefined, { sensitivity: "base" }) * direction;
+    });
+  }, [visibleLeads, isTelecallerFlow, leadStatusFilter, sortBy, sortDirection, courses]);
 
   const renderActions = (row) => {
     const actions = [];
@@ -346,15 +378,15 @@ export function LeadsPage({ module }) {
           : "Leads move step by step from telecaller to counsellor to faculty, then admission is completed.";
 
   const columns = [
+    { key: "leadDate", label: "Date", render: (row) => formatDate(row.leadDate || row.createdAt) },
     { key: "name", label: "Name" },
     { key: "mobile", label: "Mobile" },
     { key: "email", label: "Email" },
     { key: "courseInterested", label: "Course", render: (row) => courseName(row) },
-    { key: "leadDate", label: "Date", render: (row) => formatDate(row.leadDate || row.createdAt) },
     { key: "college", label: "College" },
     { key: "source", label: "Source" },
     { key: "priority", label: "Priority" },
-    { key: "status", label: "Status" },
+    { key: "status", label: "Status", render: (row) => isTelecallerFlow ? <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${statusBadgeClass(telecallerLeadStatus(row))}`}>{telecallerLeadStatus(row)}</span> : row.status },
     { key: "admissionStatus", label: "Admission", render: (row) => admissionStatus(row) },
     { key: "remarks", label: "Remarks" },
     { key: "counsellorAssigned", label: "Counsellor", render: (row) => row.counsellorAssigned || "-" },
@@ -384,7 +416,35 @@ export function LeadsPage({ module }) {
           </div>
         </div>
         {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
-        <DataTable columns={columns} rows={visibleLeads} />
+        {isTelecallerFlow && (
+          <section className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-[1fr_1fr_1fr]">
+            <label className="text-sm font-semibold text-slate-600">
+              Sort by
+              <select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                <option value="date">Date</option>
+                <option value="name">Name</option>
+                <option value="course">Course</option>
+              </select>
+            </label>
+            <label className="text-sm font-semibold text-slate-600">
+              Order
+              <select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={sortDirection} onChange={(event) => setSortDirection(event.target.value)}>
+                <option value="desc">Descending</option>
+                <option value="asc">Ascending</option>
+              </select>
+            </label>
+            <label className="text-sm font-semibold text-slate-600">
+              Lead status
+              <select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={leadStatusFilter} onChange={(event) => setLeadStatusFilter(event.target.value)}>
+                <option value="">All statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Active">Active</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </label>
+          </section>
+        )}
+        <DataTable columns={columns} rows={sortedLeads} />
       </section>
       <CreateLeadModal open={createOpen} form={form} setForm={setForm} courses={courses} onSubmit={createLead} onClose={() => { setCreateOpen(false); setForm(emptyLead); }} isTelecallerFlow={isTelecallerFlow} />
       <CreateLeadModal open={editOpen} form={form} setForm={setForm} courses={courses} onSubmit={updateLead} onClose={() => { setEditOpen(false); setActiveLead(null); setForm(emptyLead); }} title="Edit Lead" submitLabel="Update Lead" />

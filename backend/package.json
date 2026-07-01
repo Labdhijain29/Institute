@@ -7,6 +7,7 @@
     "dev": "node src/server.js",
     "start": "node src/server.js",
     "seed:demo": "node src/scripts/seedDemoUsers.js",
+    "seed:courses": "node src/scripts/seedCourses.js",
     "lint": "node --check src/server.js"
   },
   "dependencies": {

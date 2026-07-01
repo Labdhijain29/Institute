@@ -166,39 +166,6 @@ export const courses = [
     careers: "SOC Analyst Trainee, Cyber Security Intern, Security Support Executive"
   },
   {
-    name: "Networking",
-    level: "Beginner",
-    duration: "4 Months",
-    fees: "Rs. 32,000",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80",
-    skills: ["TCP/IP", "Routing", "Switching", "Troubleshooting"],
-    overview: "Build strong computer networking fundamentals through practical labs, device configuration, and real troubleshooting scenarios.",
-    syllabus: "Network fundamentals, OSI/TCP-IP models, IP addressing, subnetting, routing, switching, DNS, DHCP, firewalls, basic network security.",
-    careers: "Network Support Engineer, IT Support Executive, NOC Trainee"
-  },
-  {
-    name: "Automation Testing",
-    level: "Intermediate",
-    duration: "4 Months",
-    fees: "Rs. 38,000",
-    image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=900&q=80",
-    skills: ["Selenium", "Java", "TestNG", "CI/CD"],
-    overview: "Learn to automate web application testing with structured frameworks, reusable test scripts, reporting, and CI integration.",
-    syllabus: "Testing basics, Java essentials, Selenium WebDriver, locators, waits, TestNG, page object model, Maven, Git, reporting, CI basics.",
-    careers: "Automation Test Engineer, QA Automation Trainee, SDET Intern"
-  },
-  {
-    name: "Manual Testing",
-    level: "Beginner",
-    duration: "3 Months",
-    fees: "Rs. 28,000",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80",
-    skills: ["Test Cases", "Bug Reports", "SDLC", "Jira"],
-    overview: "Understand software quality assurance from the ground up with test planning, execution, defect reporting, and project workflows.",
-    syllabus: "SDLC, STLC, testing types, test case design, test scenarios, defect lifecycle, bug reporting, Jira basics, Agile QA workflow.",
-    careers: "Manual Tester, QA Trainee, Software Test Engineer"
-  },
-  {
     name: "iOS Development with Gen AI",
     level: "Intermediate",
     duration: "6 Months",
@@ -230,6 +197,17 @@ export const courses = [
     overview: "Create cross-platform mobile apps with Flutter and use Gen AI for UI generation, debugging, and code help.",
     syllabus: "Dart basics, Flutter widgets, navigation, state management, Firebase, API integration, Gen AI workflows.",
     careers: "Flutter Developer, Mobile App Developer, App Development Intern"
+  },
+  {
+    name: "Networking with Gen AI",
+    level: "Beginner",
+    duration: "4 Months",
+    fees: "Rs. 32,000",
+    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80",
+    skills: ["TCP/IP", "Routing", "Switching", "Gen AI"],
+    overview: "Build strong computer networking fundamentals and use Gen AI for guided troubleshooting, documentation, and scenario practice.",
+    syllabus: "Network fundamentals, OSI/TCP-IP models, IP addressing, subnetting, routing, switching, DNS, DHCP, firewalls, basic network security, Gen AI for troubleshooting.",
+    careers: "Network Support Engineer, IT Support Executive, NOC Trainee"
   }
 ];
 

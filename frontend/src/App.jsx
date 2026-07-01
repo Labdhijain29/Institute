@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from "./auth/AuthContext.jsx";
 import { LoginPage } from "./pages/LoginPage.jsx";
 import { Shell } from "./layouts/Shell.jsx";
 import { PublicLayout } from "./components/PublicLayout.jsx";
-import { AboutPage, ContactPage, CoursesPage, HomePage, ServicesPage } from "./pages/PublicPages.jsx";
+import { AboutPage, ContactPage, CoursesPage, HomePage, ITServicesPage, ServicesPage } from "./pages/PublicPages.jsx";
 import { StudentPortal } from "./student/StudentPortal.jsx";
 import { MarketingPortal } from "./marketing/MarketingPortal.jsx";
 
@@ -68,6 +68,7 @@ function Root() {
     "/": HomePage,
     "/about": AboutPage,
     "/courses": CoursesPage,
+    "/it-services": ITServicesPage,
     "/services": ServicesPage,
     "/contact": ContactPage
   };

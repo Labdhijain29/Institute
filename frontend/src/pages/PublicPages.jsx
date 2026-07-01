@@ -51,6 +51,30 @@ function usePublicCourses() {
   return items;
 }
 
+const itCourseKeywords = [
+  "full stack",
+  "java",
+  "python",
+  "mern",
+  "mean",
+  "data",
+  "ai",
+  "ml",
+  "cloud",
+  "aws",
+  "devops",
+  "cyber",
+  "ios",
+  "android",
+  "flutter",
+  "networking"
+];
+
+function isITCourse(course) {
+  const text = [course.name, course.overview, course.syllabus, ...(course.skills || [])].join(" ").toLowerCase();
+  return itCourseKeywords.some((keyword) => text.includes(keyword));
+}
+
 function SectionHeader({ eyebrow, title, text }) {
   return (
     <div className="mb-8 max-w-3xl">
@@ -500,6 +524,25 @@ export function ServicesPage() {
                 <ChevronRight size={16} />
               </button>
             </article>
+          ))}
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
+
+export function ITServicesPage() {
+  const publicCourses = usePublicCourses();
+  const itCourses = useMemo(() => publicCourses.filter(isITCourse), [publicCourses]);
+
+  return (
+    <>
+      <main className={sectionClass}>
+        <SectionHeader eyebrow="IT Services" title="Explore IT programs powered by Gen AI." text="These programs are selected from the current course catalog and stay aligned with the courses managed from the dashboard." />
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {itCourses.map((course) => (
+            <CourseCard key={course.name} course={course} showFees />
           ))}
         </div>
       </main>

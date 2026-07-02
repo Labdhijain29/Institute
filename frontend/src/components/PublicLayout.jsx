@@ -20,14 +20,14 @@ export function PublicLayout({ children, path, dark, setDark }) {
     <div className={dark ? "dark" : ""}>
       <div className="min-h-screen bg-[#f8f5ef] text-[#111315] dark:bg-[#0f1011] dark:text-white">
         <header className="sticky top-0 z-40 bg-[#111315] shadow-[0_10px_28px_rgba(17,19,21,0.18)] backdrop-blur-xl">
-          <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-            <button onClick={() => go("/")} className="flex items-center gap-3 text-left" aria-label="Go home">
-              <span className="grid h-12 w-[76px] place-items-center overflow-hidden p-0">
+          <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:h-[76px] sm:px-6 lg:px-8">
+            <button onClick={() => go("/")} className="flex min-w-0 items-center gap-2 text-left sm:gap-3" aria-label="Go home">
+              <span className="grid h-11 w-[68px] shrink-0 place-items-center overflow-hidden p-0 sm:h-12 sm:w-[76px]">
                 <img src={logoMark} alt="Coding Walla logo" className="h-full w-full object-contain" />
               </span>
-              <span>
+              <span className="min-w-0">
                 <span className="block text-base font-black leading-tight text-white">Coding Walla</span>
-                <span className="block text-xs font-medium text-slate-300">From Learning to Earning</span>
+                <span className="hidden text-xs font-medium text-slate-300 sm:block">From Learning to Earning</span>
               </span>
             </button>
 
@@ -43,7 +43,7 @@ export function PublicLayout({ children, path, dark, setDark }) {
               ))}
             </nav>
 
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
               <button
                 onClick={() => setDark((value) => !value)}
                 className="grid h-10 w-10 place-items-center rounded-md border border-white/10 bg-white/5 text-white transition hover:border-[#f97316] hover:text-[#fdba74]"
@@ -95,7 +95,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-white/10 bg-ink text-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.2fr_0.8fr_1fr_1fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_1fr_1fr] lg:px-8">
         <div>
           <button onClick={() => go("/")} className="flex items-center gap-3 text-left" aria-label="Go home">
             <span className="grid h-14 w-[88px] place-items-center overflow-hidden">

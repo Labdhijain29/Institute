@@ -280,25 +280,28 @@ export const trainers = [
     name: "Lakhan Rathod",
     expertise: "Senior Java Developer",
     experience: "7+ years",
-    image: trainer1Image
+    image: trainer1Image,
+    description: "Guides students in Java, backend logic, and real-world application development with practical project mentoring."
   },
   {
     name: "Shazia Khan",
     expertise: "Senior Data Scientist",
     experience: "9+ years",
-    image: trainer2Image
+    image: trainer2Image,
+    description: "Mentors learners in data analysis, machine learning workflows, and industry-ready data science projects."
   },
   {
     name: "Shivprasad Suryawanshi",
     expertise: "Data Scientist",
     experience: "9 years",
-    image: trainer3Image
+    image: trainer3Image,
+    description: "Helps students understand analytics, Python, visualization, and applied data science through hands-on practice."
   }
 ];
 
 export const trustMilestones = [
   ["12+", "Years of training excellence", Trophy],
-  ["35+", "Hiring and internship partners", Handshake],
+  ["135+", "Hiring and internship partners", Handshake],
   ["18k+", "Hours of live mentoring", UsersRound],
   ["4.8/5", "Average student rating", Sparkles]
 ];

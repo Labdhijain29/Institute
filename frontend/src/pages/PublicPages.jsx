@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowRight, CheckCircle2, ChevronRight, Mail, MapPin, Phone, Search, Send, X } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, CheckCircle2, ChevronRight, ClipboardCheck, Clock3, Code2, Database, Globe2, Headphones, HelpCircle, Layers3, Mail, MapPin, Palette, Phone, Rocket, Search, Send, Server, ShieldCheck, ShoppingCart, Smartphone, Star, Users, X } from "lucide-react";
 import { api, publicApi } from "../api/client.js";
 import { navigateTo, Footer } from "../components/PublicLayout.jsx";
 import { courses as staticCourses, partners, services, stats, testimonials, trainers, trustMilestones, values, whyChoose } from "../data/publicContent.js";
 
-const sectionClass = "mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8";
+const sectionClass = "mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-14 lg:px-8";
 const inputClass = "h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white";
 
 function normalizePublicCourse(course, index) {
@@ -78,8 +78,8 @@ function isITCourse(course) {
 function SectionHeader({ eyebrow, title, text }) {
   return (
     <div className="mb-8 max-w-3xl">
-      <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#f97316]">{eyebrow}</p>
-      <h2 className="mt-3 text-3xl font-black leading-tight md:text-4xl">{title}</h2>
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#f97316] sm:text-sm">{eyebrow}</p>
+      <h2 className="mt-3 text-2xl font-black leading-tight sm:text-3xl md:text-4xl">{title}</h2>
       {text && <p className="mt-3 text-base leading-7 text-slate-600 dark:text-slate-300">{text}</p>}
     </div>
   );
@@ -87,7 +87,7 @@ function SectionHeader({ eyebrow, title, text }) {
 
 function PrimaryButton({ children, to = "/courses" }) {
   return (
-    <button onClick={() => navigateTo(to)} className="inline-flex h-12 items-center gap-2 rounded-md bg-[#f97316] px-5 text-sm font-bold text-white shadow-[0_14px_30px_rgba(249,115,22,0.22)] transition hover:bg-[#111315]">
+    <button onClick={() => navigateTo(to)} className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#f97316] px-5 text-sm font-bold text-white shadow-[0_14px_30px_rgba(249,115,22,0.22)] transition hover:bg-[#111315] sm:w-auto">
       {children}
       <ArrowRight size={17} />
     </button>
@@ -96,13 +96,13 @@ function PrimaryButton({ children, to = "/courses" }) {
 
 function SecondaryButton({ children, to = "/login" }) {
   return (
-    <button onClick={() => navigateTo(to)} className="inline-flex h-12 items-center gap-2 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-[#111315] shadow-sm transition hover:border-[#f97316] hover:text-[#c2410c] dark:border-white/15 dark:bg-white/5 dark:text-white">
+    <button onClick={() => navigateTo(to)} className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 text-sm font-bold text-[#111315] shadow-sm transition hover:border-[#f97316] hover:text-[#c2410c] dark:border-white/15 dark:bg-white/5 dark:text-white sm:w-auto">
       {children}
     </button>
   );
 }
 
-function CourseCard({ course, onLearnMore, onCounsellor, showFees = true }) {
+function CourseCard({ course, onLearnMore, onCounsellor, onBuyNow, showFees = true }) {
   return (
     <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10 dark:bg-white/5">
       <img src={course.image} alt={`${course.name} course`} className="h-44 w-full object-cover" loading="lazy" />
@@ -141,6 +141,12 @@ function CourseCard({ course, onLearnMore, onCounsellor, showFees = true }) {
               <Send size={15} />
             </button>
           )}
+          {onBuyNow && (
+            <button onClick={() => onBuyNow(course)} className="inline-flex h-9 items-center gap-2 rounded-md bg-[#111315] px-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#f97316] dark:bg-white dark:text-[#111315] dark:hover:bg-[#fdba74]">
+              <ShoppingCart size={15} />
+              Buy Now
+            </button>
+          )}
         </div>
       </div>
     </article>
@@ -163,10 +169,10 @@ function CourseDetailsModal({ course, onClose }) {
           </button>
         </div>
         <div className="grid gap-5 p-5 md:grid-cols-[0.9fr_1.1fr]">
-          <img src={course.image} alt={`${course.name} course`} className="h-56 w-full rounded-md object-cover md:h-full" />
+          <img src={course.image} alt={`${course.name} course`} className="h-48 w-full rounded-md object-cover sm:h-56 md:h-full" />
           <div>
             <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{course.overview}</p>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+            <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <p className="rounded-md bg-slate-50 p-3 dark:bg-white/5">
                 <span className="block text-xs text-slate-500 dark:text-slate-400">Duration</span>
                 <span className="font-bold">{course.duration}</span>
@@ -273,6 +279,108 @@ function CounsellorLeadModal({ course, courseOptions, onClose }) {
   );
 }
 
+function CoursePurchaseModal({ course, courseOptions, onClose }) {
+  const [form, setForm] = useState({ fullName: "", mobile: "", email: "", course: course?.name || "", paymentMode: "Online Payment", message: "" });
+  const [status, setStatus] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (course?.name) setForm((current) => ({ ...current, course: course.name }));
+  }, [course?.name]);
+
+  if (!course) return null;
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setStatus("");
+    setError("");
+    try {
+      await publicApi("/public/enquiries", {
+        method: "POST",
+        body: JSON.stringify({
+          fullName: form.fullName,
+          mobile: form.mobile,
+          email: form.email,
+          course: form.course,
+          sendToCounsellor: true,
+          message: [
+            "Purchase request from Buy Now button.",
+            `Preferred payment mode: ${form.paymentMode}`,
+            form.message ? `Student note: ${form.message}` : ""
+          ].filter(Boolean).join("\n")
+        })
+      });
+      setStatus("Purchase request submitted. Our counsellor will contact you to complete enrollment and payment.");
+      setForm({ fullName: "", mobile: "", email: "", course: course.name, paymentMode: "Online Payment", message: "" });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-ink/60 px-4 py-6 backdrop-blur-sm">
+      <article className="w-full max-w-lg overflow-hidden rounded-lg border border-slate-200 bg-white shadow-soft dark:border-white/10 dark:bg-[#12181c]">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-white/10">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#f97316]">Buy Course</p>
+            <h2 className="mt-2 text-2xl font-black">{course.name}</h2>
+          </div>
+          <button onClick={onClose} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-slate-200 text-slate-500 hover:border-[#f97316] hover:text-[#f97316] dark:border-white/10 dark:text-slate-300">
+            <X size={18} />
+          </button>
+        </div>
+        <form onSubmit={submit} className="space-y-4 p-5">
+          <label className="block text-sm font-bold">
+            Student Name
+            <input required className={`${inputClass} mt-2`} value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} />
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-bold">
+              Contact No.
+              <input required inputMode="numeric" className={`${inputClass} mt-2`} value={form.mobile} onChange={(event) => setForm({ ...form, mobile: event.target.value })} />
+            </label>
+            <label className="block text-sm font-bold">
+              Email
+              <input type="email" className={`${inputClass} mt-2`} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
+            </label>
+          </div>
+          <label className="block text-sm font-bold">
+            Course
+            <select className={`${inputClass} mt-2`} value={form.course} onChange={(event) => setForm({ ...form, course: event.target.value })}>
+              {(courseOptions || staticCourses).map((item) => (
+                <option key={item.name}>{item.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm font-bold">
+            Payment Preference
+            <select className={`${inputClass} mt-2`} value={form.paymentMode} onChange={(event) => setForm({ ...form, paymentMode: event.target.value })}>
+              {["Online Payment", "UPI", "Card", "Bank Transfer", "Cash"].map((mode) => (
+                <option key={mode}>{mode}</option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm font-bold">
+            Note
+            <textarea rows="3" className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} />
+          </label>
+          {status && <p className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{status}</p>}
+          {error && <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-bold">
+              Cancel
+            </button>
+            <button className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-bold text-white hover:bg-[#111315]">
+              <ShoppingCart size={16} />
+              Submit Purchase
+            </button>
+          </div>
+        </form>
+      </article>
+    </div>
+  );
+}
+
 function CTA() {
   return (
     <section className="bg-ink text-white">
@@ -296,15 +404,15 @@ export function HomePage() {
   return (
     <>
       <main>
-        <section className="relative min-h-[calc(100vh-76px)] overflow-hidden bg-[#111315] text-white">
+        <section className="relative min-h-[560px] overflow-hidden bg-[#111315] text-white md:min-h-[calc(100vh-76px)]">
           <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=2000&q=85" alt="Futuristic technology workspace with code screens" className="absolute inset-0 h-full w-full object-cover object-center opacity-90" />
           <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(17,19,21,.97)_0%,rgba(17,19,21,.84)_40%,rgba(17,19,21,.36)_72%,rgba(249,115,22,.18)_100%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_32%,rgba(56,189,248,.28),transparent_32%),radial-gradient(circle_at_84%_70%,rgba(249,115,22,.28),transparent_28%),linear-gradient(180deg,rgba(17,19,21,.12)_0%,rgba(17,19,21,.7)_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#111315] via-[#111315]/55 to-transparent" />
-          <div className="relative mx-auto flex min-h-[calc(100vh-76px)] max-w-7xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-8">
+          <div className="relative mx-auto flex min-h-[560px] max-w-7xl flex-col justify-center px-4 py-14 sm:px-6 md:min-h-[calc(100vh-76px)] lg:px-8">
             <div className="max-w-3xl">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fdba74]">Coding Walla Website & Management System</p>
-              <h1 className="mt-5 text-4xl font-black leading-tight md:text-6xl">Coding Walla</h1>
+              <h1 className="mt-5 text-4xl font-black leading-tight sm:text-5xl md:text-6xl">Coding Walla</h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-100">Professional coding courses with live classes, real projects, placement support, and a role-based management system for every student journey.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <PrimaryButton to="/courses">Explore Courses</PrimaryButton>
@@ -440,13 +548,14 @@ export function AboutPage() {
           <SectionHeader eyebrow="Our Industry Trainers" title="Mentors with classroom clarity and industry depth." />
           <div className="grid gap-5 md:grid-cols-3">
             {trainers.map((trainer) => (
-              <article key={trainer.name} className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5">
-                <img src={trainer.image} alt={trainer.name} className="h-72 w-full object-cover object-top md:h-80 lg:h-96" loading="lazy" />
-                <div className="p-5">
-                  <h3 className="text-lg font-black">{trainer.name}</h3>
-                  <p className="mt-1 text-sm text-[#ea580c]">{trainer.expertise}</p>
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{trainer.experience} experience</p>
+              <article key={trainer.name} className="rounded-lg border border-slate-200 bg-white p-6 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10 dark:bg-white/5">
+                <div className="mx-auto grid h-32 w-32 place-items-center overflow-hidden rounded-full border-4 border-[#ffe4d2] bg-slate-100 shadow-sm dark:border-[#f97316]/20 dark:bg-white/10">
+                  <img src={trainer.image} alt={trainer.name} className="h-full w-full object-cover object-top" loading="lazy" />
                 </div>
+                <h3 className="mt-6 text-lg font-black">{trainer.name}</h3>
+                <p className="mt-3 inline-flex rounded-md bg-[#fff3e8] px-3 py-1 text-sm font-bold text-[#c2410c] dark:bg-[#f97316]/15 dark:text-[#fdba74]">{trainer.expertise}</p>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{trainer.experience} experience</p>
+                <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">{trainer.description}</p>
               </article>
             ))}
           </div>
@@ -472,6 +581,7 @@ export function CoursesPage() {
   const [level, setLevel] = useState("All");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [counsellorCourse, setCounsellorCourse] = useState(null);
+  const [purchaseCourse, setPurchaseCourse] = useState(null);
   const levels = useMemo(() => ["All", ...new Set(publicCourses.map((course) => course.level).filter(Boolean))], [publicCourses]);
   const filtered = useMemo(
     () => publicCourses.filter((course) => (level === "All" || course.level === level) && course.name.toLowerCase().includes(query.toLowerCase())),
@@ -482,14 +592,14 @@ export function CoursesPage() {
     <>
       <main className={sectionClass}>
         <SectionHeader eyebrow="Courses" title="Search courses by skill level and career path." text="Each program includes course structure, syllabus direction, duration, and career outcomes." />
-        <div className="mb-7 grid gap-3 md:grid-cols-[1fr_auto]">
+        <div className="mb-7 grid gap-3 lg:grid-cols-[1fr_auto]">
           <label className="flex h-12 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 dark:border-white/10 dark:bg-white/5">
             <Search size={18} className="text-slate-400" />
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search courses" className="w-full bg-transparent text-sm outline-none" />
           </label>
           <div className="flex flex-wrap gap-2">
             {levels.map((item) => (
-              <button key={item} onClick={() => setLevel(item)} className={`h-12 rounded-md px-4 text-sm font-bold ${level === item ? "bg-[#f97316] text-white" : "border border-slate-200 bg-white hover:border-[#f97316] hover:text-[#c2410c] dark:border-white/10 dark:bg-white/5"}`}>
+              <button key={item} onClick={() => setLevel(item)} className={`h-11 rounded-md px-3 text-sm font-bold sm:h-12 sm:px-4 ${level === item ? "bg-[#f97316] text-white" : "border border-slate-200 bg-white hover:border-[#f97316] hover:text-[#c2410c] dark:border-white/10 dark:bg-white/5"}`}>
                 {item}
               </button>
             ))}
@@ -497,11 +607,12 @@ export function CoursesPage() {
         </div>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((course) => (
-            <CourseCard key={course.name} course={course} onLearnMore={setSelectedCourse} onCounsellor={setCounsellorCourse} showFees={false} />
+            <CourseCard key={course.name} course={course} onLearnMore={setSelectedCourse} onCounsellor={setCounsellorCourse} onBuyNow={setPurchaseCourse} showFees={false} />
           ))}
         </div>
         <CourseDetailsModal course={selectedCourse} onClose={() => setSelectedCourse(null)} />
         <CounsellorLeadModal course={counsellorCourse} courseOptions={publicCourses} onClose={() => setCounsellorCourse(null)} />
+        <CoursePurchaseModal course={purchaseCourse} courseOptions={publicCourses} onClose={() => setPurchaseCourse(null)} />
       </main>
       <Footer />
     </>
@@ -532,19 +643,310 @@ export function ServicesPage() {
   );
 }
 
+const serviceSolutions = [
+  {
+    title: "Web Development",
+    Icon: Globe2,
+    description: "High-performing websites and web platforms built for brand trust, speed, and conversions.",
+    items: ["Business Websites", "E-commerce Websites", "Educational Websites", "Custom Web Applications", "Landing Pages"]
+  },
+  {
+    title: "Full Stack Development",
+    Icon: Code2,
+    description: "Complete frontend, backend, API, and database implementation for modern digital products.",
+    items: ["MERN Stack Applications", "REST APIs", "Authentication Systems", "Admin Dashboards", "Database Integration"]
+  },
+  {
+    title: "Software Development",
+    Icon: BriefcaseBusiness,
+    description: "Custom software that digitizes operations, improves visibility, and reduces manual work.",
+    items: ["ERP Solutions", "CRM Systems", "Inventory Management", "Custom Business Software"]
+  },
+  {
+    title: "Mobile App Development",
+    Icon: Smartphone,
+    description: "Responsive mobile experiences connected to reliable APIs and long-term support workflows.",
+    items: ["Android Apps", "Cross-Platform Apps", "API Integrations", "Maintenance & Support"]
+  },
+  {
+    title: "UI/UX Design",
+    Icon: Palette,
+    description: "Clean product interfaces designed around clarity, usability, and business outcomes.",
+    items: ["Wireframing", "Prototyping", "Responsive Interfaces", "User Experience Improvements"]
+  },
+  {
+    title: "Digital Transformation",
+    Icon: Server,
+    description: "Technology consulting and automation for teams moving from manual systems to digital workflows.",
+    items: ["Business Automation", "Cloud-Based Solutions", "Process Digitization", "Technical Consulting"]
+  }
+];
+
+const serviceStrengths = [
+  ["Experienced Team", Users],
+  ["Modern Technologies", Layers3],
+  ["Secure Development", ShieldCheck],
+  ["Scalable Solutions", Rocket],
+  ["Affordable Pricing", BriefcaseBusiness],
+  ["On-Time Delivery", Clock3],
+  ["Dedicated Support", Headphones],
+  ["Quality Assurance", ClipboardCheck]
+];
+
+const technologyGroups = [
+  ["Frontend", ["HTML", "CSS", "JavaScript", "React.js", "Tailwind CSS"]],
+  ["Backend", ["Node.js", "Express.js", "Python", "Django"]],
+  ["Database", ["MongoDB", "MySQL"]],
+  ["Tools", ["Git", "GitHub", "Postman", "VS Code"]]
+];
+
+const developmentSteps = ["Requirement Analysis", "Planning", "UI/UX Design", "Development", "Testing", "Deployment", "Support & Maintenance"];
+
+const portfolioProjects = [
+  {
+    name: "Institute Management CRM",
+    description: "A role-based platform for admissions, batches, leads, receipts, and student operations.",
+    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=900&q=80",
+    technologies: ["React", "Node.js", "MongoDB"]
+  },
+  {
+    name: "E-commerce Storefront",
+    description: "A conversion-focused online store with product catalog, checkout flow, and admin controls.",
+    image: "https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&w=900&q=80",
+    technologies: ["React", "Express.js", "MySQL"]
+  },
+  {
+    name: "Business Automation Portal",
+    description: "A custom dashboard for tracking internal requests, approvals, reports, and team productivity.",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=80",
+    technologies: ["Python", "Django", "Postman"]
+  }
+];
+
+const serviceTestimonials = [
+  {
+    name: "Amit Sharma",
+    position: "Founder",
+    company: "BrightPath Academy",
+    feedback: "The team understood our admissions process clearly and delivered a fast, practical CRM that our staff could use from day one."
+  },
+  {
+    name: "Neha Verma",
+    position: "Operations Head",
+    company: "Urban Retail Co.",
+    feedback: "Their software helped us reduce manual reporting and gave our managers better visibility across inventory and sales."
+  },
+  {
+    name: "Rahul Mehta",
+    position: "Director",
+    company: "SkillBridge Solutions",
+    feedback: "We needed a clean website and custom dashboard on a tight timeline. The execution was structured, responsive, and reliable."
+  }
+];
+
+const serviceFaqs = [
+  ["How long does a project take?", "Most websites take 2-4 weeks, while custom software and dashboards depend on scope, integrations, and approval cycles."],
+  ["What technologies do you use?", "We work with HTML, CSS, JavaScript, React.js, Tailwind CSS, Node.js, Express.js, Python, Django, MongoDB, and MySQL."],
+  ["Do you provide maintenance?", "Yes. We provide maintenance, bug fixes, updates, performance improvements, and ongoing support plans."],
+  ["Can you build custom software?", "Yes. We build ERP, CRM, inventory systems, admin dashboards, automation tools, and business-specific applications."],
+  ["How can I request a quotation?", "Use the consultation or contact button and share your requirements. The team will review the scope and respond with a quotation."]
+];
+
+function ITServiceSection({ eyebrow, title, text, children, className = "" }) {
+  return (
+    <section className={className}>
+      <div className={sectionClass}>
+        <SectionHeader eyebrow={eyebrow} title={title} text={text} />
+        {children}
+      </div>
+    </section>
+  );
+}
+
 export function ITServicesPage() {
-  const publicCourses = usePublicCourses();
-  const itCourses = useMemo(() => publicCourses.filter(isITCourse), [publicCourses]);
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setEntered(true), 40);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const reveal = entered ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
 
   return (
     <>
-      <main className={sectionClass}>
-        <SectionHeader eyebrow="IT Services" title="Explore IT programs powered by Gen AI." text="These programs are selected from the current course catalog and stay aligned with the courses managed from the dashboard." />
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {itCourses.map((course) => (
-            <CourseCard key={course.name} course={course} showFees />
-          ))}
-        </div>
+      <main>
+        <section className="relative overflow-hidden bg-[#111315] text-white">
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=2000&q=85" alt="Technology hardware and software systems" className="absolute inset-0 h-full w-full object-cover opacity-55" />
+          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(17,19,21,.96)_0%,rgba(17,19,21,.86)_46%,rgba(17,19,21,.55)_100%)]" />
+          <div className="relative mx-auto grid min-h-[560px] max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 md:py-20 lg:grid-cols-[1.05fr_.95fr] lg:px-8">
+            <div className={`transition-all duration-700 ease-out ${reveal}`}>
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fdba74]">Corporate IT Solutions</p>
+              <h1 className="mt-5 max-w-4xl text-3xl font-black leading-tight sm:text-5xl md:text-6xl">IT Services & Technology Solutions</h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-100">We provide end-to-end digital solutions for businesses, startups, educational institutions, and organizations that want reliable technology, clean execution, and measurable outcomes.</p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <button onClick={() => navigateTo("/contact")} className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#f97316] px-5 text-sm font-bold text-white shadow-[0_14px_30px_rgba(249,115,22,0.22)] transition hover:bg-white hover:text-[#111315]">
+                  Get Free Consultation
+                  <ArrowRight size={17} />
+                </button>
+                <button onClick={() => navigateTo("/contact")} className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/25 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur transition hover:border-[#fdba74] hover:text-[#fdba74]">
+                  Contact Us
+                  <Phone size={17} />
+                </button>
+              </div>
+            </div>
+            <div className={`grid gap-4 transition-all delay-150 duration-700 ease-out ${reveal}`}>
+              {[
+                ["Digital Products", "Websites, apps, dashboards, and custom portals"],
+                ["Business Systems", "CRM, ERP, inventory, automation, and reporting"],
+                ["Technical Support", "Maintenance, consulting, deployment, and scaling"]
+              ].map(([title, text]) => (
+                <div key={title} className="rounded-lg border border-white/15 bg-white/10 p-5 shadow-soft backdrop-blur">
+                  <h2 className="text-lg font-black">{title}</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-200">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <ITServiceSection eyebrow="Services" title="Complete IT solutions for modern organizations." text="From customer-facing websites to internal business systems, every solution is planned for usability, security, and long-term growth.">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {serviceSolutions.map(({ title, Icon, description, items }) => (
+              <article key={title} className="group rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#f97316] hover:shadow-soft dark:border-white/10 dark:bg-white/5">
+                <div className="grid h-12 w-12 place-items-center rounded-md bg-[#fff3e8] text-[#f97316] transition group-hover:bg-[#f97316] group-hover:text-white dark:bg-[#f97316]/15">
+                  <Icon size={24} />
+                </div>
+                <h2 className="mt-5 text-xl font-black">{title}</h2>
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
+                <div className="mt-5 grid gap-2">
+                  {items.map((item) => (
+                    <p key={item} className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      <CheckCircle2 size={16} className="shrink-0 text-[#f97316]" />
+                      {item}
+                    </p>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </ITServiceSection>
+
+        <ITServiceSection eyebrow="Why Choose Us" title="Built with discipline from planning to support." className="bg-white dark:bg-[#12181c]">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {serviceStrengths.map(([title, Icon]) => (
+              <div key={title} className="rounded-lg border border-slate-200 p-5 transition hover:-translate-y-1 hover:border-[#f97316] dark:border-white/10">
+                <Icon className="text-[#f97316]" size={26} />
+                <h3 className="mt-4 font-black">{title}</h3>
+              </div>
+            ))}
+          </div>
+        </ITServiceSection>
+
+        <ITServiceSection eyebrow="Technology Stack" title="Modern tools for reliable delivery." text="We choose practical technologies that are easy to maintain, scale, and hand over to growing teams.">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {technologyGroups.map(([group, items]) => (
+              <article key={group} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+                <div className="flex items-center gap-3">
+                  <Database size={22} className="text-[#f97316]" />
+                  <h2 className="text-lg font-black">{group}</h2>
+                </div>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {items.map((item) => (
+                    <span key={item} className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-bold text-slate-700 dark:border-white/10 dark:text-slate-200">{item}</span>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </ITServiceSection>
+
+        <ITServiceSection eyebrow="Process" title="A clear development process from idea to launch." className="bg-white dark:bg-[#12181c]">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7">
+            {developmentSteps.map((step, index) => (
+              <article key={step} className="relative rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
+                <span className="grid h-10 w-10 place-items-center rounded-md bg-[#f97316] text-sm font-black text-white">{index + 1}</span>
+                <h2 className="mt-4 text-sm font-black leading-5">{step}</h2>
+              </article>
+            ))}
+          </div>
+        </ITServiceSection>
+
+        <ITServiceSection eyebrow="Portfolio" title="Project previews across business needs." text="A glimpse of the kinds of platforms we build for operations, sales, learning, and management teams.">
+          <div className="grid gap-5 md:grid-cols-3">
+            {portfolioProjects.map((project) => (
+              <article key={project.name} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10 dark:bg-white/5">
+                <img src={project.image} alt={project.name} className="h-48 w-full object-cover" loading="lazy" />
+                <div className="p-5">
+                  <h2 className="text-lg font-black">{project.name}</h2>
+                  <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{project.description}</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {project.technologies.map((item) => (
+                      <span key={item} className="rounded-md bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-700 dark:bg-white/10 dark:text-slate-200">{item}</span>
+                    ))}
+                  </div>
+                  <button onClick={() => navigateTo("/contact")} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#ea580c] transition hover:text-[#111315] dark:text-[#fdba74]">
+                    View Details
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </ITServiceSection>
+
+        <ITServiceSection eyebrow="Testimonials" title="Trusted by teams that need practical technology." className="bg-white dark:bg-[#12181c]">
+          <div className="grid gap-5 md:grid-cols-3">
+            {serviceTestimonials.map((item) => (
+              <article key={item.name} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+                <div className="flex gap-1 text-[#f97316]">
+                  {[1, 2, 3, 4, 5].map((rating) => <Star key={rating} size={16} fill="currentColor" />)}
+                </div>
+                <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">{item.feedback}</p>
+                <div className="mt-5 border-t border-slate-200 pt-4 dark:border-white/10">
+                  <h2 className="font-black">{item.name}</h2>
+                  <p className="text-sm text-[#ea580c]">{item.position}, {item.company}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </ITServiceSection>
+
+        <ITServiceSection eyebrow="FAQ" title="Common questions before starting a project.">
+          <div className="grid gap-4 lg:grid-cols-2">
+            {serviceFaqs.map(([question, answer]) => (
+              <article key={question} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
+                <div className="flex items-start gap-3">
+                  <HelpCircle size={22} className="mt-0.5 shrink-0 text-[#f97316]" />
+                  <div>
+                    <h2 className="font-black">{question}</h2>
+                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{answer}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </ITServiceSection>
+
+        <section className="bg-[#111315] text-white">
+          <div className="mx-auto grid max-w-7xl gap-6 px-4 py-14 sm:px-6 md:grid-cols-[1fr_auto] md:items-center lg:px-8">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#fdba74]">Start With A Consultation</p>
+              <h2 className="mt-3 text-3xl font-black">Ready to Start Your Project?</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-200">Share your requirements and we will help you choose the right technology, timeline, and execution plan.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <button onClick={() => navigateTo("/contact")} className="inline-flex h-12 items-center gap-2 rounded-md bg-[#f97316] px-5 text-sm font-bold text-white transition hover:bg-white hover:text-[#111315]">
+                Consultation
+                <ArrowRight size={17} />
+              </button>
+              <button onClick={() => navigateTo("/contact")} className="inline-flex h-12 items-center gap-2 rounded-md border border-white/20 px-5 text-sm font-bold text-white transition hover:border-[#fdba74] hover:text-[#fdba74]">
+                Contact
+                <Phone size={17} />
+              </button>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </>

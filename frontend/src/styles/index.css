@@ -16,6 +16,20 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
 button,
 input,
 select,

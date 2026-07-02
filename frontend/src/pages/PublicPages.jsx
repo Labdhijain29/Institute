@@ -344,7 +344,7 @@ export function HomePage() {
           <SectionHeader eyebrow="Popular Courses" title="Pick a path and build proof of skill." />
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {publicCourses.map((course) => (
-              <CourseCard key={course.name} course={course} />
+              <CourseCard key={course.name} course={course} showFees={false} />
             ))}
           </div>
         </section>

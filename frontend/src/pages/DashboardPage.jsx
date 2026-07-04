@@ -4,6 +4,7 @@ import { Plus, ReceiptIndianRupee } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { ReceiptBuilderModal } from "../components/ReceiptBuilderModal.jsx";
+import { EmployeeDashboardWidget } from "../components/EmployeeDashboardWidget.jsx";
 import { StatCard } from "../components/StatCard.jsx";
 import { roleDashboards } from "../data/roleConfig.js";
 import { CreateLeadModal, normalizeLeadPayload } from "./LeadsPage.jsx";
@@ -55,14 +56,30 @@ export function DashboardPage({ module }) {
     }
   };
 
-  const values = [
-    summary?.totalBranches ?? 0,
-    `₹${summary?.totalRevenue ?? 0}`,
-    summary?.totalUsers ?? 0,
-    summary?.totalStudents ?? 0,
-    summary?.totalLeads ?? 0,
-    `₹${summary?.pendingFees ?? 0}`
-  ];
+  const metricValue = (label, index) => {
+    const currency = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
+    const values = {
+      "Total branches": summary?.totalBranches ?? 0,
+      "Total revenue": currency(summary?.totalRevenue),
+      "Total users": summary?.totalUsers ?? 0,
+      "Total students": summary?.totalStudents ?? 0,
+      "Total leads": summary?.totalLeads ?? 0,
+      "Branch-wise reports": summary?.totalBranches ?? 0,
+      "Total employees": summary?.totalEmployees ?? 0,
+      "Present today": summary?.presentEmployeesToday ?? 0,
+      "Absent today": summary?.absentEmployeesToday ?? 0,
+      "Late today": summary?.lateEmployeesToday ?? 0,
+      "Pending leaves": summary?.pendingLeaveRequests ?? 0,
+      "Salary payable": currency(summary?.salaryPayableThisMonth),
+      "Pending salary approvals": summary?.pendingSalaryApprovals ?? 0,
+      "Lecture reports today": summary?.lectureReportsToday ?? 0,
+      "Fees collection": currency(summary?.totalRevenue),
+      "Pending fees": currency(summary?.pendingFees),
+      "Total admissions": summary?.totalStudents ?? 0,
+      "Total staff": summary?.totalEmployees ?? 0
+    };
+    return values[label] ?? Math.floor(20 + index * 11);
+  };
 
   return (
     <div className="space-y-6">
@@ -91,9 +108,11 @@ export function DashboardPage({ module }) {
 
       {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
 
+      <EmployeeDashboardWidget />
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {items.map((item, index) => (
-          <StatCard key={item} label={item} value={values[index] ?? Math.floor(20 + index * 11)} tone={["pine", "coral", "amber", "ink"][index % 4]} />
+          <StatCard key={item} label={item} value={metricValue(item, index)} tone={["pine", "coral", "amber", "ink"][index % 4]} />
         ))}
       </section>
 

@@ -8,7 +8,20 @@ const attendanceSchema = new mongoose.Schema(
     student: objectId("Student"),
     user: objectId("User"),
     batch: objectId("Batch"),
-    status: { type: String, enum: ["Present", "Absent", "Late", "Leave"], required: true },
+    loginTime: Date,
+    logoutTime: Date,
+    totalWorkingMinutes: { type: Number, default: 0 },
+    ipAddress: String,
+    deviceInfo: String,
+    location: {
+      latitude: Number,
+      longitude: Number,
+      address: String
+    },
+    status: { type: String, enum: ["Present", "Absent", "Late", "Half Day", "Leave", "Pending Logout"], required: true },
+    correctionReason: String,
+    correctedBy: objectId("User"),
+    correctedAt: Date,
     markedBy: objectId("User"),
     remarks: String
   },

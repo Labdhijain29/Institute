@@ -25,9 +25,16 @@ body,
 
 img,
 video,
-canvas,
-svg {
+canvas {
   max-width: 100%;
+}
+
+svg.lucide {
+  display: inline-block;
+  flex-shrink: 0;
+  max-width: none;
+  overflow: visible;
+  vertical-align: middle;
 }
 
 button,

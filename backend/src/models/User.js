@@ -32,6 +32,22 @@ const userSchema = new mongoose.Schema(
     courseName: String,
     facultySpecialty: String,
     dateOfJoining: Date,
+    employeeId: { type: String, unique: true, sparse: true },
+    designation: String,
+    department: String,
+    monthlySalary: { type: Number, default: 0 },
+    bankDetails: {
+      accountHolder: String,
+      bankName: String,
+      accountNumber: String,
+      ifsc: String,
+      upiId: String
+    },
+    emergencyContact: {
+      name: String,
+      relation: String,
+      mobile: String
+    },
     franchise: { type: String, default: "No Franchise" },
     documents: [userDocumentSchema],
     avatar: String,

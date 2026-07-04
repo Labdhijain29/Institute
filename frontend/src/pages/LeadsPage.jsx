@@ -4,6 +4,7 @@ import { Edit3, Eye, PhoneCall, Plus, Send, UserCheck, X } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
+import { EmployeeDashboardWidget } from "../components/EmployeeDashboardWidget.jsx";
 import { SearchableSelect } from "../components/SearchableSelect.jsx";
 import { courses as publicCourses } from "../data/publicContent.js";
 
@@ -416,6 +417,7 @@ export function LeadsPage({ module }) {
           </div>
         </div>
         {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
+        <EmployeeDashboardWidget compact />
         {isTelecallerFlow && (
           <section className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-[1fr_1fr_1fr]">
             <label className="text-sm font-semibold text-slate-600">

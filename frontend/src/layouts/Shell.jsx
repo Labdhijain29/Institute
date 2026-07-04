@@ -13,6 +13,7 @@ import { CourseManagementPage } from "../pages/CourseManagementPage.jsx";
 import { BatchManagementPage } from "../pages/BatchManagementPage.jsx";
 import { StudentManagementPage } from "../pages/StudentManagementPage.jsx";
 import { DigitalMarketingManagementPage } from "../pages/DigitalMarketingManagementPage.jsx";
+import { EmployeeOperationsPage } from "../pages/EmployeeOperationsPage.jsx";
 import { UserApprovalPage } from "../pages/UserApprovalPage.jsx";
 import logoMark from "../assets/coding-wallah-mark-charcoal.png";
 
@@ -25,8 +26,9 @@ export function Shell() {
   const isLeadWorkflow = Boolean(activeItem.workflowRole);
   const isDashboard = active === "dashboard" || Boolean(activeItem.dashboardRole);
   const canManageEnrollment = ["Super Admin", "Admin"].includes(user.role);
+  const isEmployeeOperations = ["employee-desk", "employee-reports", "payroll", "leave-requests", "lecture-reports", "office-ips"].includes(active);
 
-  const Page = active === "offers" ? OfferLettersPage : active === "certificates" ? CertificatesPage : active === "receipts" ? ReceiptsPage : canManageEnrollment && active === "users" ? UserApprovalPage : canManageEnrollment && active === "digital-marketing-management" ? DigitalMarketingManagementPage : canManageEnrollment && active === "courses" ? CourseManagementPage : canManageEnrollment && active === "batches" ? BatchManagementPage : canManageEnrollment && active === "students" ? StudentManagementPage : isDashboard ? DashboardPage : isLeadWorkflow ? LeadsPage : ModulePage;
+  const Page = active === "offers" ? OfferLettersPage : active === "certificates" ? CertificatesPage : active === "receipts" ? ReceiptsPage : isEmployeeOperations ? EmployeeOperationsPage : canManageEnrollment && active === "users" ? UserApprovalPage : canManageEnrollment && active === "digital-marketing-management" ? DigitalMarketingManagementPage : canManageEnrollment && active === "courses" ? CourseManagementPage : canManageEnrollment && active === "batches" ? BatchManagementPage : canManageEnrollment && active === "students" ? StudentManagementPage : isDashboard ? DashboardPage : isLeadWorkflow ? LeadsPage : ModulePage;
 
   return (
     <div className="min-h-screen bg-[#f8f5ef] text-[#111315] lg:grid lg:grid-cols-[270px_1fr]">

@@ -15,7 +15,7 @@ export function DataTable({ columns, rows }) {
           {rows.map((row, index) => (
             <tr key={row._id || index} className="hover:bg-slate-50">
               {columns.map((column) => (
-                <td key={column.key} className="px-4 py-3">{column.render ? column.render(row) : row[column.key] || "-"}</td>
+                <td key={column.key} className={`px-4 py-3 ${column.key === "actions" ? "whitespace-nowrap" : ""}`}>{column.render ? column.render(row) : row[column.key] || "-"}</td>
               ))}
             </tr>
           ))}

@@ -4,6 +4,7 @@ import { api } from "../api/client.js";
 import { useAuth } from "../auth/AuthContext.jsx";
 import logoMark from "../assets/coding-wallah-mark-charcoal.png";
 import { EmptyState, MetricCard, Panel, formatDate } from "../student/components/StudentUI.jsx";
+import { EmployeeDashboardWidget } from "../components/EmployeeDashboardWidget.jsx";
 
 const menu = [
   ["Dashboard", "/marketing/dashboard", LayoutDashboard], ["Leads", "/marketing/leads", PhoneCall],
@@ -39,7 +40,7 @@ function MarketingDashboard() {
   const [data, setData] = useState(null); const [error, setError] = useState("");
   useEffect(() => { api("/digital-marketing/me/dashboard").then(setData).catch((e) => setError(e.message)); }, []);
   if (error) return <Notice text={error} />; if (!data) return <Loading />;
-  return <div className="space-y-5"><Panel><p className="text-sm font-semibold uppercase text-[#f97316]">Executive Dashboard</p><h2 className="mt-1 text-2xl font-bold">Digital Marketing Command Center</h2></Panel><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><MetricCard label="Total Leads" value={data.totalLeads} /><MetricCard label="New Leads" value={data.newLeads} /><MetricCard label="Converted Leads" value={data.convertedLeads} /><MetricCard label="Pending Follow-ups" value={data.pendingFollowUps} /></div></div>;
+  return <div className="space-y-5"><Panel><p className="text-sm font-semibold uppercase text-[#f97316]">Executive Dashboard</p><h2 className="mt-1 text-2xl font-bold">Digital Marketing Command Center</h2></Panel><EmployeeDashboardWidget compact /><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><MetricCard label="Total Leads" value={data.totalLeads} /><MetricCard label="New Leads" value={data.newLeads} /><MetricCard label="Converted Leads" value={data.convertedLeads} /><MetricCard label="Pending Follow-ups" value={data.pendingFollowUps} /></div></div>;
 }
 
 function MarketingLeads() {

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 
-export function SearchableSelect({ options, value, onChange, placeholder = "Select...", searchPlaceholder = "Search...", disabled = false }) {
+export function SearchableSelect({ options, value, onChange, placeholder = "Select...", searchPlaceholder = "Search...", disabled = false, className = "mt-1.5" }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const rootRef = useRef(null);
@@ -24,7 +24,7 @@ export function SearchableSelect({ options, value, onChange, placeholder = "Sele
   }, []);
 
   return (
-    <div ref={rootRef} className="relative mt-1.5 normal-case tracking-normal">
+    <div ref={rootRef} className={`relative normal-case tracking-normal ${className}`}>
       <button
         type="button"
         disabled={disabled}

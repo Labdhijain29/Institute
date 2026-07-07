@@ -6,6 +6,7 @@ import { useAuth } from "../auth/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
 import { EmployeeDashboardWidget } from "../components/EmployeeDashboardWidget.jsx";
 import { SearchableSelect } from "../components/SearchableSelect.jsx";
+import { StatCard } from "../components/StatCard.jsx";
 import { courses as publicCourses } from "../data/publicContent.js";
 
 const emptyLead = {
@@ -280,6 +281,39 @@ export function LeadsPage({ module }) {
     return true;
   });
 
+  const workflowStatLeads = useMemo(() => {
+    if (isTelecallerFlow) return leads.filter((lead) => !isCourseWebsiteLead(lead));
+    if (isCounsellorFlow) {
+      return leads.filter((lead) => (
+        isCounsellorLead(lead)
+        || isFacultyLead(lead)
+        || admissionStatus(lead) === "Done"
+        || ["Admission Done", "Converted", "Faculty Approved"].includes(lead.status)
+      ));
+    }
+    return [];
+  }, [leads, isTelecallerFlow, isCounsellorFlow, facultyHandoffs]);
+
+  const leadStage = (lead) => {
+    const completed = lead.convertedStudent
+      || admissionStatus(lead) === "Done"
+      || ["Not Interested", "Lost", "Admission Done", "Converted", "Faculty Approved"].includes(lead.status)
+      || (isTelecallerFlow && (isCounsellorLead(lead) || isFacultyLead(lead)))
+      || (isCounsellorFlow && isFacultyLead(lead));
+    if (completed) return "completed";
+    if (isTelecallerFlow && ["New", "Assigned"].includes(lead.status)) return "pending";
+    if (isCounsellorFlow && ["Forwarded", "Forwarded to Counsellor"].includes(lead.status)) return "pending";
+    return "active";
+  };
+
+  const leadStats = useMemo(() => {
+    const counts = workflowStatLeads.reduce((result, lead) => {
+      const stage = leadStage(lead);
+      return { ...result, [stage]: result[stage] + 1 };
+    }, { total: workflowStatLeads.length, active: 0, pending: 0, completed: 0 });
+    return counts;
+  }, [workflowStatLeads, isTelecallerFlow, isCounsellorFlow, facultyHandoffs]);
+
   const sortedLeads = useMemo(() => {
     const filtered = isTelecallerFlow && leadStatusFilter
       ? visibleLeads.filter((lead) => telecallerLeadStatus(lead) === leadStatusFilter)
@@ -417,6 +451,14 @@ export function LeadsPage({ module }) {
           </div>
         </div>
         {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
+        {(isTelecallerFlow || isCounsellorFlow) && (
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard label="Total Leads" value={leadStats.total} tone="ink" />
+            <StatCard label="Active Leads" value={leadStats.active} tone="pine" />
+            <StatCard label="Pending Leads" value={leadStats.pending} tone="amber" />
+            <StatCard label="Completed Leads" value={leadStats.completed} tone="coral" />
+          </section>
+        )}
         <EmployeeDashboardWidget compact />
         {isTelecallerFlow && (
           <section className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-[1fr_1fr_1fr]">

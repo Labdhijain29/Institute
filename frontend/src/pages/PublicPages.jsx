@@ -1035,9 +1035,11 @@ export function ContactPage() {
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5">
               <iframe
                 title="Institute map"
-                src="https://www.google.com/maps?q=New%20Delhi%20India&output=embed"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3679.4261459205277!2d75.89608317534959!3d22.749561279366112!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3962fd2bb90129a1%3A0x4b4cd8f83c62a3c4!2sCoding%20Wallah%20%3A%20-%20IT%20%2Cfull%20stack%20development%20%2CData%20Analytics%20%2CAIML%20%2C%20Data%20Science%20Training%20and%20placement%20Institute%2CIndore!5e0!3m2!1sen!2sin!4v1783405333862!5m2!1sen!2sin"
                 className="h-72 w-full"
+                allowFullScreen
                 loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">Social: LinkedIn · Instagram · YouTube · Facebook</p>

@@ -213,10 +213,10 @@ export const courses = [
 ];
 
 export const stats = [
-  ["Students Trained", "4,800+"],
-  ["Placements", "1,250+"],
-  ["Courses Offered", "24+"],
-  ["Success Rate", "92%"]
+  ["Students Trained", "2500+"],
+  ["Placements", "1,850+"],
+  ["Courses Offered", "25+"],
+  ["Success Rate", "75%"]
 ];
 
 export const whyChoose = [
@@ -266,13 +266,32 @@ export const testimonials = [
   }
 ];
 
+const partnerWordmark = (text, color = "#111315") => (
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 72" role="img" aria-label="${text} logo"><rect width="240" height="72" fill="white"/><text x="120" y="44" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${text.length > 10 ? 25 : 34}" font-weight="800" fill="${color}">${text}</text></svg>`)}`
+);
+
 export const partners = [
   { name: "Accenture", logo: "https://logo.clearbit.com/accenture.com", fallbackLogo: "https://cdn.simpleicons.org/accenture/A100FF" },
   { name: "Wipro", logo: "https://logo.clearbit.com/wipro.com", fallbackLogo: "https://cdn.simpleicons.org/wipro/341C53" },
   { name: "Deloitte", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Logo%20of%20Deloitte.svg", fallbackLogo: "https://logo.clearbit.com/deloitte.com" },
   { name: "Infosys", logo: "https://logo.clearbit.com/infosys.com", fallbackLogo: "https://cdn.simpleicons.org/infosys/007CC3" },
-  { name: "TCS", logoText: "TCS" },
-  { name: "HCLTech", logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/HCLTech-new-logo.svg", fallbackLogo: "https://logo.clearbit.com/hcltech.com" }
+  { name: "TCS", logo: partnerWordmark("TCS", "#5b5fc7"), fallbackLogo: "https://commons.wikimedia.org/wiki/Special:FilePath/Tata%20Consultancy%20Services%20Logo.svg" },
+  { name: "HCLTech", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/HCLTech-new-logo.svg", fallbackLogo: "https://logo.clearbit.com/hcltech.com" },
+  { name: "Capgemini", logo: partnerWordmark("Capgemini", "#0070ad"), fallbackLogo: "https://commons.wikimedia.org/wiki/Special:FilePath/Capgemini%20New%20logo.svg" },
+  { name: "Cognizant", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Cognizant_logo_2022.svg", fallbackLogo: "https://logo.clearbit.com/cognizant.com" },
+  { name: "Tech Mahindra", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/TM%20Logo%20Color%20Pos%20RGB.svg", fallbackLogo: "https://logo.clearbit.com/techmahindra.com" },
+  { name: "IBM", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/IBM%20logo.svg", fallbackLogo: "https://cdn.simpleicons.org/ibm/052FAD" },
+  { name: "Microsoft", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Microsoft_logo_(2012).svg", fallbackLogo: "https://logo.clearbit.com/microsoft.com" },
+  { name: "Amazon", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Amazon_logo.svg", fallbackLogo: "https://logo.clearbit.com/amazon.com" },
+  { name: "Google", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Google_2015_logo.svg", fallbackLogo: "https://logo.clearbit.com/google.com" },
+  { name: "Oracle", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Oracle_logo.svg", fallbackLogo: "https://logo.clearbit.com/oracle.com" },
+  { name: "LTIMindtree", logo: partnerWordmark("LTIMindtree", "#ef4f3f"), fallbackLogo: "https://logo.clearbit.com/ltimindtree.com" },
+  { name: "Mphasis", logo: partnerWordmark("Mphasis", "#151515"), fallbackLogo: "https://commons.wikimedia.org/wiki/Special:FilePath/Mphasis%20logo.svg" },
+  { name: "Persistent", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Persistent_Systems_Logo.svg", fallbackLogo: "https://logo.clearbit.com/persistent.com" },
+  { name: "Hexaware", logo: partnerWordmark("Hexaware", "#224f9c"), fallbackLogo: "https://logo.clearbit.com/hexaware.com" },
+  { name: "Mindtree", logo: partnerWordmark("Mindtree", "#7a2cbf"), fallbackLogo: "https://commons.wikimedia.org/wiki/Special:FilePath/Mindtree%20logo.svg" },
+  { name: "Zoho", logo: "https://logo.clearbit.com/zoho.com", fallbackLogo: "https://cdn.simpleicons.org/zoho/E42527" },
+  { name: "Salesforce", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Salesforce.com%20logo.svg", fallbackLogo: "https://logo.clearbit.com/salesforce.com" }
 ];
 
 export const trainers = [

@@ -1,8 +1,19 @@
 import React from "react";
-import { MetricCard, Panel, formatCurrency } from "../components/StudentUI.jsx";
+import { MetricCard, Panel, formatCurrency, formatDate } from "../components/StudentUI.jsx";
+
+function formatTime(value) {
+  return value ? new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-";
+}
+
+function minutes(value) {
+  if (!value) return "-";
+  const hours = Math.floor(value / 60);
+  const mins = value % 60;
+  return `${hours}h ${mins}m`;
+}
 
 export function StudentDashboard({ data }) {
-  const { student, dashboard } = data;
+  const { student, dashboard, attendance } = data;
   return (
     <div className="space-y-5">
       <Panel>
@@ -19,6 +30,28 @@ export function StudentDashboard({ data }) {
         <MetricCard label="Pending Assignments" value={dashboard.pendingAssignments} />
         <MetricCard label="Remaining Fees" value={formatCurrency(dashboard.remainingFees)} />
       </div>
+
+      <Panel title="My Attendance">
+        <div className="grid gap-3 text-sm sm:grid-cols-4">
+          <div className="rounded-md bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-slate-500">Total Classes</p><p className="mt-1 text-xl font-black">{attendance.totalClasses}</p></div>
+          <div className="rounded-md bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-slate-500">Present</p><p className="mt-1 text-xl font-black">{attendance.presentClasses}</p></div>
+          <div className="rounded-md bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-slate-500">Absent</p><p className="mt-1 text-xl font-black">{attendance.absentClasses}</p></div>
+          <div className="rounded-md bg-slate-50 p-3"><p className="text-xs font-bold uppercase text-slate-500">Percentage</p><p className="mt-1 text-xl font-black">{attendance.attendancePercentage}%</p></div>
+        </div>
+        <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
+          <table className="w-full min-w-[620px] text-left text-sm">
+            <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+              <tr><th className="px-4 py-3">Date</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">In</th><th className="px-4 py-3">Out</th><th className="px-4 py-3">Working</th></tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {(attendance.recent || []).map((row) => (
+                <tr key={row.id}><td className="px-4 py-3">{formatDate(row.date)}</td><td className="px-4 py-3 font-semibold">{row.status}</td><td className="px-4 py-3">{formatTime(row.loginTime)}</td><td className="px-4 py-3">{formatTime(row.logoutTime)}</td><td className="px-4 py-3">{minutes(row.totalWorkingMinutes)}</td></tr>
+              ))}
+              {!attendance.recent?.length && <tr><td colSpan={5} className="px-4 py-6 text-center text-slate-500">No attendance records yet.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
     </div>
   );
 }

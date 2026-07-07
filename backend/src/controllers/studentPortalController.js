@@ -101,7 +101,21 @@ export const portalData = asyncHandler(async (req, res) => {
       duration: student.course?.duration || "Not available",
       status: student.status || "Active"
     },
-    attendance: { totalClasses, presentClasses, absentClasses, attendancePercentage },
+    attendance: {
+      totalClasses,
+      presentClasses,
+      absentClasses,
+      attendancePercentage,
+      recent: attendanceRows.slice(0, 6).map((row) => ({
+        id: row._id,
+        date: row.date,
+        status: row.status,
+        loginTime: row.loginTime,
+        logoutTime: row.logoutTime,
+        totalWorkingMinutes: row.totalWorkingMinutes || 0,
+        remarks: row.remarks || ""
+      }))
+    },
     assignments,
     materials: materialRows.map((material) => ({ id: material._id, title: material.title, type: material.type, url: material.url })),
     fees: {

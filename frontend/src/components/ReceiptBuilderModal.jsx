@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from "react";
 import { Download, Printer, Save, X } from "lucide-react";
 import { amountInWords } from "../utils/amountInWords.js";
 import { downloadReceiptPdf } from "../utils/pdf.js";
-import logoMark from "../assets/coding-wallah-mark-charcoal.png";
+import { BrandLockup } from "./BrandLogo.jsx";
 
 const defaultReceipt = {
   instituteName: "Coding Walla",
@@ -190,16 +190,7 @@ function ReceiptTemplate({ receipt, totalAmount }) {
     <article id="fee-receipt-print-area" className="receipt-paper receipt-paper-compact mx-auto bg-white p-3 text-[#121826] shadow-sm">
       <div className="border border-slate-300 p-2">
         <header className="flex items-start justify-between gap-3 border-b-[3px] border-[#f97316] pb-2.5">
-          <div className="flex items-center gap-3">
-            <div className="grid h-14 w-20 place-items-center overflow-hidden rounded-md bg-white">
-              <img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black tracking-[0.12em] text-[#111315]">{receipt.instituteName}</h1>
-              <p className="text-center text-sm font-black tracking-[0.34em] text-[#f97316]">TECH</p>
-              <p className="text-center text-[9px] font-bold tracking-[0.22em] text-slate-600">{receipt.tagline}</p>
-            </div>
-          </div>
+          <BrandLockup logoClassName="h-12 w-auto" variant="light" />
           <div className="min-w-[180px] text-right">
             <p className="rounded-md bg-[#111315] px-4 py-1.5 text-center text-lg font-black uppercase text-white">Fee Receipt</p>
             <p className="mt-2 text-xs">

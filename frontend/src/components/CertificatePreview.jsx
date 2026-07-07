@@ -1,5 +1,5 @@
 import React from "react";
-import logoMark from "../assets/coding-wallah-mark-charcoal.png";
+import { BrandLockup } from "./BrandLogo.jsx";
 
 const institute = {
   name: "Coding Walla",
@@ -22,15 +22,7 @@ export function CertificatePreview({ certificate }) {
         <div className="pointer-events-none absolute inset-9 border border-[#f97316]/25" />
 
         <header className="relative z-10 flex items-start justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="grid h-20 w-28 place-items-center overflow-hidden rounded-md bg-white">
-              <img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black uppercase tracking-[0.12em] text-[#111315]">{institute.name}</h1>
-              <p className="mt-1 text-sm font-bold uppercase tracking-[0.28em] text-[#f97316]">{institute.tagline}</p>
-            </div>
-          </div>
+          <BrandLockup logoClassName="h-16 w-auto" variant="light" />
           <div className="text-right text-xs font-semibold text-slate-600">
             <p>{institute.address}</p>
             <p>{institute.phone} | {institute.email}</p>

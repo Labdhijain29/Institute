@@ -1,6 +1,6 @@
 import React from "react";
 import { amountInWords } from "../utils/amountInWords.js";
-import logoMark from "../assets/coding-wallah-mark-charcoal.png";
+import { BrandLockup } from "./BrandLogo.jsx";
 
 const institute = {
   name: "Coding Walla",
@@ -21,17 +21,12 @@ export function ReceiptPreview({ receipt }) {
   return (
     <article id="fee-receipt-print-area" className="receipt-paper mx-auto bg-white p-8 text-ink shadow-sm">
       <header className="flex items-start justify-between gap-6 border-b-4 border-[#f97316] pb-5">
-        <div className="flex gap-4">
-          <div className="grid h-16 w-24 shrink-0 place-items-center overflow-hidden rounded-md bg-white">
-            <img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-black uppercase tracking-wide text-[#111315]">{institute.name}</h2>
-            <p className="mt-1 text-sm text-slate-600">{institute.address}</p>
-            <p className="mt-1 text-sm text-slate-600">
-              {institute.phone} | {institute.email} | {institute.website}
-            </p>
-          </div>
+        <div>
+          <BrandLockup variant="light" />
+          <p className="mt-3 max-w-xl text-sm text-slate-600">{institute.address}</p>
+          <p className="mt-1 text-sm text-slate-600">
+            {institute.phone} | {institute.email} | {institute.website}
+          </p>
         </div>
         <div className="min-w-[190px] rounded-md border border-slate-300 p-3 text-right">
           <p className="text-lg font-black uppercase text-[#f97316]">Fee Receipt</p>

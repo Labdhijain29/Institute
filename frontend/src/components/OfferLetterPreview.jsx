@@ -1,5 +1,5 @@
 import React from "react";
-import logoMark from "../assets/coding-wallah-mark-charcoal.png";
+import { BrandLockup, brandLogo } from "./BrandLogo.jsx";
 
 const institute = {
   name: "Coding Walla",
@@ -65,7 +65,7 @@ export function OfferLetterPreview({ offer }) {
 function OfferPage({ children, offer, page }) {
   return (
     <section className="offer-letter-page relative overflow-hidden bg-white shadow-sm">
-      <img src={logoMark} alt="" className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 object-contain opacity-[0.035]" />
+      <img src={brandLogo} alt="" className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 object-contain opacity-[0.035]" />
       <div className="relative z-10 flex min-h-full flex-col">
         <OfferHeader offer={offer} compact={page !== 1} />
         <main className="flex-1 px-10 py-6">{children}</main>
@@ -79,16 +79,11 @@ export function OfferHeader({ offer, compact = false }) {
   return (
     <header className="border-b border-slate-200 px-10 py-5">
       <div className="flex items-start justify-between gap-6">
-        <div className="flex items-start gap-4">
-          <div className="grid h-16 w-24 place-items-center rounded-md border border-slate-200 bg-white p-1">
-            <img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black uppercase tracking-wide text-[#0f172a]">{institute.name}</h1>
-            <p className="mt-1 max-w-md text-[11px] leading-5 text-slate-600">{institute.address}</p>
-            <p className="text-[11px] font-semibold text-slate-600">{institute.phone} | {institute.email} | {institute.website}</p>
-            {!compact && <p className="text-[11px] font-semibold text-slate-500">{clean(offer.companyCinGst, institute.cinGst)}</p>}
-          </div>
+        <div>
+          <BrandLockup variant="light" />
+          <p className="mt-3 max-w-md text-[11px] leading-5 text-slate-600">{institute.address}</p>
+          <p className="text-[11px] font-semibold text-slate-600">{institute.phone} | {institute.email} | {institute.website}</p>
+          {!compact && <p className="text-[11px] font-semibold text-slate-500">{clean(offer.companyCinGst, institute.cinGst)}</p>}
         </div>
         <div className="min-w-48 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-right text-[11px]">
           <Meta label="Document No." value={clean(offer.documentNumber, `DOC-${clean(offer.studentId, "DRAFT")}`)} />

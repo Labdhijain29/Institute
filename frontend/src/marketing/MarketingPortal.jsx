@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ClipboardList, LayoutDashboard, ListChecks, LogOut, Menu, PhoneCall, UserRound, X } from "lucide-react";
 import { api } from "../api/client.js";
 import { useAuth } from "../auth/AuthContext.jsx";
-import logoMark from "../assets/coding-wallah-mark-charcoal.png";
+import { BrandLockup } from "../components/BrandLogo.jsx";
 import { EmptyState, MetricCard, Panel, formatDate } from "../student/components/StudentUI.jsx";
 import { EmployeeDashboardWidget } from "../components/EmployeeDashboardWidget.jsx";
 
@@ -21,7 +21,7 @@ export function MarketingPortal({ path }) {
   return <div className="min-h-screen bg-[#f8f5ef] text-[#111315] lg:grid lg:grid-cols-[270px_1fr]">
     {open && <button className="fixed inset-0 z-20 bg-black/30 lg:hidden" onClick={() => setOpen(false)} />}
     <aside className={`fixed inset-y-0 left-0 z-30 w-[270px] border-r border-slate-200 bg-white transition-transform lg:static lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
-      <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5"><div className="flex items-center"><div className="grid h-10 w-14 place-items-center p-1"><img src={logoMark} className="h-full w-full object-contain" alt="Coding Walla" /></div><div className="ml-3"><p className="text-sm font-bold">Coding Walla</p><p className="text-xs text-slate-500">Marketing Workspace</p></div></div><button className="lg:hidden" onClick={() => setOpen(false)}><X size={18} /></button></div>
+      <div className="flex h-20 items-center justify-between border-b border-slate-200 px-5"><div><BrandLockup logoClassName="h-11 w-auto" variant="light" /><p className="mt-1 text-[11px] font-semibold text-slate-400">Marketing Workspace</p></div><button className="lg:hidden" onClick={() => setOpen(false)}><X size={18} /></button></div>
       <nav className="space-y-1 p-3">{menu.map(([label, itemPath, Icon]) => <button key={itemPath} onClick={() => { go(itemPath); setOpen(false); }} className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium ${active[1] === itemPath ? "bg-[#f97316] text-white shadow-sm" : "text-slate-700 hover:bg-[#fff3e8] hover:text-[#c2410c]"}`}><Icon size={18} />{label}</button>)}<button onClick={signOut} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-[#fff3e8] hover:text-[#c2410c]"><LogOut size={18} />Logout</button></nav>
     </aside>
     <main className="min-w-0"><header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 md:px-6"><div className="flex items-center gap-3"><button className="rounded-md border border-slate-200 p-2 lg:hidden" onClick={() => setOpen(true)}><Menu size={18} /></button><div><h1 className="text-lg font-bold">{active[0]}</h1><p className="text-xs text-slate-500">Digital Marketing Executive</p></div></div><div className="text-right"><p className="text-sm font-semibold">{user.name}</p><p className="hidden text-xs text-slate-500 sm:block">{user.email}</p></div></header><div className="p-4 md:p-6"><MarketingPage path={active[1]} /></div></main>

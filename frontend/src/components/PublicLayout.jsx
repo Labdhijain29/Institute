@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { LogIn, Menu, Moon, Sun, X } from "lucide-react";
-import logoMark from "../assets/coding-wallah-mark-transparent.png";
+import { BrandLockup } from "./BrandLogo.jsx";
 import { navItems } from "../data/publicContent.js";
 
 export function navigateTo(path) {
@@ -22,13 +22,7 @@ export function PublicLayout({ children, path, dark, setDark }) {
         <header className="sticky top-0 z-40 bg-[#111315] shadow-[0_10px_28px_rgba(17,19,21,0.18)] backdrop-blur-xl">
           <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:h-[76px] sm:px-6 lg:px-8">
             <button onClick={() => go("/")} className="flex min-w-0 items-center gap-2 text-left sm:gap-3" aria-label="Go home">
-              <span className="grid h-11 w-[68px] shrink-0 place-items-center overflow-hidden p-0 sm:h-12 sm:w-[76px]">
-                <img src={logoMark} alt="Coding Walla logo" className="h-full w-full object-contain" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-base font-black leading-tight text-white">Coding Walla</span>
-                <span className="hidden text-xs font-medium text-slate-300 sm:block">From Learning to Earning</span>
-              </span>
+              <BrandLockup />
             </button>
 
             <nav className="hidden items-center gap-1 lg:flex">
@@ -98,13 +92,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_1fr_1fr] lg:px-8">
         <div>
           <button onClick={() => go("/")} className="flex items-center gap-3 text-left" aria-label="Go home">
-            <span className="grid h-14 w-[88px] place-items-center overflow-hidden">
-              <img src={logoMark} alt="Coding Walla logo" className="h-full w-full object-contain" />
-            </span>
-            <span>
-              <span className="block text-lg font-black leading-tight">Coding Walla</span>
-              <span className="block text-xs font-medium text-slate-300">From Learning to Earning.</span>
-            </span>
+            <BrandLockup />
           </button>
           <p className="mt-3 max-w-sm text-sm leading-6 text-slate-300">Professional coding programs, lead management, admissions, and student success workflows under one roof.</p>
         </div>

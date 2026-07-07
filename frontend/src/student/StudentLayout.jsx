@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BookOpen, ClipboardCheck, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, ReceiptIndianRupee, UserRound, X } from "lucide-react";
 import { useAuth } from "../auth/AuthContext.jsx";
-import logoMark from "../assets/coding-wallah-mark-charcoal.png";
+import { BrandLockup } from "../components/BrandLogo.jsx";
 
 export const studentMenu = [
   { label: "Dashboard", path: "/student/dashboard", icon: LayoutDashboard },
@@ -32,8 +32,8 @@ export function StudentLayout({ path, student, children }) {
     <div className="min-h-screen bg-[#f8f5ef] text-[#111315] lg:grid lg:grid-cols-[270px_1fr]">
       {menuOpen && <button className="fixed inset-0 z-20 bg-black/30 lg:hidden" onClick={() => setMenuOpen(false)} aria-label="Close navigation" />}
       <aside className={`fixed inset-y-0 left-0 z-30 w-[270px] border-r border-slate-200 bg-white transition-transform lg:static lg:translate-x-0 ${menuOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5">
-          <div className="flex items-center"><div className="grid h-10 w-14 place-items-center overflow-hidden rounded-md bg-white p-1"><img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" /></div><div className="ml-3"><p className="text-sm font-bold">Coding Walla</p><p className="text-xs text-slate-500">Student Portal</p></div></div>
+        <div className="flex h-20 items-center justify-between border-b border-slate-200 px-5">
+          <div><BrandLockup logoClassName="h-11 w-auto" variant="light" /><p className="mt-1 text-[11px] font-semibold text-slate-400">Student Portal</p></div>
           <button className="lg:hidden" onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={18} /></button>
         </div>
         <nav className="space-y-1 p-3">

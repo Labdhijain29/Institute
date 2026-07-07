@@ -6,7 +6,7 @@ import { publicApi } from "../api/client.js";
 import { navigateTo } from "../components/PublicLayout.jsx";
 import { SearchableSelect } from "../components/SearchableSelect.jsx";
 import { courses as publicCourses } from "../data/publicContent.js";
-import logoMark from "../assets/coding-wallah-mark-transparent.png";
+import { BrandLockup } from "../components/BrandLogo.jsx";
 
 const registerRoles = [
   ["Manager", "Manager"],
@@ -170,13 +170,7 @@ export function LoginPage({ initialMode = "login" }) {
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,19,21,.92),rgba(17,19,21,.72),rgba(249,115,22,.35))]" />
         <div className="relative max-w-2xl">
           <div className="mb-6 flex items-center gap-3">
-            <span className="grid h-14 w-20 place-items-center rounded-md bg-[#111315] p-1.5 shadow-sm ring-1 ring-white/10">
-              <img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" />
-            </span>
-            <div>
-              <p className="text-sm font-black">Coding Walla</p>
-              <p className="text-xs text-slate-300">From Learning to Earning</p>
-            </div>
+            <BrandLockup logoClassName="h-16 w-auto" />
           </div>
           {/* <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#fdba74]">Coding Walla</p> */}
           <h1 className="mt-4 text-4xl font-bold leading-tight md:text-6xl">Run every branch, lead, batch and fee workflow from one control room.</h1>

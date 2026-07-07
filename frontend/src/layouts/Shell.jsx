@@ -17,7 +17,7 @@ import { AdmissionsDashboardPage } from "../pages/AdmissionsDashboardPage.jsx";
 import { DigitalMarketingManagementPage } from "../pages/DigitalMarketingManagementPage.jsx";
 import { EmployeeOperationsPage } from "../pages/EmployeeOperationsPage.jsx";
 import { UserApprovalPage } from "../pages/UserApprovalPage.jsx";
-import logoMark from "../assets/coding-wallah-mark-charcoal.png";
+import { BrandLockup } from "../components/BrandLogo.jsx";
 
 export function Shell() {
   const { user, logout } = useAuth();
@@ -35,13 +35,10 @@ export function Shell() {
   return (
     <div className="min-h-screen bg-[#f8f5ef] text-[#111315] lg:grid lg:grid-cols-[270px_1fr]">
       <aside className={`fixed inset-y-0 left-0 z-30 w-[270px] border-r border-slate-200 bg-white transition lg:static lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex h-16 items-center border-b border-slate-200 px-5">
-          <div className="grid h-10 w-14 place-items-center overflow-hidden rounded-md bg-white p-1">
-            <img src={logoMark} alt="Coding Walla" className="h-full w-full object-contain" />
-          </div>
-          <div className="ml-3">
-            <p className="text-sm font-bold">Coding Walla</p>
-            <p className="text-xs text-slate-500">ERP Control Panel</p>
+        <div className="flex h-20 items-center border-b border-slate-200 px-5">
+          <div>
+            <BrandLockup logoClassName="h-11 w-auto" variant="light" />
+            <p className="mt-1 text-[11px] font-semibold text-slate-400">ERP Control Panel</p>
           </div>
         </div>
         <nav className="space-y-1 p-3">

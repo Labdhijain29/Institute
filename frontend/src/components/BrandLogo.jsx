@@ -1,12 +1,11 @@
 import React from "react";
 import brandLogo from "../assets/brand/coding-wallah-full.png";
-import brandLogoNoTagline from "../assets/brand/coding-wallah-full-no-tagline.png";
 import brandIcon from "../assets/brand/coding-wallah-icon.png";
 
-export { brandLogo, brandLogoNoTagline, brandIcon };
+export { brandLogo, brandIcon };
 
 export function BrandLogo({ className = "h-14 w-auto", alt = "CODING WALLA From Learning to Earning logo", type = "full" }) {
-  const logo = type === "icon" ? brandIcon : type === "no-tagline" ? brandLogoNoTagline : brandLogo;
+  const logo = type === "icon" ? brandIcon : brandLogo;
   return (
     <img
       src={logo}

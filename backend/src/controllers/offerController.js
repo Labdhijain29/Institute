@@ -2,35 +2,105 @@ import { OfferLetter } from "../models/OfferLetter.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
+const numericFields = ["ctc", "basicSalary", "hra", "specialAllowance", "medicalAllowance", "travelAllowance", "conveyance", "bonus", "pf", "esi", "professionalTax", "grossSalary", "netSalary"];
+
+function cleanNumber(value) {
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
+}
+
+function dateFilter(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 999);
+  return { $gte: start, $lte: end };
+}
+
+async function nextOfferNumber(prefix = "EOL") {
+  const year = new Date().getFullYear();
+  const count = await OfferLetter.countDocuments({
+    offerLetterNumber: new RegExp(`^${prefix}-${year}-`)
+  });
+  return `${prefix}-${year}-${String(count + 1).padStart(5, "0")}`;
+}
+
+async function nextEmployeeId() {
+  const year = new Date().getFullYear();
+  const count = await OfferLetter.countDocuments({
+    employeeId: new RegExp(`^EMP-${year}-`)
+  });
+  return `EMP-${year}-${String(count + 1).padStart(5, "0")}`;
+}
+
+function salaryPayload(body) {
+  const values = Object.fromEntries(numericFields.map((field) => [field, cleanNumber(body[field])]));
+  const grossSalary = values.grossSalary || values.basicSalary + values.hra + values.specialAllowance + values.medicalAllowance + values.travelAllowance + values.conveyance + values.bonus;
+  const netSalary = values.netSalary || Math.max(grossSalary - values.pf - values.esi - values.professionalTax, 0);
+  return { ...values, grossSalary, netSalary };
+}
+
 function offerPayload(body) {
   return {
-    studentName: body.studentName,
-    studentId: body.studentId,
-    email: body.email,
-    phone: body.phone,
+    offerLetterNumber: body.offerLetterNumber,
+    employeeId: body.employeeId,
+    fullName: body.fullName,
+    gender: body.gender,
+    dateOfBirth: body.dateOfBirth,
+    mobileNumber: body.mobileNumber,
+    personalEmail: body.personalEmail,
+    officialEmail: body.officialEmail,
     address: body.address,
-    courseName: body.courseName,
+    city: body.city,
+    state: body.state,
+    country: body.country,
+    pincode: body.pincode,
+    photograph: body.photograph,
+    emergencyContact: body.emergencyContact,
     department: body.department,
-    batch: body.batch,
-    duration: body.duration,
-    feeOffered: body.feeOffered,
-    scholarship: body.scholarship,
-    finalAmount: body.finalAmount,
-    paymentSchedule: body.paymentSchedule,
-    startDate: body.startDate,
-    endDate: body.endDate,
-    offerDate: body.offerDate,
-    joiningDate: body.joiningDate,
-    validTill: body.validTill,
-    authorizedSignatory: body.authorizedSignatory,
-    hrContact: body.hrContact,
-    branchLocation: body.branchLocation,
+    designation: body.designation,
     reportingManager: body.reportingManager,
-    trainingLocation: body.trainingLocation,
-    mode: body.mode,
-    documentNumber: body.documentNumber,
-    offerLetterId: body.offerLetterId,
-    companyCinGst: body.companyCinGst,
+    employmentType: body.employmentType,
+    workLocation: body.workLocation,
+    officeBranch: body.officeBranch,
+    joiningDate: body.joiningDate,
+    probationPeriod: body.probationPeriod,
+    confirmationDate: body.confirmationDate,
+    ...salaryPayload(body),
+    workingDays: body.workingDays,
+    shiftTiming: body.shiftTiming,
+    officeTiming: body.officeTiming,
+    weeklyOff: body.weeklyOff,
+    noticePeriod: body.noticePeriod,
+    salaryPaymentDate: body.salaryPaymentDate,
+    aadhaarNumber: body.aadhaarNumber,
+    panNumber: body.panNumber,
+    passportNumber: body.passportNumber,
+    bankName: body.bankName,
+    accountNumber: body.accountNumber,
+    ifscCode: body.ifscCode,
+    uanNumber: body.uanNumber,
+    esicNumber: body.esicNumber,
+    uploadedDocuments: body.uploadedDocuments,
+    issueDate: body.issueDate,
+    validTill: body.validTill,
+    acceptanceStatus: body.acceptanceStatus,
+    hrPoliciesVersion: body.hrPoliciesVersion,
+    generatedPdf: body.generatedPdf,
+    emailSentAt: body.emailSentAt,
+    viewedAt: body.viewedAt,
+    acceptedAt: body.acceptedAt,
+    rejectedAt: body.rejectedAt,
+    companySignature: body.companySignature,
+    hrSignature: body.hrSignature,
+    directorSignature: body.directorSignature,
+    employeeSignature: body.employeeSignature,
+    signatureDate: body.signatureDate,
+    signaturePlace: body.signaturePlace,
+    rolesAndResponsibilities: body.rolesAndResponsibilities,
+    termsAndConditions: body.termsAndConditions,
     remarks: body.remarks
   };
 }
@@ -38,15 +108,22 @@ function offerPayload(body) {
 export const listOffers = asyncHandler(async (req, res) => {
   const page = Math.max(Number(req.query.page) || 1, 1);
   const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
-  const search = req.query.search;
+  const search = String(req.query.search || "").trim();
+  const status = String(req.query.status || "").trim();
   const filter = {};
+
+  if (status) filter.acceptanceStatus = status;
+  const joiningDate = dateFilter(req.query.joiningDate);
+  if (joiningDate) filter.joiningDate = joiningDate;
 
   if (search) {
     filter.$or = [
-      { studentName: new RegExp(search, "i") },
-      { studentId: new RegExp(search, "i") },
-      { courseName: new RegExp(search, "i") },
-      { batch: new RegExp(search, "i") }
+      { fullName: new RegExp(search, "i") },
+      { employeeId: new RegExp(search, "i") },
+      { offerLetterNumber: new RegExp(search, "i") },
+      { department: new RegExp(search, "i") },
+      { designation: new RegExp(search, "i") },
+      { acceptanceStatus: new RegExp(search, "i") }
     ];
   }
 
@@ -60,13 +137,17 @@ export const listOffers = asyncHandler(async (req, res) => {
 
 export const getOffer = asyncHandler(async (req, res) => {
   const offer = await OfferLetter.findById(req.params.id);
-  if (!offer) throw new ApiError(404, "Offer letter not found");
+  if (!offer) throw new ApiError(404, "Employee offer letter not found");
   res.json(offer);
 });
 
 export const createOffer = asyncHandler(async (req, res) => {
+  const payload = offerPayload(req.body);
+  payload.offerLetterNumber = payload.offerLetterNumber || await nextOfferNumber();
+  payload.employeeId = payload.employeeId || await nextEmployeeId();
+  payload.acceptanceStatus = payload.acceptanceStatus || "Generated";
   const offer = await OfferLetter.create({
-    ...offerPayload(req.body),
+    ...payload,
     createdBy: req.user?._id
   });
   res.status(201).json(offer);
@@ -77,12 +158,12 @@ export const updateOffer = asyncHandler(async (req, res) => {
     new: true,
     runValidators: true
   });
-  if (!offer) throw new ApiError(404, "Offer letter not found");
+  if (!offer) throw new ApiError(404, "Employee offer letter not found");
   res.json(offer);
 });
 
 export const deleteOffer = asyncHandler(async (req, res) => {
   const offer = await OfferLetter.findByIdAndDelete(req.params.id);
-  if (!offer) throw new ApiError(404, "Offer letter not found");
+  if (!offer) throw new ApiError(404, "Employee offer letter not found");
   res.json({ message: "Deleted" });
 });

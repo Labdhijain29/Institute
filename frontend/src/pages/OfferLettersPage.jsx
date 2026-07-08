@@ -1,45 +1,93 @@
-import React, { useEffect, useState } from "react";
-import { Download, Edit3, Eye, Plus, Printer, Trash2, X } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Copy, Download, Edit3, Eye, FileText, Mail, Plus, Printer, Search, Send, Trash2, X } from "lucide-react";
 import { createRoot } from "react-dom/client";
 import { useDispatch, useSelector } from "react-redux";
 import { OfferLetterModal } from "../components/OfferLetterModal.jsx";
 import { OfferLetterPreview } from "../components/OfferLetterPreview.jsx";
-import { createOffer, deleteOffer, fetchOffers } from "../store/offersSlice.js";
+import { createOffer, deleteOffer, fetchOffers, updateOffer } from "../store/offersSlice.js";
 import { downloadOfferPdf } from "../utils/offerPdf.js";
 
+const today = () => new Date().toLocaleDateString("en-CA");
+const money = (value) => `Rs. ${Number(value || 0).toLocaleString("en-IN")}`;
+const date = (value) => (value ? new Date(value).toLocaleDateString("en-IN") : "-");
+const statuses = ["Draft", "Generated", "Sent", "Viewed", "Accepted", "Rejected", "Expired"];
+const employmentTypes = ["Full Time", "Part Time", "Internship", "Contract", "Freelance"];
+
 const emptyOffer = {
-  studentName: "",
-  studentId: "",
-  email: "",
-  phone: "",
+  employeeId: "",
+  fullName: "",
+  gender: "",
+  dateOfBirth: "",
+  mobileNumber: "",
+  personalEmail: "",
+  officialEmail: "",
   address: "",
-  courseName: "",
-  batch: "",
+  city: "",
+  state: "",
+  country: "India",
+  pincode: "",
+  photograph: "",
+  emergencyContact: "",
   department: "",
-  duration: "",
-  feeOffered: 0,
-  scholarship: 0,
-  finalAmount: 0,
-  paymentSchedule: "As per institute fee plan",
-  startDate: new Date().toISOString().slice(0, 10),
-  endDate: "",
-  offerDate: new Date().toISOString().slice(0, 10),
-  joiningDate: "",
+  designation: "",
+  reportingManager: "",
+  employmentType: "Full Time",
+  workLocation: "",
+  officeBranch: "Indore",
+  joiningDate: today(),
+  probationPeriod: "6 months",
+  confirmationDate: "",
+  ctc: 0,
+  basicSalary: 0,
+  hra: 0,
+  specialAllowance: 0,
+  medicalAllowance: 0,
+  travelAllowance: 0,
+  conveyance: 0,
+  bonus: 0,
+  pf: 0,
+  esi: 0,
+  professionalTax: 0,
+  grossSalary: 0,
+  netSalary: 0,
+  salaryPaymentDate: "7th of every month",
+  workingDays: "Monday to Saturday",
+  shiftTiming: "Day Shift",
+  officeTiming: "10:00 AM to 7:00 PM",
+  weeklyOff: "Sunday",
+  noticePeriod: "30 days",
+  aadhaarNumber: "",
+  panNumber: "",
+  passportNumber: "",
+  bankName: "",
+  accountNumber: "",
+  ifscCode: "",
+  uanNumber: "",
+  esicNumber: "",
+  issueDate: today(),
   validTill: "",
-  authorizedSignatory: "Lakhan Rathod",
-  hrContact: "info@codingwallah.com",
-  branchLocation: "Indore",
-  reportingManager: "Academic Coordinator",
-  trainingLocation: "Coding Walla, Indore",
-  mode: "Offline",
-  documentNumber: "",
-  offerLetterId: "",
-  companyCinGst: "",
+  acceptanceStatus: "Generated",
+  hrPoliciesVersion: "HR-POLICY-2026.1",
+  rolesAndResponsibilities: "",
+  termsAndConditions: "",
+  companySignature: "Coding Walla",
+  hrSignature: "HR Manager",
+  directorSignature: "Director",
+  employeeSignature: "",
+  signatureDate: "",
+  signaturePlace: "Indore",
   remarks: ""
 };
 
-const date = (value) => (value ? new Date(value).toLocaleDateString("en-IN") : "-");
-const money = (value) => `Rs. ${Number(value || 0).toLocaleString("en-IN")}`;
+const inputClass = "mt-1 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/10";
+const buttonClass = "inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 text-sm font-bold text-white hover:bg-[#111315]";
+const secondaryClass = "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 hover:border-[#f97316] hover:bg-[#fff3e8] hover:text-[#c2410c]";
+
+function autoSalary(form) {
+  const grossSalary = Number(form.grossSalary || 0) || Number(form.basicSalary || 0) + Number(form.hra || 0) + Number(form.specialAllowance || 0) + Number(form.medicalAllowance || 0) + Number(form.travelAllowance || 0) + Number(form.conveyance || 0) + Number(form.bonus || 0);
+  const netSalary = Number(form.netSalary || 0) || Math.max(grossSalary - Number(form.pf || 0) - Number(form.esi || 0) - Number(form.professionalTax || 0), 0);
+  return { grossSalary, netSalary };
+}
 
 export function OfferLettersPage() {
   const dispatch = useDispatch();
@@ -48,26 +96,59 @@ export function OfferLettersPage() {
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyOffer);
   const [message, setMessage] = useState("");
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("All");
 
   useEffect(() => {
     dispatch(fetchOffers());
   }, [dispatch]);
 
+  const filtered = useMemo(() => {
+    const text = query.trim().toLocaleLowerCase("en-IN");
+    return items.filter((offer) => {
+      const matchesStatus = status === "All" || offer.acceptanceStatus === status;
+      const matchesSearch = !text || [offer.fullName, offer.employeeId, offer.department, offer.designation, offer.acceptanceStatus, offer.offerLetterNumber, offer.joiningDate].some((value) => String(value || "").toLocaleLowerCase("en-IN").includes(text));
+      return matchesStatus && matchesSearch;
+    });
+  }, [items, query, status]);
+
+  const stats = useMemo(() => ({
+    total: items.length,
+    draft: items.filter((item) => item.acceptanceStatus === "Draft").length,
+    pending: items.filter((item) => ["Generated", "Sent", "Viewed"].includes(item.acceptanceStatus)).length,
+    accepted: items.filter((item) => item.acceptanceStatus === "Accepted").length,
+    rejected: items.filter((item) => item.acceptanceStatus === "Rejected").length,
+    expired: items.filter((item) => item.acceptanceStatus === "Expired").length
+  }), [items]);
+
   async function generateOffer(event) {
     event.preventDefault();
     setMessage("");
-    const created = await dispatch(createOffer(form)).unwrap();
+    const salary = autoSalary(form);
+    const created = await dispatch(createOffer({ ...form, ...salary })).unwrap();
     setForm(emptyOffer);
     setGenerateOpen(false);
     setSelected(created);
-    setMessage("Offer letter generated successfully");
+    setMessage("Employee offer letter generated successfully");
   }
 
   async function removeOffer(offer) {
-    const ok = window.confirm(`Delete offer letter for ${offer.studentName}?`);
-    if (!ok) return;
+    if (!window.confirm(`Delete offer letter for ${offer.fullName}?`)) return;
     await dispatch(deleteOffer(offer._id)).unwrap();
-    setMessage("Offer letter deleted");
+    setMessage("Employee offer letter deleted");
+  }
+
+  async function changeStatus(offer, nextStatus) {
+    const timestamp = nextStatus === "Sent" ? { emailSentAt: new Date().toISOString() } : nextStatus === "Accepted" ? { acceptedAt: new Date().toISOString() } : nextStatus === "Rejected" ? { rejectedAt: new Date().toISOString() } : {};
+    await dispatch(updateOffer({ id: offer._id, values: { ...offer, acceptanceStatus: nextStatus, ...timestamp } })).unwrap();
+    setMessage(`Offer status updated to ${nextStatus}`);
+  }
+
+  async function duplicateOffer(offer) {
+    const duplicate = { ...offer, _id: undefined, offerLetterNumber: "", employeeId: "", fullName: `${offer.fullName} Copy`, acceptanceStatus: "Draft", issueDate: today() };
+    const created = await dispatch(createOffer(duplicate)).unwrap();
+    setSelected(created);
+    setMessage("Offer letter duplicated");
   }
 
   async function quickPdf(offer) {
@@ -93,66 +174,86 @@ export function OfferLettersPage() {
   return (
     <div className="space-y-5">
       <section className="no-print rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <h2 className="text-xl font-black">Offer Letters</h2>
-            <p className="text-sm text-slate-500">Generate, edit, print and download student admission offer letters.</p>
+            <p className="text-sm font-black uppercase text-[#f97316]">HR Document Management</p>
+            <h2 className="mt-1 text-2xl font-black">Employee Offer Letter Dashboard</h2>
+            <p className="mt-1 text-sm text-slate-500">Generate, track, print and download professional employee offer letters.</p>
           </div>
-          <button onClick={() => setGenerateOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">
-            <Plus size={17} /> Generate Offer Letter
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setGenerateOpen(true)} className={buttonClass}><Plus size={17} /> Generate New Offer Letter</button>
+            <button onClick={() => window.print()} className={secondaryClass}><Printer size={16} /> Print Offer Letter</button>
+          </div>
         </div>
       </section>
 
       {(message || error) && <p className="no-print rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{error || message}</p>}
 
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+        <Stat label="Total Offer Letters" value={stats.total} />
+        <Stat label="Draft Offers" value={stats.draft} />
+        <Stat label="Pending Acceptance" value={stats.pending} />
+        <Stat label="Accepted Offers" value={stats.accepted} tone="green" />
+        <Stat label="Rejected Offers" value={stats.rejected} tone="red" />
+        <Stat label="Expired Offers" value={stats.expired} tone="amber" />
+      </section>
+
+      <section className="no-print rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="grid gap-3 lg:grid-cols-[1fr_220px_auto]">
+          <div className="flex h-10 items-center gap-2 rounded-md border border-slate-300 px-3 focus-within:border-[#f97316]">
+            <Search size={16} className="text-slate-400" />
+            <input className="w-full bg-transparent text-sm outline-none" placeholder="Search by employee name, ID, department, designation, status or joining date" value={query} onChange={(event) => setQuery(event.target.value)} />
+          </div>
+          <select className={inputClass.replace("mt-1 ", "")} value={status} onChange={(event) => setStatus(event.target.value)}>
+            <option>All</option>
+            {statuses.map((item) => <option key={item}>{item}</option>)}
+          </select>
+          <button onClick={() => dispatch(fetchOffers(query))} className={secondaryClass}><Eye size={16} /> View Offer Letters</button>
+        </div>
+      </section>
+
       <div className="table-wrap rounded-lg border border-slate-200 bg-white">
-        <table className="w-full min-w-[920px] text-left text-sm">
+        <table className="w-full min-w-[1120px] text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
             <tr>
-              <th className="px-4 py-3 font-semibold">Student Name</th>
-              <th className="px-4 py-3 font-semibold">Student ID</th>
-              <th className="px-4 py-3 font-semibold">Course</th>
-              <th className="px-4 py-3 font-semibold">Batch</th>
-              <th className="px-4 py-3 font-semibold">Fee Offered</th>
-              <th className="px-4 py-3 font-semibold">Offer Date</th>
+              <th className="px-4 py-3 font-semibold">Employee</th>
+              <th className="px-4 py-3 font-semibold">Employee ID</th>
+              <th className="px-4 py-3 font-semibold">Department</th>
+              <th className="px-4 py-3 font-semibold">Designation</th>
+              <th className="px-4 py-3 font-semibold">Joining Date</th>
+              <th className="px-4 py-3 font-semibold">CTC</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {items.map((offer) => (
+            {filtered.map((offer) => (
               <tr key={offer._id} className="hover:bg-slate-50">
-                <td className="px-4 py-3 font-semibold">{offer.studentName}</td>
-                <td className="px-4 py-3">{offer.studentId}</td>
-                <td className="px-4 py-3">{offer.courseName}</td>
-                <td className="px-4 py-3">{offer.batch}</td>
-                <td className="px-4 py-3 font-bold">{money(offer.feeOffered)}</td>
-                <td className="px-4 py-3">{date(offer.offerDate)}</td>
+                <td className="px-4 py-3 font-black">{offer.fullName}</td>
+                <td className="px-4 py-3">{offer.employeeId}</td>
+                <td className="px-4 py-3">{offer.department}</td>
+                <td className="px-4 py-3">{offer.designation}</td>
+                <td className="px-4 py-3">{date(offer.joiningDate)}</td>
+                <td className="px-4 py-3 font-bold">{money(offer.ctc)}</td>
+                <td className="px-4 py-3"><StatusBadge status={offer.acceptanceStatus} /></td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={() => setSelected(offer)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="View">
-                      <Eye size={16} />
-                    </button>
-                    <button onClick={() => setSelected(offer)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Edit">
-                      <Edit3 size={16} />
-                    </button>
-                    <button onClick={() => quickPrint(offer)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Print">
-                      <Printer size={16} />
-                    </button>
-                    <button onClick={() => quickPdf(offer)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Download PDF">
-                      <Download size={16} />
-                    </button>
-                    <button onClick={() => removeOffer(offer)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="Delete">
-                      <Trash2 size={16} />
-                    </button>
+                    <IconButton title="Preview" onClick={() => setSelected(offer)} icon={Eye} />
+                    <IconButton title="Edit" onClick={() => setSelected(offer)} icon={Edit3} />
+                    <IconButton title="Download PDF" onClick={() => quickPdf(offer)} icon={Download} />
+                    <IconButton title="Print" onClick={() => quickPrint(offer)} icon={Printer} />
+                    <IconButton title="Duplicate" onClick={() => duplicateOffer(offer)} icon={Copy} />
+                    <IconButton title="Send via Email" onClick={() => changeStatus(offer, "Sent")} icon={Mail} />
+                    <IconButton title="Track Status" onClick={() => changeStatus(offer, offer.acceptanceStatus === "Accepted" ? "Viewed" : "Accepted")} icon={Send} />
+                    <IconButton title="Delete" onClick={() => removeOffer(offer)} icon={Trash2} danger />
                   </div>
                 </td>
               </tr>
             ))}
-            {!items.length && (
+            {!filtered.length && (
               <tr>
-                <td className="px-4 py-8 text-center text-slate-500" colSpan={7}>
-                  {loading ? "Loading offer letters..." : "No offer letters found"}
+                <td className="px-4 py-8 text-center text-slate-500" colSpan={8}>
+                  {loading ? "Loading employee offer letters..." : "No employee offer letters found"}
                 </td>
               </tr>
             )}
@@ -160,14 +261,7 @@ export function OfferLettersPage() {
         </table>
       </div>
 
-      <GenerateOfferModal
-        open={generateOpen}
-        form={form}
-        setForm={setForm}
-        saving={saving}
-        onSubmit={generateOffer}
-        onClose={() => setGenerateOpen(false)}
-      />
+      <GenerateOfferModal open={generateOpen} form={form} setForm={setForm} saving={saving} onSubmit={generateOffer} onClose={() => setGenerateOpen(false)} />
       <OfferLetterModal open={Boolean(selected)} offer={selected} onClose={() => setSelected(null)} />
     </div>
   );
@@ -175,66 +269,85 @@ export function OfferLettersPage() {
 
 function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) {
   if (!open) return null;
-  const requiredFields = new Set(["studentName", "studentId", "courseName", "batch", "feeOffered", "startDate", "offerDate"]);
+  const salary = autoSalary(form);
+  const setValue = (key, value) => setForm((current) => ({ ...current, [key]: value }));
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ink/50 p-3">
-      <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-soft">
-        <div className="flex items-center justify-between border-b border-slate-200 p-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[#111315]/50 p-3">
+      <div className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-lg bg-white shadow-xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white p-4">
           <div>
-            <h2 className="text-lg font-black">Generate Offer Letter</h2>
-            <p className="text-sm text-slate-500">Fill editable offer details. Branding and terms are fixed.</p>
+            <h2 className="text-lg font-black">Generate Employee Offer Letter</h2>
+            <p className="text-sm text-slate-500">Employee details, employment terms, salary structure and HR policies.</p>
           </div>
-          <button onClick={onClose} className="rounded-md border border-slate-200 p-2 hover:bg-slate-50" aria-label="Close modal">
-            <X size={18} />
-          </button>
+          <button onClick={onClose} className="rounded-md border border-slate-200 p-2 hover:bg-slate-50" aria-label="Close modal"><X size={18} /></button>
         </div>
-        <form onSubmit={onSubmit} className="grid gap-3 p-4 md:grid-cols-2">
-          {[
-            ["studentName", "Student Name", "text"],
-            ["studentId", "Student ID", "text"],
-            ["email", "Email", "email"],
-            ["phone", "Phone", "text"],
-            ["address", "Address", "text"],
-            ["courseName", "Course Name", "text"],
-            ["department", "Department", "text"],
-            ["batch", "Batch", "text"],
-            ["duration", "Duration", "text"],
-            ["feeOffered", "Total Fee", "number"],
-            ["scholarship", "Scholarship/Discount", "number"],
-            ["finalAmount", "Final Amount", "number"],
-            ["paymentSchedule", "Payment Schedule", "text"],
-            ["offerDate", "Offer Date", "date"],
-            ["joiningDate", "Joining Date", "date"],
-            ["validTill", "Valid Till Date", "date"],
-            ["startDate", "Start Date", "date"],
-            ["endDate", "End Date", "date"],
-            ["authorizedSignatory", "Authorized Signatory", "text"],
-            ["hrContact", "HR Contact", "text"],
-            ["branchLocation", "Branch Location", "text"],
-            ["reportingManager", "Reporting Manager", "text"],
-            ["trainingLocation", "Training Location", "text"],
-            ["mode", "Mode", "text"]
-          ].map(([key, label, type]) => (
-            <label key={key} className="block text-sm">
-              <span className="font-semibold text-slate-600">{label}</span>
-              <input
-                required={requiredFields.has(key)}
-                type={type}
-                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]"
-                value={form[key]}
-                onChange={(event) => setForm((current) => ({ ...current, [key]: type === "number" ? Number(event.target.value) : event.target.value }))}
-              />
-            </label>
-          ))}
-          <label className="block text-sm md:col-span-2">
-            <span className="font-semibold text-slate-600">Remarks</span>
-            <textarea
-              className="mt-1 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]"
-              value={form.remarks}
-              onChange={(event) => setForm((current) => ({ ...current, remarks: event.target.value }))}
-            />
-          </label>
-          <div className="flex flex-col-reverse gap-2 md:col-span-2 sm:flex-row sm:justify-end">
+        <form onSubmit={onSubmit} className="space-y-5 p-4">
+          <FormSection title="Employee Information">
+            <Field label="Employee ID" value={form.employeeId} onChange={(value) => setValue("employeeId", value)} placeholder="Auto generated if blank" />
+            <Field required label="Full Name" value={form.fullName} onChange={(value) => setValue("fullName", value)} />
+            <SelectField label="Gender" value={form.gender} onChange={(value) => setValue("gender", value)} options={["", "Male", "Female", "Other"]} />
+            <Field label="Date of Birth" type="date" value={form.dateOfBirth} onChange={(value) => setValue("dateOfBirth", value)} />
+            <Field label="Mobile Number" value={form.mobileNumber} onChange={(value) => setValue("mobileNumber", value)} />
+            <Field label="Personal Email" type="email" value={form.personalEmail} onChange={(value) => setValue("personalEmail", value)} />
+            <Field label="Official Email" type="email" value={form.officialEmail} onChange={(value) => setValue("officialEmail", value)} />
+            <Field label="Address" value={form.address} onChange={(value) => setValue("address", value)} />
+            <Field label="City" value={form.city} onChange={(value) => setValue("city", value)} />
+            <Field label="State" value={form.state} onChange={(value) => setValue("state", value)} />
+            <Field label="Country" value={form.country} onChange={(value) => setValue("country", value)} />
+            <Field label="Pincode" value={form.pincode} onChange={(value) => setValue("pincode", value)} />
+            <Field label="Photograph URL" value={form.photograph} onChange={(value) => setValue("photograph", value)} />
+            <Field label="Emergency Contact" value={form.emergencyContact} onChange={(value) => setValue("emergencyContact", value)} />
+          </FormSection>
+
+          <FormSection title="Employment Information">
+            <Field required label="Department" value={form.department} onChange={(value) => setValue("department", value)} />
+            <Field required label="Designation" value={form.designation} onChange={(value) => setValue("designation", value)} />
+            <Field label="Reporting Manager" value={form.reportingManager} onChange={(value) => setValue("reportingManager", value)} />
+            <SelectField label="Employment Type" value={form.employmentType} onChange={(value) => setValue("employmentType", value)} options={employmentTypes} />
+            <Field label="Work Location" value={form.workLocation} onChange={(value) => setValue("workLocation", value)} />
+            <Field label="Office Branch" value={form.officeBranch} onChange={(value) => setValue("officeBranch", value)} />
+            <Field required label="Joining Date" type="date" value={form.joiningDate} onChange={(value) => setValue("joiningDate", value)} />
+            <Field label="Probation Period" value={form.probationPeriod} onChange={(value) => setValue("probationPeriod", value)} />
+            <Field label="Confirmation Date" type="date" value={form.confirmationDate} onChange={(value) => setValue("confirmationDate", value)} />
+            <Field label="Offer Valid Till" type="date" value={form.validTill} onChange={(value) => setValue("validTill", value)} />
+            <SelectField label="Status" value={form.acceptanceStatus} onChange={(value) => setValue("acceptanceStatus", value)} options={statuses} />
+          </FormSection>
+
+          <FormSection title="Salary Details">
+            {["ctc", "basicSalary", "hra", "specialAllowance", "medicalAllowance", "travelAllowance", "conveyance", "bonus", "pf", "esi", "professionalTax"].map((key) => (
+              <Field key={key} label={labelize(key)} type="number" value={form[key]} onChange={(value) => setValue(key, Number(value))} />
+            ))}
+            <Field label="Gross Salary" type="number" value={salary.grossSalary} onChange={(value) => setValue("grossSalary", Number(value))} />
+            <Field label="Net Salary" type="number" value={salary.netSalary} onChange={(value) => setValue("netSalary", Number(value))} />
+            <Field label="Salary Payment Date" value={form.salaryPaymentDate} onChange={(value) => setValue("salaryPaymentDate", value)} />
+          </FormSection>
+
+          <FormSection title="Working Details">
+            <Field label="Working Days" value={form.workingDays} onChange={(value) => setValue("workingDays", value)} />
+            <Field label="Shift Timing" value={form.shiftTiming} onChange={(value) => setValue("shiftTiming", value)} />
+            <Field label="Office Timing" value={form.officeTiming} onChange={(value) => setValue("officeTiming", value)} />
+            <Field label="Weekly Off" value={form.weeklyOff} onChange={(value) => setValue("weeklyOff", value)} />
+            <Field label="Notice Period" value={form.noticePeriod} onChange={(value) => setValue("noticePeriod", value)} />
+          </FormSection>
+
+          <FormSection title="Documents Required">
+            <Field label="Aadhaar Number" value={form.aadhaarNumber} onChange={(value) => setValue("aadhaarNumber", value)} />
+            <Field label="PAN Number" value={form.panNumber} onChange={(value) => setValue("panNumber", value)} />
+            <Field label="Passport Number" value={form.passportNumber} onChange={(value) => setValue("passportNumber", value)} />
+            <Field label="Bank Name" value={form.bankName} onChange={(value) => setValue("bankName", value)} />
+            <Field label="Account Number" value={form.accountNumber} onChange={(value) => setValue("accountNumber", value)} />
+            <Field label="IFSC Code" value={form.ifscCode} onChange={(value) => setValue("ifscCode", value)} />
+            <Field label="UAN Number" value={form.uanNumber} onChange={(value) => setValue("uanNumber", value)} />
+            <Field label="ESIC Number" value={form.esicNumber} onChange={(value) => setValue("esicNumber", value)} />
+          </FormSection>
+
+          <FormSection title="Offer Content">
+            <Field wide label="Roles & Responsibilities" textarea value={form.rolesAndResponsibilities} onChange={(value) => setValue("rolesAndResponsibilities", value)} />
+            <Field wide label="Terms & Conditions" textarea value={form.termsAndConditions} onChange={(value) => setValue("termsAndConditions", value)} />
+            <Field wide label="Remarks" textarea value={form.remarks} onChange={(value) => setValue("remarks", value)} />
+          </FormSection>
+
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button>
             <button disabled={saving} className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315] disabled:opacity-60">
               {saving ? "Generating..." : "Generate Offer Letter"}
@@ -244,4 +357,56 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
       </div>
     </div>
   );
+}
+
+function Stat({ label, value, tone = "orange" }) {
+  const colors = {
+    orange: "border-[#f97316]/25 bg-[#fff3e8] text-[#c2410c]",
+    green: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    red: "border-rose-200 bg-rose-50 text-rose-700",
+    amber: "border-amber-200 bg-amber-50 text-amber-700"
+  };
+  return <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"><p className="text-xs font-bold uppercase text-slate-500">{label}</p><p className="mt-3 text-2xl font-black">{value}</p><span className={`mt-3 inline-flex rounded-full border px-2 py-1 text-xs font-black ${colors[tone]}`}>Live</span></div>;
+}
+
+function StatusBadge({ status }) {
+  const tones = {
+    Draft: "border-slate-200 bg-slate-50 text-slate-700",
+    Generated: "border-sky-200 bg-sky-50 text-sky-700",
+    Sent: "border-orange-200 bg-[#fff3e8] text-[#c2410c]",
+    Viewed: "border-violet-200 bg-violet-50 text-violet-700",
+    Accepted: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    Rejected: "border-rose-200 bg-rose-50 text-rose-700",
+    Expired: "border-amber-200 bg-amber-50 text-amber-700"
+  };
+  return <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-black ${tones[status] || tones.Draft}`}>{status || "Draft"}</span>;
+}
+
+function IconButton({ title, onClick, icon: Icon, danger = false }) {
+  return <button onClick={onClick} className={`rounded-md border border-slate-200 p-2 hover:bg-slate-50 ${danger ? "text-rose-600" : "text-slate-700"}`} title={title}><Icon size={16} /></button>;
+}
+
+function FormSection({ title, children }) {
+  return <section className="rounded-lg border border-slate-200 p-4"><h3 className="mb-4 flex items-center gap-2 text-sm font-black uppercase text-[#c2410c]"><FileText size={16} /> {title}</h3><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{children}</div></section>;
+}
+
+function Field({ label, value, onChange, type = "text", textarea = false, required = false, wide = false, placeholder = "" }) {
+  return (
+    <label className={`block text-sm ${wide ? "md:col-span-2 xl:col-span-3" : ""}`}>
+      <span className="font-semibold text-slate-600">{label}</span>
+      {textarea ? (
+        <textarea required={required} className={`${inputClass} h-24 pt-2`} value={value || ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+      ) : (
+        <input required={required} type={type} className={inputClass} value={value ?? ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+      )}
+    </label>
+  );
+}
+
+function SelectField({ label, value, onChange, options }) {
+  return <label className="block text-sm"><span className="font-semibold text-slate-600">{label}</span><select className={inputClass} value={value || ""} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option} value={option}>{option || "Select"}</option>)}</select></label>;
+}
+
+function labelize(value) {
+  return value.replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase()).replace("Ctc", "CTC").replace("Hra", "HRA").replace("Pf", "PF").replace("Esi", "ESI");
 }

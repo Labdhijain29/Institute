@@ -2,12 +2,13 @@ import { ROLE_PERMISSIONS, ROLES } from "../constants/roles.js";
 import { User } from "../models/User.js";
 import { Student } from "../models/Student.js";
 import { ApiError } from "../utils/ApiError.js";
+import { createAttendanceSessionId, recordAuthLoginAttendance, recordAuthLogoutAttendance } from "../utils/attendanceCapture.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { signToken } from "../utils/token.js";
 
-function authPayload(user) {
+function authPayload(user, sessionId) {
   return {
-    token: signToken(user),
+    token: signToken(user, sessionId),
     user: {
       id: user._id,
       name: user.name,
@@ -114,9 +115,16 @@ export const login = asyncHandler(async (req, res) => {
       await existingStudent.save();
     }
   }
-  res.json(authPayload(user));
+  const sessionId = createAttendanceSessionId();
+  await recordAuthLoginAttendance(user, req, sessionId, req.body?.attendanceLocation);
+  res.json(authPayload(user, sessionId));
 });
 
 export const me = asyncHandler(async (req, res) => {
   res.json({ user: req.user, permissions: ROLE_PERMISSIONS[req.user.role] || [] });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  await recordAuthLogoutAttendance(req.user, req, req.body?.attendanceLocation);
+  res.json({ message: "Logged out" });
 });

@@ -1,6 +1,6 @@
 const safeFilePart = (value) => String(value || "Draft").trim().replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "") || "Draft";
 
-export async function downloadOfferPdf(element, offerOrStudentId) {
+export async function downloadOfferPdf(element, offerOrEmployeeId) {
   if (!element) return;
   const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
     import("html2canvas"),
@@ -26,6 +26,6 @@ export async function downloadOfferPdf(element, offerOrStudentId) {
     pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
   }
 
-  const offer = typeof offerOrStudentId === "object" ? offerOrStudentId : { studentId: offerOrStudentId };
-  pdf.save(`OfferLetter_${safeFilePart(offer.studentId)}_${safeFilePart(offer.studentName)}.pdf`);
+  const offer = typeof offerOrEmployeeId === "object" ? offerOrEmployeeId : { employeeId: offerOrEmployeeId };
+  pdf.save(`EmployeeOfferLetter_${safeFilePart(offer.employeeId)}_${safeFilePart(offer.fullName)}.pdf`);
 }

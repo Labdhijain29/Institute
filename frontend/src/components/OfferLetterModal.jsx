@@ -9,62 +9,99 @@ const editableGroups = [
   {
     title: "Basic Information",
     fields: [
-      ["studentName", "Name", "text"],
-      ["studentId", "ID", "text"],
-      ["email", "Email", "email"],
-      ["phone", "Phone", "text"],
-      ["address", "Address", "textarea"]
+      ["fullName", "Employee Name", "text"],
+      ["employeeId", "Employee ID", "text"],
+      ["offerLetterNumber", "Offer Letter Number", "text"],
+      ["acceptanceStatus", "Acceptance Status", "select"],
+      ["issueDate", "Issue Date", "date"],
+      ["validTill", "Offer Valid Till", "date"]
     ]
   },
   {
-    title: "Course Details",
+    title: "Employee Details",
     fields: [
-      ["courseName", "Course Name", "text"],
-      ["duration", "Duration", "text"],
-      ["batch", "Batch", "text"],
-      ["department", "Department", "text"]
+      ["photograph", "Photograph URL", "text"],
+      ["gender", "Gender", "text"],
+      ["dateOfBirth", "Date of Birth", "date"],
+      ["personalEmail", "Personal Email", "email"],
+      ["officialEmail", "Official Email", "email"],
+      ["mobileNumber", "Phone Number", "text"],
+      ["address", "Address", "textarea"],
+      ["city", "City", "text"],
+      ["state", "State", "text"],
+      ["country", "Country", "text"],
+      ["pincode", "Pincode", "text"],
+      ["emergencyContact", "Emergency Contact", "text"]
     ]
   },
   {
-    title: "Financial Details",
+    title: "Employment Details",
     fields: [
-      ["feeOffered", "Fee", "number"],
-      ["scholarship", "Scholarship", "number"],
-      ["finalAmount", "Final Amount", "number"],
-      ["paymentSchedule", "Payment Schedule", "textarea"]
-    ]
-  },
-  {
-    title: "Dates",
-    fields: [
-      ["offerDate", "Offer Date", "date"],
-      ["joiningDate", "Joining Date", "date"],
-      ["validTill", "Valid Till Date", "date"],
-      ["startDate", "Start Date", "date"],
-      ["endDate", "End Date", "date"]
-    ]
-  },
-  {
-    title: "Company Details",
-    fields: [
-      ["authorizedSignatory", "Authorized Signatory", "text"],
-      ["hrContact", "HR Contact", "text"],
-      ["branchLocation", "Branch Location", "text"],
+      ["department", "Department", "text"],
+      ["designation", "Designation", "text"],
       ["reportingManager", "Reporting Manager", "text"],
-      ["trainingLocation", "Training Location", "text"],
-      ["mode", "Mode", "text"],
-      ["documentNumber", "Document Number", "text"],
-      ["offerLetterId", "Offer Letter ID", "text"],
-      ["companyCinGst", "CIN/GST Number", "text"]
+      ["employmentType", "Employment Type", "select"],
+      ["workLocation", "Office Location", "text"],
+      ["officeBranch", "Branch", "text"],
+      ["joiningDate", "Joining Date", "date"],
+      ["probationPeriod", "Probation Period", "text"],
+      ["confirmationDate", "Confirmation Date", "date"],
+      ["noticePeriod", "Notice Period", "text"],
+      ["workingDays", "Working Days", "text"],
+      ["officeTiming", "Working Hours", "text"],
+      ["shiftTiming", "Shift Timing", "text"]
+    ]
+  },
+  {
+    title: "Salary Details",
+    fields: [
+      ["ctc", "Annual CTC", "number"],
+      ["basicSalary", "Basic Salary", "number"],
+      ["hra", "HRA", "number"],
+      ["specialAllowance", "Special Allowance", "number"],
+      ["medicalAllowance", "Medical Allowance", "number"],
+      ["travelAllowance", "Travel Allowance", "number"],
+      ["bonus", "Bonus", "number"],
+      ["pf", "PF", "number"],
+      ["esi", "ESI", "number"],
+      ["professionalTax", "Professional Tax", "number"],
+      ["grossSalary", "Gross Salary", "number"],
+      ["netSalary", "Net Salary", "number"],
+      ["salaryPaymentDate", "Salary Payment Date", "text"]
+    ]
+  },
+  {
+    title: "HR Policies",
+    fields: [["hrPoliciesVersion", "HR Policies Version", "text"]]
+  },
+  {
+    title: "Terms",
+    fields: [
+      ["rolesAndResponsibilities", "Roles & Responsibilities", "textarea"],
+      ["termsAndConditions", "Terms & Conditions", "textarea"]
     ]
   },
   {
     title: "Remarks",
-    fields: [["remarks", "Custom Notes", "textarea"]]
+    fields: [["remarks", "Remarks", "textarea"]]
+  },
+  {
+    title: "Signatures",
+    fields: [
+      ["hrSignature", "HR Manager Signature", "text"],
+      ["reportingManager", "Reporting Manager Signature", "text"],
+      ["directorSignature", "Director Signature", "text"],
+      ["employeeSignature", "Employee Signature", "text"],
+      ["signatureDate", "Acceptance Date", "date"],
+      ["signaturePlace", "Place", "text"]
+    ]
   }
 ];
 
+const statuses = ["Draft", "Generated", "Sent", "Viewed", "Accepted", "Rejected", "Expired"];
+const employmentTypes = ["Full Time", "Part Time", "Internship", "Contract", "Freelance"];
 const dateValue = (value) => value?.slice?.(0, 10) || "";
+const dateFields = new Set(["dateOfBirth", "issueDate", "validTill", "joiningDate", "confirmationDate", "signatureDate"]);
 
 export function OfferLetterModal({ open, offer, onClose }) {
   const dispatch = useDispatch();
@@ -75,36 +112,15 @@ export function OfferLetterModal({ open, offer, onClose }) {
 
   useEffect(() => {
     if (!offer) return;
-    setForm({
-      studentName: offer.studentName || "",
-      studentId: offer.studentId || "",
-      email: offer.email || "",
-      phone: offer.phone || "",
-      address: offer.address || "",
-      courseName: offer.courseName || "",
-      batch: offer.batch || "",
-      department: offer.department || "",
-      duration: offer.duration || "",
-      feeOffered: offer.feeOffered || 0,
-      scholarship: offer.scholarship || 0,
-      finalAmount: offer.finalAmount || 0,
-      paymentSchedule: offer.paymentSchedule || "",
-      startDate: dateValue(offer.startDate),
-      endDate: dateValue(offer.endDate),
-      offerDate: dateValue(offer.offerDate),
-      joiningDate: dateValue(offer.joiningDate),
-      validTill: dateValue(offer.validTill),
-      authorizedSignatory: offer.authorizedSignatory || "",
-      hrContact: offer.hrContact || "",
-      branchLocation: offer.branchLocation || "",
-      reportingManager: offer.reportingManager || "",
-      trainingLocation: offer.trainingLocation || "",
-      mode: offer.mode || "Offline",
-      documentNumber: offer.documentNumber || "",
-      offerLetterId: offer.offerLetterId || "",
-      companyCinGst: offer.companyCinGst || "",
-      remarks: offer.remarks || ""
+    const next = {};
+    editableGroups.forEach((group) => {
+      group.fields.forEach(([key]) => {
+        next[key] = dateFields.has(key) ? dateValue(offer[key]) : offer[key] ?? "";
+      });
     });
+    next.acceptanceStatus = offer.acceptanceStatus || "Generated";
+    next.employmentType = offer.employmentType || "Full Time";
+    setForm(next);
     setEditing(false);
   }, [offer]);
 
@@ -134,8 +150,8 @@ export function OfferLetterModal({ open, offer, onClose }) {
           <div className="sticky top-0 z-10 border-b border-slate-200 bg-white p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-lg font-black">Offer Letter</h2>
-                <p className="text-sm text-slate-500">{offer.studentId}</p>
+                <h2 className="text-lg font-black">Employee Offer Letter</h2>
+                <p className="text-sm text-slate-500">{offer.employeeId || offer.offerLetterNumber}</p>
               </div>
               <button onClick={onClose} className="rounded-md border border-slate-200 p-2 hover:bg-slate-50" aria-label="Close offer letter">
                 <X size={18} />
@@ -177,6 +193,9 @@ export function OfferLetterModal({ open, offer, onClose }) {
 }
 
 function EditableField({ fieldKey, label, type, editing, form, setForm }) {
+  const value = form[fieldKey] ?? "";
+  const setValue = (nextValue) => setForm((current) => ({ ...current, [fieldKey]: type === "number" ? Number(nextValue) : nextValue }));
+
   return (
     <label className="block text-sm">
       <span className="font-semibold text-slate-600">{label}</span>
@@ -184,16 +203,25 @@ function EditableField({ fieldKey, label, type, editing, form, setForm }) {
         <textarea
           disabled={!editing}
           className="mt-1 min-h-20 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-[#f97316] disabled:bg-slate-50"
-          value={form[fieldKey] || ""}
-          onChange={(event) => setForm((current) => ({ ...current, [fieldKey]: event.target.value }))}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
         />
+      ) : type === "select" ? (
+        <select
+          disabled={!editing}
+          className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-[#f97316] disabled:bg-slate-50"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+        >
+          {(fieldKey === "acceptanceStatus" ? statuses : employmentTypes).map((option) => <option key={option}>{option}</option>)}
+        </select>
       ) : (
         <input
           disabled={!editing}
           type={type}
           className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-[#f97316] disabled:bg-slate-50"
-          value={form[fieldKey] ?? ""}
-          onChange={(event) => setForm((current) => ({ ...current, [fieldKey]: type === "number" ? Number(event.target.value) : event.target.value }))}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
         />
       )}
     </label>

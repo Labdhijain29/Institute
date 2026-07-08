@@ -17,6 +17,7 @@ export const protect = asyncHandler(async (req, _res, next) => {
   }
 
   req.user = user;
+  req.sessionId = decoded.sessionId;
   next();
 });
 

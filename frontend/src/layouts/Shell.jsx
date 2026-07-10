@@ -1,8 +1,8 @@
 import React from "react";
 import { useMemo, useState } from "react";
-import { LogOut, Menu, Search } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Search } from "lucide-react";
 import { useAuth } from "../auth/AuthContext.jsx";
-import { menuForRole } from "../data/roleConfig.js";
+import { menuForRole, sidebarGroups } from "../data/roleConfig.js";
 import { DashboardPage } from "../pages/DashboardPage.jsx";
 import { ModulePage } from "../pages/ModulePage.jsx";
 import { LeadsPage } from "../pages/LeadsPage.jsx";
@@ -24,6 +24,14 @@ export function Shell() {
   const [active, setActive] = useState("dashboard");
   const [open, setOpen] = useState(false);
   const menu = useMemo(() => menuForRole(user.role), [user.role]);
+  const visibleGroups = useMemo(() => sidebarGroups.map((group) => ({
+    ...group,
+    items: group.items.map((groupItem) => {
+      const menuItem = menu.find((item) => item.path === groupItem.path);
+      return menuItem ? { ...menuItem, navigationLabel: groupItem.label } : null;
+    }).filter(Boolean)
+  })).filter((group) => group.items.length), [menu]);
+  const [expandedGroups, setExpandedGroups] = useState(() => new Set(sidebarGroups.map((group) => group.label)));
   const activeItem = menu.find((item) => item.path === active) || menu[0];
   const isLeadWorkflow = Boolean(activeItem.workflowRole);
   const isDashboard = active === "dashboard" || Boolean(activeItem.dashboardRole);
@@ -42,14 +50,7 @@ export function Shell() {
           </div>
         </div>
         <nav className="space-y-1 p-3">
-          {menu.map((item) => {
-            if (item.section) {
-              return (
-                <div key={item.label} className="px-3 pb-1 pt-4 text-[11px] font-black uppercase tracking-wide text-slate-400">
-                  {item.label}
-                </div>
-              );
-            }
+          {menu.filter((item) => item.path === "dashboard").map((item) => {
             const Icon = item.icon;
             const selected = active === item.path;
             return (
@@ -64,6 +65,49 @@ export function Shell() {
                 <Icon size={18} />
                 {item.label}
               </button>
+            );
+          })}
+          {visibleGroups.map((group) => {
+            const GroupIcon = group.icon;
+            const expanded = expandedGroups.has(group.label);
+            const hasActiveItem = group.items.some((item) => item.path === active);
+            return (
+              <div key={group.label}>
+                <button
+                  type="button"
+                  aria-expanded={expanded}
+                  onClick={() => setExpandedGroups((current) => {
+                    const next = new Set(current);
+                    next.has(group.label) ? next.delete(group.label) : next.add(group.label);
+                    return next;
+                  })}
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-semibold hover:bg-[#fff3e8] hover:text-[#c2410c] ${hasActiveItem ? "text-[#c2410c]" : "text-slate-700"}`}
+                >
+                  <GroupIcon size={18} />
+                  <span className="flex-1">{group.label}</span>
+                  <ChevronDown size={16} className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
+                </button>
+                <div className={`grid transition-[grid-template-rows] duration-200 ${expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                  <div className="overflow-hidden">
+                    <div className="space-y-1 pb-1 pl-4 pt-1">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const selected = active === item.path;
+                        return (
+                          <button
+                            key={item.path}
+                            onClick={() => { setActive(item.path); setOpen(false); }}
+                            className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium ${selected ? "bg-[#f97316] text-white shadow-sm" : "text-slate-700 hover:bg-[#fff3e8] hover:text-[#c2410c]"}`}
+                          >
+                            <Icon size={18} />
+                            {item.navigationLabel || item.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
             );
           })}
         </nav>

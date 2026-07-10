@@ -71,6 +71,40 @@ export const baseMenu = [
   { label: "Permissions", path: "permissions", icon: ShieldCheck, roles: ["Super Admin"] }
 ];
 
+export const sidebarGroups = [
+  { label: "Admissions", icon: GraduationCap, items: [{ path: "admissions", label: "Admissions Dashboard" }] },
+  {
+    label: "Students",
+    icon: UsersRound,
+    items: [
+      { path: "students", label: "All Students" },
+      { path: "attendance", label: "Student Attendance" },
+      { path: "certificates" },
+      { path: "offers" }
+    ]
+  },
+  { label: "Academics", icon: BookOpen, items: [{ path: "courses" }, { path: "batches" }, { path: "lecture-reports" }, { path: "materials" }] },
+  { label: "Finance", icon: BadgeIndianRupee, items: [{ path: "fees" }, { path: "receipts" }, { path: "payroll" }] },
+  {
+    label: "Employee Management",
+    icon: BriefcaseBusiness,
+    items: [
+      { path: "employee-desk", label: "Employees Overview" },
+      { path: "manager-dashboard" },
+      { path: "telecaller-dashboard" },
+      { path: "counsellor-dashboard" },
+      { path: "faculty-dashboard" },
+      { path: "hr" },
+      { path: "employee-reports" },
+      { path: "leave-requests" },
+      { path: "tasks" },
+      { path: "digital-marketing-management" }
+    ]
+  },
+  { label: "Reports", icon: ClipboardCheck, items: [{ path: "reports" }] },
+  { label: "Administration", icon: Settings, items: [{ path: "notifications" }, { path: "users" }, { path: "office-ips" }, { path: "settings" }, { path: "permissions" }] }
+];
+
 export function menuForRole(role) {
   return baseMenu.filter((item) => item.roles.includes("*") || item.roles.includes(role));
 }

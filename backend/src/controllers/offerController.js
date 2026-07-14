@@ -2,7 +2,7 @@ import { OfferLetter } from "../models/OfferLetter.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const numericFields = ["ctc", "basicSalary", "hra", "specialAllowance", "medicalAllowance", "travelAllowance", "conveyance", "bonus", "pf", "esi", "professionalTax", "grossSalary", "netSalary"];
+const numericFields = ["ctc", "basicSalary", "hra", "specialAllowance", "otherAllowance", "medicalAllowance", "travelAllowance", "conveyance", "bonus", "gratuity", "pf", "esi", "professionalTax", "grossSalary", "netSalary"];
 
 function cleanNumber(value) {
   return Number.isFinite(Number(value)) ? Number(value) : 0;
@@ -37,7 +37,7 @@ async function nextEmployeeId() {
 
 function salaryPayload(body) {
   const values = Object.fromEntries(numericFields.map((field) => [field, cleanNumber(body[field])]));
-  const grossSalary = values.grossSalary || values.basicSalary + values.hra + values.specialAllowance + values.medicalAllowance + values.travelAllowance + values.conveyance + values.bonus;
+  const grossSalary = values.grossSalary || values.basicSalary + values.hra + values.specialAllowance + values.otherAllowance + values.medicalAllowance + values.travelAllowance + values.conveyance + values.bonus;
   const netSalary = values.netSalary || Math.max(grossSalary - values.pf - values.esi - values.professionalTax, 0);
   return { ...values, grossSalary, netSalary };
 }
@@ -59,6 +59,15 @@ function offerPayload(body) {
     pincode: body.pincode,
     photograph: body.photograph,
     emergencyContact: body.emergencyContact,
+    officialMobileNumber: body.officialMobileNumber,
+    companyName: body.companyName,
+    companyTagline: body.companyTagline,
+    companyAddress: body.companyAddress,
+    companyWebsite: body.companyWebsite,
+    companyEmail: body.companyEmail,
+    companyPhone: body.companyPhone,
+    companySeal: body.companySeal,
+    verificationUrl: body.verificationUrl,
     department: body.department,
     designation: body.designation,
     reportingManager: body.reportingManager,
@@ -70,10 +79,23 @@ function offerPayload(body) {
     confirmationDate: body.confirmationDate,
     ...salaryPayload(body),
     workingDays: body.workingDays,
+    workingHours: body.workingHours,
     shiftTiming: body.shiftTiming,
     officeTiming: body.officeTiming,
+    lunchBreak: body.lunchBreak,
     weeklyOff: body.weeklyOff,
     noticePeriod: body.noticePeriod,
+    leavePolicy: body.leavePolicy,
+    attendancePolicy: body.attendancePolicy,
+    lateComingPolicy: body.lateComingPolicy,
+    dressCode: body.dressCode,
+    codeOfConduct: body.codeOfConduct,
+    confidentialityPolicy: body.confidentialityPolicy,
+    dataPrivacyPolicy: body.dataPrivacyPolicy,
+    companyPropertyPolicy: body.companyPropertyPolicy,
+    conflictOfInterestPolicy: body.conflictOfInterestPolicy,
+    terminationConditions: body.terminationConditions,
+    resignationPolicy: body.resignationPolicy,
     salaryPaymentDate: body.salaryPaymentDate,
     aadhaarNumber: body.aadhaarNumber,
     panNumber: body.panNumber,

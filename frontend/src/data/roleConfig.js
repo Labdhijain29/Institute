@@ -79,8 +79,7 @@ export const sidebarGroups = [
     items: [
       { path: "students", label: "All Students" },
       { path: "attendance", label: "Student Attendance" },
-      { path: "certificates" },
-      { path: "offers" }
+      { path: "certificates" }
     ]
   },
   { label: "Academics", icon: BookOpen, items: [{ path: "courses" }, { path: "batches" }, { path: "lecture-reports" }, { path: "materials" }] },
@@ -95,6 +94,7 @@ export const sidebarGroups = [
       { path: "counsellor-dashboard" },
       { path: "faculty-dashboard" },
       { path: "hr" },
+      { path: "offers" },
       { path: "employee-reports" },
       { path: "leave-requests" },
       { path: "tasks" },

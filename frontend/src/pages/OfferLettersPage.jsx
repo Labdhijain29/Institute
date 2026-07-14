@@ -28,6 +28,15 @@ const emptyOffer = {
   pincode: "",
   photograph: "",
   emergencyContact: "",
+  officialMobileNumber: "",
+  companyName: "Coding Walla",
+  companyTagline: "From Learning to Earning",
+  companyAddress: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay Nagar, Indore, MP, 452010",
+  companyWebsite: "www.codingwallah.com",
+  companyEmail: "info@codingwallah.com",
+  companyPhone: "+91 9098875825",
+  companySeal: "Coding Walla",
+  verificationUrl: "https://www.codingwallah.com/verify-offer",
   department: "",
   designation: "",
   reportingManager: "",
@@ -41,10 +50,12 @@ const emptyOffer = {
   basicSalary: 0,
   hra: 0,
   specialAllowance: 0,
+  otherAllowance: 0,
   medicalAllowance: 0,
   travelAllowance: 0,
   conveyance: 0,
   bonus: 0,
+  gratuity: 0,
   pf: 0,
   esi: 0,
   professionalTax: 0,
@@ -52,10 +63,23 @@ const emptyOffer = {
   netSalary: 0,
   salaryPaymentDate: "7th of every month",
   workingDays: "Monday to Saturday",
+  workingHours: "9 hours per day",
   shiftTiming: "Day Shift",
   officeTiming: "10:00 AM to 7:00 PM",
+  lunchBreak: "1:30 PM to 2:00 PM",
   weeklyOff: "Sunday",
   noticePeriod: "30 days",
+  leavePolicy: "Leave must be requested through approved channels and is subject to manager and HR approval.",
+  attendancePolicy: "Daily attendance and punctuality are mandatory and form part of payroll and performance records.",
+  lateComingPolicy: "Repeated late arrival may result in attendance adjustment or disciplinary action as per company policy.",
+  dressCode: "Employees must maintain professional attire and grooming appropriate to their role.",
+  codeOfConduct: "Employees must act with integrity, respect, professionalism, and comply with lawful company instructions.",
+  confidentialityPolicy: "All company, client, employee, and business information must remain confidential.",
+  dataPrivacyPolicy: "Company systems, credentials, personal data, and business records must be handled securely.",
+  companyPropertyPolicy: "All company property must be used responsibly and returned upon request or separation.",
+  conflictOfInterestPolicy: "Any actual or potential conflict of interest must be disclosed immediately.",
+  terminationConditions: "Employment may be terminated for misconduct, poor performance, policy breach, or business requirements.",
+  resignationPolicy: "Resignation must be submitted in writing and the applicable notice period must be served.",
   aadhaarNumber: "",
   panNumber: "",
   passportNumber: "",
@@ -84,7 +108,7 @@ const buttonClass = "inline-flex h-10 items-center justify-center gap-2 rounded-
 const secondaryClass = "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 hover:border-[#f97316] hover:bg-[#fff3e8] hover:text-[#c2410c]";
 
 function autoSalary(form) {
-  const grossSalary = Number(form.grossSalary || 0) || Number(form.basicSalary || 0) + Number(form.hra || 0) + Number(form.specialAllowance || 0) + Number(form.medicalAllowance || 0) + Number(form.travelAllowance || 0) + Number(form.conveyance || 0) + Number(form.bonus || 0);
+  const grossSalary = Number(form.grossSalary || 0) || Number(form.basicSalary || 0) + Number(form.hra || 0) + Number(form.specialAllowance || 0) + Number(form.otherAllowance || 0) + Number(form.medicalAllowance || 0) + Number(form.travelAllowance || 0) + Number(form.conveyance || 0) + Number(form.bonus || 0);
   const netSalary = Number(form.netSalary || 0) || Math.max(grossSalary - Number(form.pf || 0) - Number(form.esi || 0) - Number(form.professionalTax || 0), 0);
   return { grossSalary, netSalary };
 }
@@ -290,6 +314,7 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
             <Field label="Mobile Number" value={form.mobileNumber} onChange={(value) => setValue("mobileNumber", value)} />
             <Field label="Personal Email" type="email" value={form.personalEmail} onChange={(value) => setValue("personalEmail", value)} />
             <Field label="Official Email" type="email" value={form.officialEmail} onChange={(value) => setValue("officialEmail", value)} />
+            <Field label="Official Mobile Number" value={form.officialMobileNumber} onChange={(value) => setValue("officialMobileNumber", value)} />
             <Field label="Address" value={form.address} onChange={(value) => setValue("address", value)} />
             <Field label="City" value={form.city} onChange={(value) => setValue("city", value)} />
             <Field label="State" value={form.state} onChange={(value) => setValue("state", value)} />
@@ -297,6 +322,17 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
             <Field label="Pincode" value={form.pincode} onChange={(value) => setValue("pincode", value)} />
             <Field label="Photograph URL" value={form.photograph} onChange={(value) => setValue("photograph", value)} />
             <Field label="Emergency Contact" value={form.emergencyContact} onChange={(value) => setValue("emergencyContact", value)} />
+          </FormSection>
+
+          <FormSection title="Company Information">
+            <Field label="Company Name" value={form.companyName} onChange={(value) => setValue("companyName", value)} />
+            <Field label="Tagline" value={form.companyTagline} onChange={(value) => setValue("companyTagline", value)} />
+            <Field wide label="Registered Office Address" value={form.companyAddress} onChange={(value) => setValue("companyAddress", value)} />
+            <Field label="Website" value={form.companyWebsite} onChange={(value) => setValue("companyWebsite", value)} />
+            <Field label="Email" type="email" value={form.companyEmail} onChange={(value) => setValue("companyEmail", value)} />
+            <Field label="Phone Number" value={form.companyPhone} onChange={(value) => setValue("companyPhone", value)} />
+            <Field label="Company Seal" value={form.companySeal} onChange={(value) => setValue("companySeal", value)} />
+            <Field wide label="Verification URL" value={form.verificationUrl} onChange={(value) => setValue("verificationUrl", value)} />
           </FormSection>
 
           <FormSection title="Employment Information">
@@ -314,7 +350,7 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
           </FormSection>
 
           <FormSection title="Salary Details">
-            {["ctc", "basicSalary", "hra", "specialAllowance", "medicalAllowance", "travelAllowance", "conveyance", "bonus", "pf", "esi", "professionalTax"].map((key) => (
+            {["ctc", "basicSalary", "hra", "specialAllowance", "otherAllowance", "medicalAllowance", "travelAllowance", "conveyance", "bonus", "gratuity", "pf", "esi", "professionalTax"].map((key) => (
               <Field key={key} label={labelize(key)} type="number" value={form[key]} onChange={(value) => setValue(key, Number(value))} />
             ))}
             <Field label="Gross Salary" type="number" value={salary.grossSalary} onChange={(value) => setValue("grossSalary", Number(value))} />
@@ -324,10 +360,18 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
 
           <FormSection title="Working Details">
             <Field label="Working Days" value={form.workingDays} onChange={(value) => setValue("workingDays", value)} />
+            <Field label="Working Hours" value={form.workingHours} onChange={(value) => setValue("workingHours", value)} />
             <Field label="Shift Timing" value={form.shiftTiming} onChange={(value) => setValue("shiftTiming", value)} />
             <Field label="Office Timing" value={form.officeTiming} onChange={(value) => setValue("officeTiming", value)} />
+            <Field label="Lunch Break" value={form.lunchBreak} onChange={(value) => setValue("lunchBreak", value)} />
             <Field label="Weekly Off" value={form.weeklyOff} onChange={(value) => setValue("weeklyOff", value)} />
             <Field label="Notice Period" value={form.noticePeriod} onChange={(value) => setValue("noticePeriod", value)} />
+          </FormSection>
+
+          <FormSection title="HR Policies">
+            {["leavePolicy", "attendancePolicy", "lateComingPolicy", "dressCode", "codeOfConduct", "confidentialityPolicy", "dataPrivacyPolicy", "companyPropertyPolicy", "conflictOfInterestPolicy", "terminationConditions", "resignationPolicy"].map((key) => (
+              <Field key={key} wide label={labelize(key)} textarea value={form[key]} onChange={(value) => setValue(key, value)} />
+            ))}
           </FormSection>
 
           <FormSection title="Documents Required">

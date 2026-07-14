@@ -25,6 +25,7 @@ const editableGroups = [
       ["dateOfBirth", "Date of Birth", "date"],
       ["personalEmail", "Personal Email", "email"],
       ["officialEmail", "Official Email", "email"],
+      ["officialMobileNumber", "Official Mobile Number", "text"],
       ["mobileNumber", "Phone Number", "text"],
       ["address", "Address", "textarea"],
       ["city", "City", "text"],
@@ -32,6 +33,19 @@ const editableGroups = [
       ["country", "Country", "text"],
       ["pincode", "Pincode", "text"],
       ["emergencyContact", "Emergency Contact", "text"]
+    ]
+  },
+  {
+    title: "Company Information",
+    fields: [
+      ["companyName", "Company Name", "text"],
+      ["companyTagline", "Tagline", "text"],
+      ["companyAddress", "Registered Office Address", "textarea"],
+      ["companyWebsite", "Website", "text"],
+      ["companyEmail", "Email", "email"],
+      ["companyPhone", "Phone Number", "text"],
+      ["verificationUrl", "Verification URL", "text"],
+      ["companySeal", "Company Seal", "text"]
     ]
   },
   {
@@ -48,7 +62,9 @@ const editableGroups = [
       ["confirmationDate", "Confirmation Date", "date"],
       ["noticePeriod", "Notice Period", "text"],
       ["workingDays", "Working Days", "text"],
-      ["officeTiming", "Working Hours", "text"],
+      ["workingHours", "Working Hours", "text"],
+      ["officeTiming", "Office Timing", "text"],
+      ["lunchBreak", "Lunch Break", "text"],
       ["shiftTiming", "Shift Timing", "text"]
     ]
   },
@@ -59,9 +75,12 @@ const editableGroups = [
       ["basicSalary", "Basic Salary", "number"],
       ["hra", "HRA", "number"],
       ["specialAllowance", "Special Allowance", "number"],
+      ["otherAllowance", "Other Allowance", "number"],
       ["medicalAllowance", "Medical Allowance", "number"],
       ["travelAllowance", "Travel Allowance", "number"],
+      ["conveyance", "Conveyance Allowance", "number"],
       ["bonus", "Bonus", "number"],
+      ["gratuity", "Gratuity", "number"],
       ["pf", "PF", "number"],
       ["esi", "ESI", "number"],
       ["professionalTax", "Professional Tax", "number"],
@@ -72,7 +91,20 @@ const editableGroups = [
   },
   {
     title: "HR Policies",
-    fields: [["hrPoliciesVersion", "HR Policies Version", "text"]]
+    fields: [
+      ["hrPoliciesVersion", "HR Policies Version", "text"],
+      ["leavePolicy", "Leave Policy", "textarea"],
+      ["attendancePolicy", "Attendance Policy", "textarea"],
+      ["lateComingPolicy", "Late Coming Policy", "textarea"],
+      ["dressCode", "Dress Code", "textarea"],
+      ["codeOfConduct", "Code of Conduct", "textarea"],
+      ["confidentialityPolicy", "Confidentiality", "textarea"],
+      ["dataPrivacyPolicy", "Data Privacy", "textarea"],
+      ["companyPropertyPolicy", "Company Property", "textarea"],
+      ["conflictOfInterestPolicy", "Conflict of Interest", "textarea"],
+      ["terminationConditions", "Termination Conditions", "textarea"],
+      ["resignationPolicy", "Resignation Policy", "textarea"]
+    ]
   },
   {
     title: "Terms",
@@ -88,6 +120,7 @@ const editableGroups = [
   {
     title: "Signatures",
     fields: [
+      ["companySignature", "Authorized Signatory", "text"],
       ["hrSignature", "HR Manager Signature", "text"],
       ["reportingManager", "Reporting Manager Signature", "text"],
       ["directorSignature", "Director Signature", "text"],
@@ -121,7 +154,7 @@ export function OfferLetterModal({ open, offer, onClose }) {
     next.acceptanceStatus = offer.acceptanceStatus || "Generated";
     next.employmentType = offer.employmentType || "Full Time";
     setForm(next);
-    setEditing(false);
+    setEditing(true);
   }, [offer]);
 
   if (!open || !offer) return null;

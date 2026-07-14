@@ -67,13 +67,22 @@ textarea {
 }
 
 .receipt-paper {
-  width: min(720px, 100%);
+  width: min(794px, 100%);
   min-height: auto;
   max-width: 100%;
 }
 
 .receipt-paper-compact {
   min-height: auto;
+}
+
+/* html2canvas receives the same exact header colors as the browser preview. */
+.receipt-header > span > span > span:first-child > span:first-child {
+  color: #ffffff;
+}
+
+.receipt-header > span > span > span:nth-child(2) {
+  color: #ffffff;
 }
 
 .certificate-paper {
@@ -91,7 +100,8 @@ textarea {
 }
 
 .offer-letter-page {
-  width: 210mm;
+  width: 100%;
+  max-width: 210mm;
   min-height: 297mm;
   page-break-after: always;
 }
@@ -127,6 +137,8 @@ textarea {
     position: absolute;
     inset: 0 auto auto 0;
     width: 210mm;
+    max-width: 210mm;
+    margin: 0;
     min-height: auto;
     box-shadow: none;
   }

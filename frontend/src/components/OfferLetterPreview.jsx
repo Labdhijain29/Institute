@@ -1,362 +1,164 @@
-import React from "react";
-import { brandLogo } from "./BrandLogo.jsx";
+import React, { useEffect, useState } from "react";
+import QRCode from "qrcode";
+import { BrandLockup, brandLogo } from "./BrandLogo.jsx";
 
-const company = {
+const defaults = {
   name: "Coding Walla",
+  tagline: "From Learning to Earning",
   address: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay Nagar, Indore, MP, 452010",
   phone: "+91 9098875825",
   email: "info@codingwallah.com",
-  hrEmail: "hr@codingwallah.com",
-  website: "www.codingwallah.com",
-  gstin: "GSTIN: To be updated"
+  website: "www.codingwallah.com"
 };
 
-const totalPages = 8;
-const date = (value) => (value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" }) : "-");
-const money = (value) => `Rs. ${Number(value || 0).toLocaleString("en-IN")}`;
-const clean = (value, fallback = "-") => value || fallback;
+const date = (value) => value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" }) : "-";
+const money = (value) => `Rs. ${Number(value || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const value = (input, fallback = "-") => input || fallback;
 
-const policyItems = [
-  ["Working Hours", "Employees are expected to follow assigned working hours, shift timing, break discipline, and workplace reporting standards."],
-  ["Attendance Policy", "Attendance, punctuality, biometric or system login records, and approved leave entries will be used for HR and payroll processing."],
-  ["Leave Policy", "Leave must be requested through approved channels and is subject to manager and HR approval based on business requirements."],
-  ["Probation Policy", "Performance, conduct, attendance, and role readiness will be reviewed during the probation period before confirmation."],
-  ["Code of Conduct", "Employees must maintain integrity, professional communication, respectful behavior, and compliance with company instructions."],
-  ["Confidentiality", "Business plans, client data, employee data, credentials, pricing, reports, and internal documents must remain confidential."],
-  ["Data Protection", "Employees must protect company systems, files, passwords, devices, and data according to security procedures."],
-  ["Company Assets", "Company assets must be used responsibly and returned immediately on transfer, separation, or HR request."],
-  ["Internet Usage", "Internet, email, software, and communication tools must be used only for authorized professional work."],
-  ["Dress Code", "Employees must follow workplace grooming and dress standards appropriate to their department and client interaction needs."],
-  ["Performance Review", "Performance reviews may consider goals, quality, productivity, teamwork, attendance, conduct, and manager feedback."],
-  ["Notice Period", "Separation requires serving the applicable notice period unless waived or adjusted by management in writing."],
-  ["Termination Policy", "Employment may be terminated for misconduct, poor performance, policy breach, false information, or business reasons."],
-  ["Medical Benefits", "Applicable medical or insurance benefits will be governed by company policy and statutory eligibility."],
-  ["PF, ESI and Gratuity", "Statutory benefits will apply as per eligibility, wage limits, company policy, and applicable law."],
-  ["Equal Opportunity", "The company supports equal opportunity and does not tolerate discrimination, harassment, or retaliation."]
-];
-
-const terms = [
-  ["Employment Type", "Your employment type, department, reporting structure, and work location will be as specified in this offer letter."],
-  ["Salary Revision", "Salary revision is not automatic and may depend on performance, business conditions, role changes, and management approval."],
-  ["Transfer Policy", "The company may transfer you to another department, branch, project, role, or location based on business requirements."],
-  ["Working Hours", "Working hours, weekly off, shift timing, and office timing may be modified by the company with reasonable notice."],
-  ["Leave Rules", "Leave eligibility, leave approval, leave without pay, holiday rules, and leave encashment will follow HR policy."],
-  ["Background Verification", "This offer remains subject to satisfactory background verification, identity verification, and document validation."],
-  ["Non Disclosure Agreement", "You must not disclose confidential information during or after employment except when authorized in writing."],
-  ["Conflict of Interest", "You must disclose any personal, financial, or professional conflict that may affect your duties."],
-  ["Company Property", "All company property, credentials, records, documents, and devices remain company-owned and must be returned."],
-  ["Termination Clause", "The company may terminate employment according to policy, contract terms, applicable law, and disciplinary process."],
-  ["Notice Period", "Either party may separate by serving the applicable notice period or salary in lieu, subject to company approval."],
-  ["Confidentiality Agreement", "By accepting this offer, you agree to protect company information and follow all confidentiality obligations."]
-];
-
-export function OfferLetterPreview({ offer }) {
-  const pages = [
-    <WelcomePage key="welcome" offer={offer} />,
-    <EmploymentPage key="employment" offer={offer} />,
-    <SalaryPage key="salary" offer={offer} />,
-    <ResponsibilitiesPage key="responsibilities" offer={offer} />,
-    <PoliciesPage key="policies" />,
-    <TermsPage key="terms" offer={offer} />,
-    <DeclarationPage key="declaration" offer={offer} />,
-    <SignaturePage key="signature" offer={offer} />
-  ];
-
+export function OfferLetterPreview({ offer = {} }) {
   return (
     <article id="offer-letter-print-area" className="offer-letter-document mx-auto space-y-6 text-[#111315]">
-      {pages.map((page, index) => (
-        <OfferPage key={index} offer={offer} page={index + 1}>
-          {page}
-        </OfferPage>
-      ))}
+      <OfferPage offer={offer} page={1}><AppointmentLetter offer={offer} /></OfferPage>
+      <OfferPage offer={offer} page={2}><EmploymentDetailsLetter offer={offer} /></OfferPage>
     </article>
   );
 }
 
-function OfferPage({ children, offer, page }) {
+function OfferPage({ offer, page, children }) {
   return (
     <section className="offer-letter-page relative overflow-hidden bg-white shadow-sm">
-      <img src={brandLogo} alt="" className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 object-contain opacity-[0.035]" />
+      <img src={brandLogo} alt="" className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 object-contain opacity-[0.025]" />
       <div className="relative z-10 flex min-h-full flex-col">
         <OfferHeader offer={offer} />
-        <main className="flex-1 px-10 py-6">{children}</main>
-        <OfferFooter page={page} />
+        <main className="flex-1 px-5 py-6 sm:px-8 lg:px-12 lg:py-7">{children}</main>
+        <OfferFooter offer={offer} page={page} />
       </div>
     </section>
   );
 }
 
 function OfferHeader({ offer }) {
+  const company = companyDetails(offer);
   return (
-    <header className="border-b border-slate-200 px-10 py-5">
-      <div className="flex items-start justify-between gap-6">
-        <div className="flex gap-4">
-          <img src={brandLogo} alt="" className="h-14 w-14 object-contain" />
-          <div>
-            <h1 className="text-2xl font-black tracking-normal text-[#0f172a]">{company.name}</h1>
-            <p className="mt-2 max-w-xl text-[11px] leading-5 text-slate-600">{company.address}</p>
-            <p className="text-[11px] font-semibold text-slate-600">{company.phone} | {company.email} | {company.website}</p>
-            <p className="text-[11px] font-semibold text-slate-500">{company.gstin} | HR: {company.hrEmail}</p>
-          </div>
-        </div>
-        <div className="min-w-56 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-right text-[11px]">
-          <Meta label="Document Type" value="Employee Offer Letter" />
-          <Meta label="Offer Letter No." value={clean(offer.offerLetterNumber, "Draft")} />
-          <Meta label="Issue Date" value={date(offer.issueDate)} />
+    <header className="border-b-2 border-[#f97316] bg-black px-5 py-5 sm:px-8 lg:px-12">
+      <div className="grid items-start gap-4 sm:grid-cols-2 sm:gap-8">
+        <BrandLockup logoClassName="h-14 w-auto" variant="dark" className="self-start" />
+        <div className="text-left text-[10px] leading-4 text-white sm:text-right">
+          <p className="font-bold text-white">Registered Office</p>
+          <p>{company.address}</p>
+          <p className="mt-1 font-semibold">{company.phone} · {company.email}</p>
+          <p className="font-semibold">{company.website}</p>
         </div>
       </div>
     </header>
   );
 }
 
-function WelcomePage({ offer }) {
+function AppointmentLetter({ offer }) {
+  const company = companyDetails(offer);
   return (
-    <div>
-      <p className="text-center text-xs font-black uppercase tracking-[0.28em] text-[#f97316]">Official Employment Offer</p>
-      <h2 className="mt-4 text-center text-3xl font-black text-[#0f172a]">EMPLOYMENT OFFER LETTER</h2>
-      <div className="mt-7 grid gap-3 rounded-lg border border-orange-100 bg-[#fff8f1] p-5 md:grid-cols-2">
-        <Info label="Employee Name" value={offer.fullName} />
-        <Info label="Employee ID" value={offer.employeeId} />
-        <Info label="Department" value={offer.department} />
-        <Info label="Designation" value={offer.designation} />
-        <Info label="Employment Type" value={offer.employmentType} />
-        <Info label="Joining Date" value={date(offer.joiningDate)} />
-        <Info label="Annual CTC" value={money(offer.ctc)} />
-        <Info label="Offer Valid Till" value={date(offer.validTill)} />
+    <div className="text-[13px] leading-6 text-slate-700">
+      <DocumentMeta offer={offer} />
+      <div className="mt-7">
+        <p className="font-bold text-[#0f172a]">{value(offer.fullName, "Employee Name")}</p>
+        <p className="max-w-md whitespace-pre-line">{value(offer.address, "Employee Address")}</p>
       </div>
-      <div className="mt-8 space-y-4 text-sm leading-7 text-slate-700">
-        <p className="font-bold text-[#0f172a]">Dear {clean(offer.fullName, "Employee")},</p>
-        <p>
-          We are pleased to offer you the position of {clean(offer.designation, "the offered role")} in the {clean(offer.department, "assigned")} department at {company.name}.
-        </p>
-        <p>
-          Your employment will commence on {date(offer.joiningDate)}. You will report directly to {clean(offer.reportingManager, "your reporting manager")}.
-        </p>
-        <p>
-          We believe your skills, experience, and professional commitment will be a valuable addition to our organization. This offer is subject to document verification, HR policies, and the terms stated in this document.
-        </p>
-        {offer.remarks && <p className="rounded-md border border-slate-200 bg-white p-4 font-semibold text-slate-700">Remarks: {offer.remarks}</p>}
+
+      <p className="mt-6">Dear <strong>{value(offer.fullName, "Employee Name")}</strong>,</p>
+      <h1 className="mt-5 border-y border-slate-300 py-2 text-center text-base font-black uppercase text-[#0f172a]">Subject: Offer of Employment</h1>
+
+      <div className="mt-5 space-y-4 text-justify">
+        <p>Congratulations! We are pleased to offer you an appointment in our organisation as <strong>{value(offer.designation, "Designation")}</strong> in the <strong>{value(offer.department, "Department")}</strong> department. Your initial posting will be at <strong>{value(offer.workLocation, "Work Location")}</strong>, under the employment type <strong>{value(offer.employmentType, "Full Time")}</strong>.</p>
+        <p>You will report to <strong>{value(offer.reportingManager, "the assigned Reporting Manager")}</strong>. The proposed remuneration and benefits for the position offered are enclosed on page 2.</p>
+        <p>This offer of employment is subject to:</p>
+        <ol className="list-[upper-alpha] space-y-2 pl-7">
+          <li>Verification of the documents and references submitted by you to {company.name}.</li>
+          <li>Your acceptance of this offer along with the stated terms, conditions, confidentiality obligations, and company policies.</li>
+        </ol>
+        <p>You are required to join us latest by <strong>{date(offer.joiningDate)}</strong>, failing which the offer shall stand withdrawn automatically unless otherwise communicated to you in writing.</p>
+        <p>Please sign and return a duplicate copy of this letter as confirmation of your acceptance within seven days from the issue date.</p>
+        <p>We welcome you and wish you a long and successful career with us.</p>
       </div>
+
+      <div className="mt-7 grid gap-8 sm:grid-cols-2 sm:gap-10">
+        <div><p>With Best Wishes,</p><p>Yours sincerely,</p><p className="mt-1 font-black">For {company.name.toUpperCase()}</p><p className="mt-8 font-serif text-lg italic text-[#f97316]">{value(offer.hrSignature, "HR Manager")}</p><p className="border-t border-slate-400 pt-1 text-xs font-bold">Talent Acquisition Manager / Authorized Signatory</p></div>
+        <VerificationQr offer={offer} />
+      </div>
+
+      <section className="mt-7 border-t-2 border-[#0f172a] pt-4">
+        <h2 className="text-center text-sm font-black tracking-wide text-[#0f172a]">ACKNOWLEDGEMENT</h2>
+        <p className="mt-3">I have read all the terms and conditions of the offer of employment and confirm my acceptance. I agree to join the organization on the mentioned date.</p>
+        <div className="mt-8 grid gap-6 text-xs sm:grid-cols-3"><Signature label="Employee Signature" value={offer.employeeSignature} /><Signature label="Place" value={offer.signaturePlace} /><Signature label="Date" value={date(offer.signatureDate)} /></div>
+      </section>
     </div>
   );
 }
 
-function EmploymentPage({ offer }) {
-  return (
-    <div>
-      <SectionTitle title="Employee And Employment Details" subtitle="Personal, reporting, location, and work arrangement information" />
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card title="Employee Information" rows={[
-          ["Employee Name", offer.fullName],
-          ["Employee ID", offer.employeeId],
-          ["Photograph", offer.photograph ? "Attached" : "-"],
-          ["Gender", offer.gender],
-          ["Date of Birth", date(offer.dateOfBirth)],
-          ["Personal Email", offer.personalEmail],
-          ["Official Email", offer.officialEmail],
-          ["Phone Number", offer.mobileNumber],
-          ["Address", [offer.address, offer.city, offer.state, offer.country, offer.pincode].filter(Boolean).join(", ")],
-          ["Emergency Contact", offer.emergencyContact]
-        ]} />
-        <Card title="Employment Details" rows={[
-          ["Department", offer.department],
-          ["Designation", offer.designation],
-          ["Reporting Manager", offer.reportingManager],
-          ["Employment Type", offer.employmentType],
-          ["Office Location", offer.workLocation],
-          ["Branch", offer.officeBranch],
-          ["Joining Date", date(offer.joiningDate)],
-          ["Probation Period", offer.probationPeriod],
-          ["Confirmation Date", date(offer.confirmationDate)],
-          ["Notice Period", offer.noticePeriod],
-          ["Working Days", offer.workingDays],
-          ["Working Hours", offer.officeTiming],
-          ["Shift Timing", offer.shiftTiming]
-        ]} />
-      </div>
-    </div>
-  );
-}
-
-function SalaryPage({ offer }) {
-  return (
-    <div>
-      <SectionTitle title="Salary Structure" subtitle="Compensation, statutory deductions, and salary payment information" />
-      <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="grid gap-3 md:grid-cols-2">
-          <Info label="Annual CTC" value={money(offer.ctc)} />
-          <Info label="Basic Salary" value={money(offer.basicSalary)} />
-          <Info label="HRA" value={money(offer.hra)} />
-          <Info label="Special Allowance" value={money(offer.specialAllowance)} />
-          <Info label="Medical Allowance" value={money(offer.medicalAllowance)} />
-          <Info label="Travel Allowance" value={money(offer.travelAllowance || offer.conveyance)} />
-          <Info label="Bonus" value={money(offer.bonus)} />
-          <Info label="PF" value={money(offer.pf)} />
-          <Info label="ESI" value={money(offer.esi)} />
-          <Info label="Professional Tax" value={money(offer.professionalTax)} />
-          <Info label="Gross Salary" value={money(offer.grossSalary)} />
-          <Info label="Net Salary" value={money(offer.netSalary)} />
-          <Info label="Salary Payment Date" value={clean(offer.salaryPaymentDate, "As per payroll cycle")} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ResponsibilitiesPage({ offer }) {
-  const custom = String(offer.rolesAndResponsibilities || "").trim();
-  const defaults = [
-    `Perform the duties assigned to the ${clean(offer.designation, "designated")} role with accuracy, ownership, and professionalism.`,
-    `Coordinate with the ${clean(offer.department, "assigned")} department, reporting manager, HR team, and cross-functional stakeholders.`,
-    "Maintain timely attendance, daily work discipline, task updates, documentation, and reporting standards.",
-    "Protect company data, client information, internal systems, credentials, and all confidential business information.",
-    "Follow company policies, escalation procedures, quality standards, and performance expectations."
+function EmploymentDetailsLetter({ offer }) {
+  const monthlyGross = Number(offer.grossSalary || 0) || Number(offer.basicSalary || 0) + Number(offer.hra || 0) + Number(offer.specialAllowance || 0) + Number(offer.bonus || 0) + Number(offer.pf || 0) + Number(offer.gratuity || 0);
+  const salaryRows = [
+    ["Basic Pay", offer.basicSalary], ["HRA", offer.hra], ["Special Allowance", offer.specialAllowance],
+    ["Performance Bonus", offer.bonus], ["Provident Fund (Institute)", offer.pf], ["Gratuity", offer.gratuity]
   ];
   return (
-    <div>
-      <SectionTitle title="Roles And Responsibilities" subtitle="Role expectations and professional accountability" />
-      <div className="space-y-3">
-        {(custom ? custom.split("\n").filter(Boolean) : defaults).map((item, index) => (
-          <PolicyItem key={index} index={index + 1} title={`Responsibility ${index + 1}`} text={item} />
-        ))}
-      </div>
-    </div>
-  );
-}
+    <div className="text-[12px] leading-5 text-slate-700">
+      <DocumentMeta offer={offer} compact />
+      <h1 className="mt-5 text-center text-xl font-black uppercase text-[#0f172a]">Employment Details</h1>
+      <table className="mt-5 w-full border-collapse">
+        <tbody>{[["Name", offer.fullName], ["Employee ID", offer.employeeId], ["Designation", offer.designation], ["Department", offer.department], ["Location", offer.workLocation], ["Joining Date", date(offer.joiningDate)]].map(([label, entry]) => <tr key={label}><th className="w-40 border border-slate-300 bg-slate-50 px-3 py-2 text-left">{label}</th><td className="border border-slate-300 px-3 py-2 font-semibold text-[#0f172a]">{value(entry)}</td></tr>)}</tbody>
+      </table>
 
-function PoliciesPage() {
-  return (
-    <div>
-      <SectionTitle title="HR Policies" subtitle="Professional employment policies applicable from the joining date" />
-      <div className="grid gap-3 md:grid-cols-2">
-        {policyItems.map(([title, text], index) => <PolicyItem key={title} index={index + 1} title={title} text={text} />)}
-      </div>
-    </div>
-  );
-}
+      <table className="mt-6 w-full border-collapse">
+        <thead className="bg-[#0f172a] text-white"><tr><th className="border border-[#0f172a] px-4 py-3 text-left">Payroll</th><th className="border border-slate-600 px-4 py-3 text-right">Rs. (Per Month)</th><th className="border border-slate-600 px-4 py-3 text-right">Rs. (Per Annum)</th></tr></thead>
+        <tbody>
+          {salaryRows.map(([label, entry]) => <SalaryRow key={label} label={label} monthly={entry} />)}
+          <SalaryRow label="Gross Fixed Salary" monthly={monthlyGross} annual={offer.ctc || monthlyGross * 12} total />
+          <SalaryRow label="Net Salary" monthly={offer.netSalary} total accent />
+        </tbody>
+      </table>
 
-function TermsPage({ offer }) {
-  const custom = String(offer.termsAndConditions || "").trim();
-  return (
-    <div>
-      <SectionTitle title="Terms And Conditions" subtitle="Employment terms, confidentiality, compliance, and separation clauses" />
-      <div className="space-y-3">
-        {(custom ? custom.split("\n").filter(Boolean).map((text, index) => [`Term ${index + 1}`, text]) : terms).map(([title, text], index) => (
-          <PolicyItem key={`${title}-${index}`} index={index + 1} title={title} text={text} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function DeclarationPage({ offer }) {
-  return (
-    <div>
-      <SectionTitle title="Employee Declaration" subtitle="Acceptance of compensation, role, joining date, policies, and terms" />
-      <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 text-sm leading-7 text-slate-700">
-        <p className="font-bold text-[#0f172a]">I, {clean(offer.fullName, "the employee")}, hereby confirm that:</p>
-        <ul className="mt-3 list-disc space-y-2 pl-5">
-          <li>I accept the offered designation of {clean(offer.designation, "the assigned role")} and the joining date of {date(offer.joiningDate)}.</li>
-          <li>I have reviewed and accepted the salary structure, statutory deductions, and payroll terms mentioned in this offer letter.</li>
-          <li>I agree to follow company policies, HR procedures, confidentiality obligations, data protection rules, and code of conduct.</li>
-          <li>I understand that employment is subject to document verification, background verification, and compliance with company requirements.</li>
-          <li>I accept the terms and conditions stated in this employment offer letter.</li>
+      <div className="mt-6 space-y-3 text-justify">
+        <p>Institute contribution towards Provident Fund, Gratuity and/or any other statutory benefit is in accordance with applicable laws from time to time.</p>
+        <p>Performance bonus is governed by policies and conditions prevalent from time to time.</p>
+        <p className="font-black text-[#0f172a]">Note:</p>
+        <ul className="list-disc space-y-2 pl-5">
+          <li>The gross fixed salary does not include mobile and travel reimbursements or health insurance, which apply as per the prevalent company scheme.</li>
+          <li>The designation may change depending upon work assignment and organizational requirements.</li>
+          <li>Your compensation may be restructured while protecting the applicable gross salary.</li>
+          <li>Group Mediclaim, where applicable, covers eligible dependants according to company policy.</li>
+          <li>Working schedule: {value(offer.workingDays)}, {value(offer.officeTiming)}; lunch break {value(offer.lunchBreak)}; weekly off {value(offer.weeklyOff)}.</li>
+          {offer.termsAndConditions && <li>{offer.termsAndConditions}</li>}
         </ul>
       </div>
+      <div className="mt-8 grid gap-8 sm:grid-cols-2 sm:gap-12"><Signature label="Authorized Signatory" value={offer.companySignature || offer.hrSignature} /><Signature label="Company Seal" value={offer.companySeal} /></div>
     </div>
   );
 }
 
-function SignaturePage({ offer }) {
-  return (
-    <div>
-      <SectionTitle title="Signature And Acceptance" subtitle="Authorized signatures, employee acknowledgement, and company seal" />
-      <div className="mt-10 grid gap-8 text-sm md:grid-cols-2">
-        <SignatureLine label="HR Manager Signature" value={offer.hrSignature} />
-        <SignatureLine label="Reporting Manager Signature" value={offer.reportingManager} />
-        <SignatureLine label="Director Signature" value={offer.directorSignature} />
-        <SignatureLine label="Employee Signature" value={offer.employeeSignature} />
-        <SignatureLine label="Acceptance Date" value={date(offer.signatureDate)} />
-        <SignatureLine label="Place" value={offer.signaturePlace} />
-        <div className="grid h-28 place-items-center rounded-lg border-2 border-dashed border-slate-300 text-center text-xs font-black uppercase tracking-wide text-slate-500 md:col-span-2">
-          Company Seal
-        </div>
-      </div>
-    </div>
-  );
+function DocumentMeta({ offer, compact = false }) {
+  return <div className={`flex flex-wrap items-start justify-between gap-3 sm:gap-6 ${compact ? "text-[10px]" : "text-xs"}`}><div><p><strong>Offer Letter ID:</strong> {value(offer.offerLetterNumber, "Draft")}</p><p><strong>Employee ID:</strong> {value(offer.employeeId, "Pending")}</p></div><div className="sm:text-right"><p><strong>Issue Date:</strong> {date(offer.issueDate)}</p><p><strong>Official Contact:</strong> {value(offer.officialEmail)} · {value(offer.officialMobileNumber || offer.mobileNumber)}</p></div></div>;
 }
 
-function OfferFooter({ page }) {
-  return (
-    <footer className="mt-auto border-t border-slate-200 px-10 py-4 text-[10px] text-slate-500">
-      <div className="flex items-center justify-between gap-4">
-        <p>Confidential Document | {company.name} | Generated {date(new Date())}</p>
-        <p className="font-bold">Page {page} of {totalPages}</p>
-      </div>
-    </footer>
-  );
+function SalaryRow({ label, monthly, annual, total = false, accent = false }) {
+  return <tr className={`${total ? "font-black" : ""} ${accent ? "bg-orange-50 text-[#c2410c]" : ""}`}><td className="border border-slate-300 px-4 py-2.5">{label}</td><td className="border border-slate-300 px-4 py-2.5 text-right">{money(monthly)}</td><td className="border border-slate-300 px-4 py-2.5 text-right">{money(annual ?? Number(monthly || 0) * 12)}</td></tr>;
 }
 
-function SectionTitle({ title, subtitle }) {
-  return (
-    <div className="mb-5 border-l-4 border-[#f97316] pl-4">
-      <h2 className="text-2xl font-black text-[#0f172a]">{title}</h2>
-      <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{subtitle}</p>
-    </div>
-  );
+function Signature({ label, value: content }) {
+  return <div className="pt-5"><p className="min-h-6 font-serif text-lg italic text-[#f97316]">{content || ""}</p><div className="border-t border-slate-400 pt-1 font-bold text-slate-600">{label}</div></div>;
 }
 
-function Card({ title, rows }) {
-  return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h3 className="border-b border-slate-100 pb-2 text-sm font-black text-[#f97316]">{title}</h3>
-      <div className="mt-3 space-y-2">
-        {rows.map(([label, value]) => (
-          <div key={label} className="grid grid-cols-[150px_1fr] gap-3 text-xs">
-            <p className="font-bold uppercase text-slate-500">{label}</p>
-            <p className="font-semibold text-[#0f172a]">{clean(value)}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+function VerificationQr({ offer }) {
+  const [source, setSource] = useState("");
+  const payload = JSON.stringify({ verificationUrl: offer.verificationUrl || "https://www.codingwallah.com/verify-offer", offerLetterId: offer.offerLetterNumber || "Draft", employeeId: offer.employeeId || "Pending" });
+  useEffect(() => { QRCode.toDataURL(payload, { width: 160, margin: 1, errorCorrectionLevel: "M" }).then(setSource).catch(() => setSource("")); }, [payload]);
+  return <div className="flex items-end justify-end gap-3">{source && <img src={source} alt="Offer verification QR code" className="h-20 w-20" />}<div className="text-[10px]"><p className="font-black uppercase">Verify Offer</p><p>{value(offer.offerLetterNumber, "Draft")}</p><p>{value(offer.employeeId, "Pending")}</p></div></div>;
 }
 
-function Info({ label, value }) {
-  return (
-    <div className="rounded-md bg-white px-4 py-3 shadow-sm">
-      <p className="text-[10px] font-black uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-1 text-sm font-black text-[#0f172a]">{clean(value)}</p>
-    </div>
-  );
+function OfferFooter({ offer, page }) {
+  const company = companyDetails(offer);
+  return <footer className="mt-auto border-t border-slate-200 px-5 py-3 text-[9px] leading-4 text-slate-500 sm:px-8 lg:px-12"><div className="flex flex-wrap justify-between gap-2 sm:gap-5"><p>{company.address} · {company.phone} · {company.email} · {company.website}</p><p className="shrink-0 font-black">Page {page} of 2</p></div><p>Confidential document. This document is computer generated and does not require a physical signature.</p></footer>;
 }
 
-function PolicyItem({ index, title, text }) {
-  return (
-    <div className="flex gap-3 rounded-lg border border-slate-200 bg-white p-3">
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-[#0f172a] text-xs font-black text-white">{index}</span>
-      <div>
-        <h3 className="text-sm font-black text-[#0f172a]">{title}</h3>
-        <p className="mt-1 text-xs leading-5 text-slate-600">{text}</p>
-      </div>
-    </div>
-  );
-}
-
-function Meta({ label, value }) {
-  return (
-    <p className="mb-1">
-      <span className="font-bold text-slate-500">{label}</span>
-      <span className="ml-2 font-black text-[#0f172a]">{value}</span>
-    </p>
-  );
-}
-
-function SignatureLine({ label, value = "" }) {
-  return (
-    <div className="pt-8">
-      <p className="min-h-6 font-serif text-xl italic text-[#f97316]">{value}</p>
-      <div className="mt-5 border-t border-slate-400 pt-2 font-bold text-slate-600">{label}</div>
-    </div>
-  );
+function companyDetails(offer) {
+  return { name: offer.companyName || defaults.name, tagline: offer.companyTagline || defaults.tagline, address: offer.companyAddress || defaults.address, phone: offer.companyPhone || defaults.phone, email: offer.companyEmail || defaults.email, website: offer.companyWebsite || defaults.website };
 }

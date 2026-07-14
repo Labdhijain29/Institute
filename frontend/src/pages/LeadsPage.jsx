@@ -509,7 +509,7 @@ export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, o
     <ModalShell title={title || (isTelecallerFlow ? "Generate Lead" : "New Lead")} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-3">
         {["name", "mobile", "college", "source"].map((field) => (
-          <input key={field} className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" placeholder={field} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
+          <input required={["name", "mobile"].includes(field)} key={field} className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" placeholder={field} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
         ))}
         <SearchableSelect
           options={courseOptions}

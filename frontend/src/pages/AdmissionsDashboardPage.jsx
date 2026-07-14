@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Download, RefreshCw, UserCheck, X } from "lucide-react";
+import { Download, Plus, RefreshCw, UserCheck, X } from "lucide-react";
 import { api } from "../api/client.js";
 import { DataTable } from "../components/DataTable.jsx";
 import { StatCard } from "../components/StatCard.jsx";
+import { CreateLeadModal, normalizeLeadPayload } from "./LeadsPage.jsx";
 
 const inputClass = "h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-[#f97316] disabled:bg-slate-100";
 const buttonClass = "inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]";
@@ -10,6 +11,16 @@ const secondaryButtonClass = "inline-flex items-center justify-center gap-2 roun
 
 const idOf = (value) => value?._id || value || "";
 const todayInput = () => new Date().toISOString().slice(0, 10);
+const emptyLead = () => ({
+  name: "",
+  mobile: "",
+  courseInterested: "",
+  leadDate: todayInput(),
+  college: "",
+  source: "Website",
+  priority: "Warm",
+  remarks: ""
+});
 
 function formatDate(value) {
   return value ? new Date(value).toLocaleDateString("en-IN") : "-";
@@ -69,6 +80,8 @@ export function AdmissionsDashboardPage() {
   const [batches, setBatches] = useState([]);
   const [fees, setFees] = useState([]);
   const [activeLead, setActiveLead] = useState(null);
+  const [createLeadOpen, setCreateLeadOpen] = useState(false);
+  const [leadForm, setLeadForm] = useState(emptyLead);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("Ready");
@@ -175,6 +188,24 @@ export function AdmissionsDashboardPage() {
     }
   };
 
+  const createLead = async (event) => {
+    event.preventDefault();
+    setMessage("");
+    try {
+      const created = await api("/leads", {
+        method: "POST",
+        body: JSON.stringify(normalizeLeadPayload(leadForm))
+      });
+      setLeads((current) => [created, ...current.filter((lead) => lead._id !== created._id)]);
+      setLeadForm(emptyLead());
+      setCreateLeadOpen(false);
+      setFilter("Enquiry");
+      setMessage(`Lead created successfully for ${created.name}`);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
   const courseNameForLead = (lead) => lead.courseName || courseMap[idOf(lead.courseInterested)]?.name || (typeof lead.courseInterested === "string" ? lead.courseInterested : "-");
   const availableBatches = batches.filter((batch) => idOf(batch.course) === form.course && !["Completed", "Cancelled"].includes(batch.status));
 
@@ -218,6 +249,7 @@ export function AdmissionsDashboardPage() {
             <p className="mt-1 text-sm text-slate-500">Track counselling pipeline, convert ready leads, assign courses and initialize fees.</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <button onClick={() => { setLeadForm(emptyLead()); setCreateLeadOpen(true); }} className={buttonClass}><Plus size={16} /> Create Lead</button>
             <button onClick={load} className={secondaryButtonClass}><RefreshCw size={16} /> Refresh</button>
             <button onClick={() => downloadFile(`admissions-${todayInput()}.csv`, toCsv(enrichedStudents))} className={secondaryButtonClass}><Download size={16} /> Export CSV</button>
           </div>
@@ -251,6 +283,16 @@ export function AdmissionsDashboardPage() {
       <Panel title="Recent Admissions">
         <DataTable columns={studentColumns} rows={enrichedStudents.slice(0, 30)} />
       </Panel>
+
+      <CreateLeadModal
+        open={createLeadOpen}
+        form={leadForm}
+        setForm={setLeadForm}
+        courses={courses}
+        onSubmit={createLead}
+        onClose={() => { setCreateLeadOpen(false); setLeadForm(emptyLead()); }}
+        title="Create Admission Lead"
+      />
 
       {activeLead && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">

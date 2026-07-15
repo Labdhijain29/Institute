@@ -181,3 +181,28 @@ textarea {
     display: none !important;
   }
 }
+
+@keyframes whatsapp-fab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.whatsapp-fab {
+  animation: whatsapp-fab-enter 500ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-fab {
+    animation: none;
+  }
+
+  .whatsapp-fab-link {
+    transition: none;
+  }
+}

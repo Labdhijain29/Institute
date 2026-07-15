@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useMemo, useState } from "react";
-import { Edit3, Eye, PhoneCall, Plus, Send, UserCheck, X } from "lucide-react";
+import { Download, Edit3, Eye, PhoneCall, Plus, Send, UserCheck, X } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
@@ -102,6 +102,11 @@ export function LeadsPage({ module }) {
   const [sortBy, setSortBy] = useState("date");
   const [sortDirection, setSortDirection] = useState("desc");
   const [leadStatusFilter, setLeadStatusFilter] = useState("");
+  const [enquirySearch, setEnquirySearch] = useState("");
+  const [courseFilter, setCourseFilter] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const role = user?.role || "";
   const workflowRole = module?.workflowRole || role;
 
@@ -256,7 +261,7 @@ export function LeadsPage({ module }) {
     }
   };
 
-  const isCourseWebsiteLead = (lead) => lead.source === "Website" && /Interested Course|Course Counsellor Request/i.test(lead.remarks || "");
+  const isCourseWebsiteLead = (lead) => lead.source === "Website" && /Course Counsellor Request/i.test(lead.remarks || "");
   const isCounsellorLead = (lead) => ["Forwarded", "Forwarded to Counsellor"].includes(lead.status) || Boolean(lead.counsellorAssigned) || isCourseWebsiteLead(lead);
   const isFacultyLead = (lead) => lead.status === "Forwarded to Faculty" || Boolean(lead.facultyAssigned) || Boolean(facultyHandoffs[lead._id]);
   const admissionStatus = (lead) => lead.admissionStatus || facultyHandoffs[lead._id]?.status || (lead.convertedStudent || lead.status === "Admission Done" || lead.status === "Converted" ? "Done" : "Pending");
@@ -315,9 +320,15 @@ export function LeadsPage({ module }) {
   }, [workflowStatLeads, isTelecallerFlow, isCounsellorFlow, facultyHandoffs]);
 
   const sortedLeads = useMemo(() => {
-    const filtered = isTelecallerFlow && leadStatusFilter
-      ? visibleLeads.filter((lead) => telecallerLeadStatus(lead) === leadStatusFilter)
-      : visibleLeads;
+    const search = enquirySearch.trim().toLowerCase();
+    const filtered = visibleLeads.filter((lead) => (
+      (!isTelecallerFlow || !leadStatusFilter || telecallerLeadStatus(lead) === leadStatusFilter)
+      && (!search || [lead.name, lead.mobile].some((value) => String(value || "").toLowerCase().includes(search)))
+      && (!courseFilter || courseName(lead) === courseFilter)
+      && (!sourceFilter || lead.source === sourceFilter)
+      && (!cityFilter || lead.city === cityFilter)
+      && (!dateFilter || dateInput(lead.leadDate || lead.createdAt) === dateFilter)
+    ));
     const direction = sortDirection === "asc" ? 1 : -1;
     return [...filtered].sort((left, right) => {
       const leftValue = sortBy === "name"
@@ -333,7 +344,15 @@ export function LeadsPage({ module }) {
       if (typeof leftValue === "number" && typeof rightValue === "number") return (leftValue - rightValue) * direction;
       return String(leftValue).localeCompare(String(rightValue), undefined, { sensitivity: "base" }) * direction;
     });
-  }, [visibleLeads, isTelecallerFlow, leadStatusFilter, sortBy, sortDirection, courses]);
+  }, [visibleLeads, isTelecallerFlow, leadStatusFilter, enquirySearch, courseFilter, sourceFilter, cityFilter, dateFilter, sortBy, sortDirection, courses]);
+
+  const exportEnquiries = () => {
+    const headers = ["Enquiry ID", "Date", "Name", "Mobile", "Email", "City", "College", "Qualification", "Course", "Learning Mode", "Source", "Status"];
+    const quote = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
+    const rows = sortedLeads.map((lead) => [lead._id, formatDate(lead.leadDate || lead.createdAt), lead.name, lead.mobile, lead.email, lead.city, lead.college, lead.qualification, courseName(lead), lead.learningMode, lead.source, lead.status]);
+    const blob = new Blob([[headers, ...rows].map((row) => row.map(quote).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `enquiries-${new Date().toISOString().slice(0, 10)}.csv`; link.click(); URL.revokeObjectURL(link.href);
+  };
 
   const renderActions = (row) => {
     const actions = [];
@@ -413,15 +432,21 @@ export function LeadsPage({ module }) {
           : "Leads move step by step from telecaller to counsellor to faculty, then admission is completed.";
 
   const columns = [
+    { key: "enquiryId", label: "Enquiry ID", render: (row) => String(row._id || "").slice(-8).toUpperCase() },
     { key: "leadDate", label: "Date", render: (row) => formatDate(row.leadDate || row.createdAt) },
     { key: "name", label: "Name" },
     { key: "mobile", label: "Mobile" },
     { key: "email", label: "Email" },
     { key: "courseInterested", label: "Course", render: (row) => courseName(row) },
     { key: "college", label: "College" },
+    { key: "city", label: "City" },
+    { key: "qualification", label: "Qualification" },
+    { key: "learningMode", label: "Learning Mode" },
     { key: "source", label: "Source" },
     { key: "priority", label: "Priority" },
     { key: "status", label: "Status", render: (row) => isTelecallerFlow ? <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${statusBadgeClass(telecallerLeadStatus(row))}`}>{telecallerLeadStatus(row)}</span> : row.status },
+    { key: "telecallerAssigned", label: "Assigned Telecaller", render: (row) => row.telecallerAssigned?.name || row.telecallerAssigned || "Unassigned" },
+    { key: "followUpStatus", label: "Follow-up Status", render: (row) => row.followUpDate ? "Scheduled" : "Pending" },
     { key: "admissionStatus", label: "Admission", render: (row) => admissionStatus(row) },
     { key: "remarks", label: "Remarks" },
     { key: "counsellorAssigned", label: "Counsellor", render: (row) => row.counsellorAssigned || "-" },
@@ -461,7 +486,12 @@ export function LeadsPage({ module }) {
         )}
         <EmployeeDashboardWidget compact />
         {isTelecallerFlow && (
-          <section className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-[1fr_1fr_1fr]">
+          <section className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-4">
+            <label className="text-sm font-semibold text-slate-600">Search name or mobile<input className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={enquirySearch} onChange={(e) => setEnquirySearch(e.target.value)} /></label>
+            <label className="text-sm font-semibold text-slate-600">Date<input type="date" className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} /></label>
+            <label className="text-sm font-semibold text-slate-600">Course<select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)}><option value="">All courses</option>{[...new Set(visibleLeads.map(courseName).filter(Boolean))].map((item) => <option key={item}>{item}</option>)}</select></label>
+            <label className="text-sm font-semibold text-slate-600">Source<select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)}><option value="">All sources</option>{[...new Set(visibleLeads.map((lead) => lead.source).filter(Boolean))].map((item) => <option key={item}>{item}</option>)}</select></label>
+            <label className="text-sm font-semibold text-slate-600">City<select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}><option value="">All cities</option>{[...new Set(visibleLeads.map((lead) => lead.city).filter(Boolean))].map((item) => <option key={item}>{item}</option>)}</select></label>
             <label className="text-sm font-semibold text-slate-600">
               Sort by
               <select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
@@ -470,6 +500,7 @@ export function LeadsPage({ module }) {
                 <option value="course">Course</option>
               </select>
             </label>
+            <button type="button" onClick={exportEnquiries} className="inline-flex h-10 items-center justify-center gap-2 self-end rounded-md border border-slate-300 px-3 text-sm font-semibold hover:border-[#f97316]"><Download size={16} /> Export CSV / Excel</button>
             <label className="text-sm font-semibold text-slate-600">
               Order
               <select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={sortDirection} onChange={(event) => setSortDirection(event.target.value)}>
@@ -581,6 +612,15 @@ function LeadDetailsModal({ open, lead, courses = [], followUps, onClose }) {
           ["Course", courseName],
           ["Date", formatDate(lead?.leadDate || lead?.createdAt)],
           ["College", lead?.college],
+          ["City", lead?.city],
+          ["State", lead?.state],
+          ["Qualification", lead?.qualification],
+          ["Current Year / Semester", lead?.currentYear],
+          ["Learning Mode", lead?.learningMode],
+          ["Preferred Time", lead?.preferredTime],
+          ["How Heard", lead?.howHeard],
+          ["Message", lead?.message],
+          ["Created By", lead?.createdByLabel],
           ["Source", lead?.source],
           ["Priority", lead?.priority],
           ["Status", lead?.status],

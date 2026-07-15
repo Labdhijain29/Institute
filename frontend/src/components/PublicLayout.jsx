@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { LogIn, Menu, Moon, Sun, X } from "lucide-react";
 import { BrandLockup } from "./BrandLogo.jsx";
 import { navItems } from "../data/publicContent.js";
+import { FloatingWhatsApp } from "./FloatingWhatsApp.jsx";
 
 export function navigateTo(path) {
   window.history.pushState({}, "", path);
@@ -79,6 +80,7 @@ export function PublicLayout({ children, path, dark, setDark }) {
         </header>
 
         {children}
+        <FloatingWhatsApp />
       </div>
     </div>
   );

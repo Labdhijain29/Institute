@@ -3,6 +3,7 @@ import { ArrowRight, BriefcaseBusiness, CheckCircle2, ChevronRight, ClipboardChe
 import { api, publicApi } from "../api/client.js";
 import { navigateTo, Footer } from "../components/PublicLayout.jsx";
 import { courses as staticCourses, partners, services, stats, testimonials, trainers, trustMilestones, values, whyChoose } from "../data/publicContent.js";
+import { EnquiryForm } from "../components/EnquiryForm.jsx";
 
 const sectionClass = "mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-14 lg:px-8";
 const inputClass = "h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white";
@@ -400,6 +401,7 @@ function CTA() {
 
 export function HomePage() {
   const publicCourses = usePublicCourses();
+  const [enquiryOpen, setEnquiryOpen] = useState(false);
 
   return (
     <>
@@ -416,7 +418,9 @@ export function HomePage() {
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-100">Professional coding courses with live classes, real projects, placement support, and a role-based management system for every student journey.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <PrimaryButton to="/courses">Explore Courses</PrimaryButton>
-                <SecondaryButton to="/login">Login</SecondaryButton>
+                <button onClick={() => setEnquiryOpen(true)} className="inline-flex h-12 items-center gap-2 rounded-md bg-white px-5 text-sm font-bold text-[#111315] shadow-sm transition hover:bg-[#f97316] hover:text-white">
+                  <Send size={17} /> Enquiry
+                </button>
               </div>
             </div>
           </div>
@@ -505,6 +509,17 @@ export function HomePage() {
       </main>
       <CTA />
       <Footer />
+      {enquiryOpen && (
+        <div className="fixed inset-0 z-[70] grid place-items-center bg-[#111315]/70 p-3" role="dialog" aria-modal="true" aria-labelledby="enquiry-modal-title">
+          <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-[#f8f5ef] shadow-2xl dark:bg-[#0f1011]">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4 dark:border-white/10 dark:bg-[#111315]">
+              <div><h2 id="enquiry-modal-title" className="text-lg font-black">Submit an Enquiry</h2><p className="text-sm text-slate-500 dark:text-slate-300">Tell us what you would like to learn.</p></div>
+              <button onClick={() => setEnquiryOpen(false)} className="rounded-md border border-slate-200 p-2 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/10" aria-label="Close enquiry form"><X size={18} /></button>
+            </div>
+            <EnquiryForm courses={publicCourses} className="border-0 shadow-none" />
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -954,73 +969,12 @@ export function ITServicesPage() {
 }
 
 export function ContactPage() {
-  const publicCourses = usePublicCourses();
-  const defaultCourse = publicCourses[0]?.name || "";
-  const [form, setForm] = useState({ fullName: "", mobile: "", email: "", course: defaultCourse, message: "" });
-  const [status, setStatus] = useState("");
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (defaultCourse && !form.course) setForm((current) => ({ ...current, course: defaultCourse }));
-  }, [defaultCourse, form.course]);
-
-  const submit = async (event) => {
-    event.preventDefault();
-    setStatus("");
-    setError("");
-    try {
-      await publicApi("/public/enquiries", {
-        method: "POST",
-        body: JSON.stringify(form)
-      });
-      setStatus("Thanks. Our admissions team will contact you shortly.");
-      setForm({ fullName: "", mobile: "", email: "", course: defaultCourse, message: "" });
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
   return (
     <>
       <main className={sectionClass}>
         <SectionHeader eyebrow="Contact" title="Talk to the admissions team." text="Submit an enquiry and it will be added to the lead workflow for follow-up." />
-        <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr]">
-          <form onSubmit={submit} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5 md:p-7">
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-bold">
-                Full Name
-                <input required className={`${inputClass} mt-2`} value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} />
-              </label>
-              <label className="text-sm font-bold">
-                Mobile Number
-                <input required inputMode="numeric" className={`${inputClass} mt-2`} value={form.mobile} onChange={(event) => setForm({ ...form, mobile: event.target.value })} />
-              </label>
-              <label className="text-sm font-bold">
-                Email Address
-                <input type="email" className={`${inputClass} mt-2`} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
-              </label>
-              <label className="text-sm font-bold">
-                Interested Course
-                <select className={`${inputClass} mt-2`} value={form.course} onChange={(event) => setForm({ ...form, course: event.target.value })}>
-                  {publicCourses.map((course) => (
-                    <option key={course.name}>{course.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-sm font-bold md:col-span-2">
-                Message
-                <textarea required rows="5" className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} />
-              </label>
-            </div>
-            {status && <p className="mt-4 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700"><CheckCircle2 size={18} />{status}</p>}
-            {error && <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
-            <button className="mt-5 inline-flex h-12 items-center gap-2 rounded-md bg-[#f97316] px-5 text-sm font-bold text-white hover:bg-[#111315]">
-              <Send size={17} />
-              Submit Enquiry
-            </button>
-          </form>
-
-          <aside className="space-y-5">
+        <div>
+          <aside className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[
               [Phone, "Phone Number", "+91 9098875825"],
               [Mail, "Email", "info@codingwallah.com"],
@@ -1032,7 +986,7 @@ export function ContactPage() {
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{text}</p>
               </div>
             ))}
-            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5">
+            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5 md:col-span-2 lg:col-span-3">
               <iframe
                 title="Institute map"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3679.4261459205277!2d75.89608317534959!3d22.749561279366112!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3962fd2bb90129a1%3A0x4b4cd8f83c62a3c4!2sCoding%20Wallah%20%3A%20-%20IT%20%2Cfull%20stack%20development%20%2CData%20Analytics%20%2CAIML%20%2C%20Data%20Science%20Training%20and%20placement%20Institute%2CIndore!5e0!3m2!1sen!2sin!4v1783405333862!5m2!1sen!2sin"
@@ -1042,7 +996,7 @@ export function ContactPage() {
                 referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
-            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">Social: LinkedIn · Instagram · YouTube · Facebook</p>
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 md:col-span-2 lg:col-span-3">Social: LinkedIn · Instagram · YouTube · Facebook</p>
           </aside>
         </div>
       </main>

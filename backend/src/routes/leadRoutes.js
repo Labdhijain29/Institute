@@ -19,13 +19,13 @@ const crud = crudController(Lead, {
   searchFields: ["name", "mobile", "email", "college", "source", "remarks"],
   filter(req) {
     if (["Super Admin", "Admin", "Manager"].includes(req.user.role)) return {};
-    if (req.user.role === "Telecaller") return { $or: [{ createdBy: req.user._id }, { telecallerAssigned: req.user._id }] };
+    if (req.user.role === "Telecaller") return { $or: [{ createdBy: req.user._id }, { telecallerAssigned: req.user._id }, { source: "Website", telecallerAssigned: null }] };
     if (req.user.role === "Counsellor") {
       return {
         $or: [
           { counsellorAssigned: req.user._id },
           { status: { $in: ["Forwarded", "Forwarded to Counsellor"] } },
-          { source: "Website", remarks: /Interested Course|Course Counsellor Request/i }
+          { source: "Website", remarks: /Course Counsellor Request/i }
         ]
       };
     }

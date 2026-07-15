@@ -28,6 +28,8 @@ const emptyOffer = {
   pincode: "",
   photograph: "",
   emergencyContact: "",
+  alternativeContactName: "",
+  alternativeMobileNumber: "",
   officialMobileNumber: "",
   companyName: "Coding Walla",
   companyTagline: "From Learning to Earning",
@@ -149,7 +151,7 @@ export function OfferLettersPage() {
     event.preventDefault();
     setMessage("");
     const salary = autoSalary(form);
-    const created = await dispatch(createOffer({ ...form, ...salary })).unwrap();
+    const created = await dispatch(createOffer({ ...form, ...salary, emergencyContact: `${form.alternativeContactName} | ${form.alternativeMobileNumber}`, department: form.department || "Not Specified" })).unwrap();
     setForm(emptyOffer);
     setGenerateOpen(false);
     setSelected(created);
@@ -307,21 +309,22 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
         </div>
         <form onSubmit={onSubmit} className="space-y-5 p-4">
           <FormSection title="Employee Information">
-            <Field label="Employee ID" value={form.employeeId} onChange={(value) => setValue("employeeId", value)} placeholder="Auto generated if blank" />
             <Field required label="Full Name" value={form.fullName} onChange={(value) => setValue("fullName", value)} />
             <SelectField label="Gender" value={form.gender} onChange={(value) => setValue("gender", value)} options={["", "Male", "Female", "Other"]} />
             <Field label="Date of Birth" type="date" value={form.dateOfBirth} onChange={(value) => setValue("dateOfBirth", value)} />
             <Field label="Mobile Number" value={form.mobileNumber} onChange={(value) => setValue("mobileNumber", value)} />
             <Field label="Personal Email" type="email" value={form.personalEmail} onChange={(value) => setValue("personalEmail", value)} />
-            <Field label="Official Email" type="email" value={form.officialEmail} onChange={(value) => setValue("officialEmail", value)} />
             <Field label="Official Mobile Number" value={form.officialMobileNumber} onChange={(value) => setValue("officialMobileNumber", value)} />
-            <Field label="Address" value={form.address} onChange={(value) => setValue("address", value)} />
+            <Field required wide textarea label="Employee Address" value={form.address} onChange={(value) => setValue("address", value)} />
             <Field label="City" value={form.city} onChange={(value) => setValue("city", value)} />
             <Field label="State" value={form.state} onChange={(value) => setValue("state", value)} />
             <Field label="Country" value={form.country} onChange={(value) => setValue("country", value)} />
             <Field label="Pincode" value={form.pincode} onChange={(value) => setValue("pincode", value)} />
-            <Field label="Photograph URL" value={form.photograph} onChange={(value) => setValue("photograph", value)} />
-            <Field label="Emergency Contact" value={form.emergencyContact} onChange={(value) => setValue("emergencyContact", value)} />
+          </FormSection>
+
+          <FormSection title="Alternative Contact">
+            <Field required label="Alternative Contact Name" value={form.alternativeContactName} onChange={(value) => setValue("alternativeContactName", value)} />
+            <Field required label="Alternative Mobile Number" type="tel" pattern="[6-9][0-9]{9}" inputMode="numeric" maxLength={10} placeholder="10-digit mobile number" value={form.alternativeMobileNumber} onChange={(value) => setValue("alternativeMobileNumber", value.replace(/\D/g, "").slice(0, 10))} />
           </FormSection>
 
           <FormSection title="Company Information">
@@ -336,16 +339,12 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
           </FormSection>
 
           <FormSection title="Employment Information">
-            <Field required label="Department" value={form.department} onChange={(value) => setValue("department", value)} />
             <Field required label="Designation" value={form.designation} onChange={(value) => setValue("designation", value)} />
             <Field label="Reporting Manager" value={form.reportingManager} onChange={(value) => setValue("reportingManager", value)} />
             <SelectField label="Employment Type" value={form.employmentType} onChange={(value) => setValue("employmentType", value)} options={employmentTypes} />
-            <Field label="Work Location" value={form.workLocation} onChange={(value) => setValue("workLocation", value)} />
+            <SelectField required label="Work Location" value={form.workLocation} onChange={(value) => setValue("workLocation", value)} options={["", "Head Office", "Branch Office", "Client Location", "Remote"]} />
             <Field label="Office Branch" value={form.officeBranch} onChange={(value) => setValue("officeBranch", value)} />
             <Field required label="Joining Date" type="date" value={form.joiningDate} onChange={(value) => setValue("joiningDate", value)} />
-            <Field label="Probation Period" value={form.probationPeriod} onChange={(value) => setValue("probationPeriod", value)} />
-            <Field label="Confirmation Date" type="date" value={form.confirmationDate} onChange={(value) => setValue("confirmationDate", value)} />
-            <Field label="Offer Valid Till" type="date" value={form.validTill} onChange={(value) => setValue("validTill", value)} />
             <SelectField label="Status" value={form.acceptanceStatus} onChange={(value) => setValue("acceptanceStatus", value)} options={statuses} />
           </FormSection>
 
@@ -353,7 +352,7 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
             {["ctc", "basicSalary", "hra", "specialAllowance", "otherAllowance", "medicalAllowance", "travelAllowance", "conveyance", "bonus", "gratuity", "pf", "esi", "professionalTax"].map((key) => (
               <Field key={key} label={labelize(key)} type="number" value={form[key]} onChange={(value) => setValue(key, Number(value))} />
             ))}
-            <Field label="Gross Salary" type="number" value={salary.grossSalary} onChange={(value) => setValue("grossSalary", Number(value))} />
+            <Field required label="Salary" type="number" min="0" value={salary.grossSalary} onChange={(value) => setValue("grossSalary", Number(value))} />
             <Field label="Net Salary" type="number" value={salary.netSalary} onChange={(value) => setValue("netSalary", Number(value))} />
             <Field label="Salary Payment Date" value={form.salaryPaymentDate} onChange={(value) => setValue("salaryPaymentDate", value)} />
           </FormSection>
@@ -365,7 +364,6 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
             <Field label="Office Timing" value={form.officeTiming} onChange={(value) => setValue("officeTiming", value)} />
             <Field label="Lunch Break" value={form.lunchBreak} onChange={(value) => setValue("lunchBreak", value)} />
             <Field label="Weekly Off" value={form.weeklyOff} onChange={(value) => setValue("weeklyOff", value)} />
-            <Field label="Notice Period" value={form.noticePeriod} onChange={(value) => setValue("noticePeriod", value)} />
           </FormSection>
 
           <FormSection title="HR Policies">
@@ -377,17 +375,12 @@ function GenerateOfferModal({ open, form, setForm, saving, onSubmit, onClose }) 
           <FormSection title="Documents Required">
             <Field label="Aadhaar Number" value={form.aadhaarNumber} onChange={(value) => setValue("aadhaarNumber", value)} />
             <Field label="PAN Number" value={form.panNumber} onChange={(value) => setValue("panNumber", value)} />
-            <Field label="Passport Number" value={form.passportNumber} onChange={(value) => setValue("passportNumber", value)} />
             <Field label="Bank Name" value={form.bankName} onChange={(value) => setValue("bankName", value)} />
             <Field label="Account Number" value={form.accountNumber} onChange={(value) => setValue("accountNumber", value)} />
             <Field label="IFSC Code" value={form.ifscCode} onChange={(value) => setValue("ifscCode", value)} />
-            <Field label="UAN Number" value={form.uanNumber} onChange={(value) => setValue("uanNumber", value)} />
-            <Field label="ESIC Number" value={form.esicNumber} onChange={(value) => setValue("esicNumber", value)} />
           </FormSection>
 
-          <FormSection title="Offer Content">
-            <Field wide label="Roles & Responsibilities" textarea value={form.rolesAndResponsibilities} onChange={(value) => setValue("rolesAndResponsibilities", value)} />
-            <Field wide label="Terms & Conditions" textarea value={form.termsAndConditions} onChange={(value) => setValue("termsAndConditions", value)} />
+          <FormSection title="Remarks">
             <Field wide label="Remarks" textarea value={form.remarks} onChange={(value) => setValue("remarks", value)} />
           </FormSection>
 
@@ -434,21 +427,21 @@ function FormSection({ title, children }) {
   return <section className="rounded-lg border border-slate-200 p-4"><h3 className="mb-4 flex items-center gap-2 text-sm font-black uppercase text-[#c2410c]"><FileText size={16} /> {title}</h3><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{children}</div></section>;
 }
 
-function Field({ label, value, onChange, type = "text", textarea = false, required = false, wide = false, placeholder = "" }) {
+function Field({ label, value, onChange, type = "text", textarea = false, required = false, wide = false, placeholder = "", ...inputProps }) {
   return (
     <label className={`block text-sm ${wide ? "md:col-span-2 xl:col-span-3" : ""}`}>
-      <span className="font-semibold text-slate-600">{label}</span>
+      <span className="font-semibold text-slate-600">{label}{required && <span className="text-red-600"> *</span>}</span>
       {textarea ? (
         <textarea required={required} className={`${inputClass} h-24 pt-2`} value={value || ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
       ) : (
-        <input required={required} type={type} className={inputClass} value={value ?? ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+        <input required={required} type={type} className={inputClass} value={value ?? ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} {...inputProps} />
       )}
     </label>
   );
 }
 
-function SelectField({ label, value, onChange, options }) {
-  return <label className="block text-sm"><span className="font-semibold text-slate-600">{label}</span><select className={inputClass} value={value || ""} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option} value={option}>{option || "Select"}</option>)}</select></label>;
+function SelectField({ label, value, onChange, options, required = false }) {
+  return <label className="block text-sm"><span className="font-semibold text-slate-600">{label}{required && <span className="text-red-600"> *</span>}</span><select required={required} className={inputClass} value={value || ""} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option} value={option}>{option || "Select"}</option>)}</select></label>;
 }
 
 function labelize(value) {

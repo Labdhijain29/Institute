@@ -10,29 +10,31 @@ const editableGroups = [
     title: "Basic Information",
     fields: [
       ["fullName", "Employee Name", "text"],
-      ["employeeId", "Employee ID", "text"],
       ["offerLetterNumber", "Offer Letter Number", "text"],
       ["acceptanceStatus", "Acceptance Status", "select"],
       ["issueDate", "Issue Date", "date"],
-      ["validTill", "Offer Valid Till", "date"]
     ]
   },
   {
     title: "Employee Details",
     fields: [
-      ["photograph", "Photograph URL", "text"],
       ["gender", "Gender", "text"],
       ["dateOfBirth", "Date of Birth", "date"],
       ["personalEmail", "Personal Email", "email"],
-      ["officialEmail", "Official Email", "email"],
       ["officialMobileNumber", "Official Mobile Number", "text"],
       ["mobileNumber", "Phone Number", "text"],
-      ["address", "Address", "textarea"],
+      ["address", "Employee Address", "textarea", true],
       ["city", "City", "text"],
       ["state", "State", "text"],
       ["country", "Country", "text"],
       ["pincode", "Pincode", "text"],
-      ["emergencyContact", "Emergency Contact", "text"]
+    ]
+  },
+  {
+    title: "Alternative Contact",
+    fields: [
+      ["alternativeContactName", "Alternative Contact Name", "text", true],
+      ["alternativeMobileNumber", "Alternative Mobile Number", "tel", true]
     ]
   },
   {
@@ -51,16 +53,12 @@ const editableGroups = [
   {
     title: "Employment Details",
     fields: [
-      ["department", "Department", "text"],
-      ["designation", "Designation", "text"],
+      ["designation", "Designation", "text", true],
       ["reportingManager", "Reporting Manager", "text"],
       ["employmentType", "Employment Type", "select"],
-      ["workLocation", "Office Location", "text"],
+      ["workLocation", "Work Location", "workLocation", true],
       ["officeBranch", "Branch", "text"],
-      ["joiningDate", "Joining Date", "date"],
-      ["probationPeriod", "Probation Period", "text"],
-      ["confirmationDate", "Confirmation Date", "date"],
-      ["noticePeriod", "Notice Period", "text"],
+      ["joiningDate", "Joining Date", "date", true],
       ["workingDays", "Working Days", "text"],
       ["workingHours", "Working Hours", "text"],
       ["officeTiming", "Office Timing", "text"],
@@ -107,13 +105,6 @@ const editableGroups = [
     ]
   },
   {
-    title: "Terms",
-    fields: [
-      ["rolesAndResponsibilities", "Roles & Responsibilities", "textarea"],
-      ["termsAndConditions", "Terms & Conditions", "textarea"]
-    ]
-  },
-  {
     title: "Remarks",
     fields: [["remarks", "Remarks", "textarea"]]
   },
@@ -153,6 +144,9 @@ export function OfferLetterModal({ open, offer, onClose }) {
     });
     next.acceptanceStatus = offer.acceptanceStatus || "Generated";
     next.employmentType = offer.employmentType || "Full Time";
+    const [alternativeContactName = "", alternativeMobileNumber = ""] = String(offer.emergencyContact || "").split(" | ");
+    next.alternativeContactName = alternativeContactName;
+    next.alternativeMobileNumber = alternativeMobileNumber;
     setForm(next);
     setEditing(true);
   }, [offer]);
@@ -166,7 +160,7 @@ export function OfferLetterModal({ open, offer, onClose }) {
   }
 
   async function save() {
-    await dispatch(updateOffer({ id: offer._id, values: form })).unwrap();
+    await dispatch(updateOffer({ id: offer._id, values: { ...form, emergencyContact: `${form.alternativeContactName} | ${form.alternativeMobileNumber}` } })).unwrap();
     setEditing(false);
   }
 
@@ -212,8 +206,8 @@ export function OfferLetterModal({ open, offer, onClose }) {
               <section key={group.title} className="rounded-lg border border-slate-200 p-3">
                 <h4 className="mb-3 text-xs font-black uppercase text-[#f97316]">{group.title}</h4>
                 <div className="space-y-3">
-                  {group.fields.map(([key, label, type]) => (
-                    <EditableField key={key} fieldKey={key} label={label} type={type} editing={editing} form={form} setForm={setForm} />
+                  {group.fields.map(([key, label, type, required]) => (
+                    <EditableField key={key} fieldKey={key} label={label} type={type} required={required} editing={editing} form={form} setForm={setForm} />
                   ))}
                 </div>
               </section>
@@ -225,13 +219,13 @@ export function OfferLetterModal({ open, offer, onClose }) {
   );
 }
 
-function EditableField({ fieldKey, label, type, editing, form, setForm }) {
+function EditableField({ fieldKey, label, type, required, editing, form, setForm }) {
   const value = form[fieldKey] ?? "";
   const setValue = (nextValue) => setForm((current) => ({ ...current, [fieldKey]: type === "number" ? Number(nextValue) : nextValue }));
 
   return (
     <label className="block text-sm">
-      <span className="font-semibold text-slate-600">{label}</span>
+      <span className="font-semibold text-slate-600">{label}{required && <span className="text-red-600"> *</span>}</span>
       {type === "textarea" ? (
         <textarea
           disabled={!editing}
@@ -239,19 +233,22 @@ function EditableField({ fieldKey, label, type, editing, form, setForm }) {
           value={value}
           onChange={(event) => setValue(event.target.value)}
         />
-      ) : type === "select" ? (
+      ) : type === "select" || type === "workLocation" ? (
         <select
           disabled={!editing}
           className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-[#f97316] disabled:bg-slate-50"
           value={value}
           onChange={(event) => setValue(event.target.value)}
         >
-          {(fieldKey === "acceptanceStatus" ? statuses : employmentTypes).map((option) => <option key={option}>{option}</option>)}
+          {(type === "workLocation" ? ["Head Office", "Branch Office", "Client Location", "Remote"] : fieldKey === "acceptanceStatus" ? statuses : employmentTypes).map((option) => <option key={option}>{option}</option>)}
         </select>
       ) : (
         <input
           disabled={!editing}
           type={type}
+          required={required}
+          pattern={fieldKey === "alternativeMobileNumber" ? "[6-9][0-9]{9}" : undefined}
+          maxLength={fieldKey === "alternativeMobileNumber" ? 10 : undefined}
           className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-[#f97316] disabled:bg-slate-50"
           value={value}
           onChange={(event) => setValue(event.target.value)}

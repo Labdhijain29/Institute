@@ -68,7 +68,7 @@ function AppointmentLetter({ offer }) {
       <h1 className="mt-5 border-y border-slate-300 py-2 text-center text-base font-black uppercase text-[#0f172a]">Subject: Offer of Employment</h1>
 
       <div className="mt-5 space-y-4 text-justify">
-        <p>Congratulations! We are pleased to offer you an appointment in our organisation as <strong>{value(offer.designation, "Designation")}</strong> in the <strong>{value(offer.department, "Department")}</strong> department. Your initial posting will be at <strong>{value(offer.workLocation, "Work Location")}</strong>, under the employment type <strong>{value(offer.employmentType, "Full Time")}</strong>.</p>
+        <p>Congratulations! We are pleased to offer you an appointment in our organisation as <strong>{value(offer.designation, "Designation")}</strong>. Your initial posting will be at <strong>{value(offer.workLocation, "Work Location")}</strong>, under the employment type <strong>{value(offer.employmentType, "Full Time")}</strong>.</p>
         <p>You will report to <strong>{value(offer.reportingManager, "the assigned Reporting Manager")}</strong>. The proposed remuneration and benefits for the position offered are enclosed on page 2.</p>
         <p>This offer of employment is subject to:</p>
         <ol className="list-[upper-alpha] space-y-2 pl-7">
@@ -105,7 +105,7 @@ function EmploymentDetailsLetter({ offer }) {
       <DocumentMeta offer={offer} compact />
       <h1 className="mt-5 text-center text-xl font-black uppercase text-[#0f172a]">Employment Details</h1>
       <table className="mt-5 w-full border-collapse">
-        <tbody>{[["Name", offer.fullName], ["Employee ID", offer.employeeId], ["Designation", offer.designation], ["Department", offer.department], ["Location", offer.workLocation], ["Joining Date", date(offer.joiningDate)]].map(([label, entry]) => <tr key={label}><th className="w-40 border border-slate-300 bg-slate-50 px-3 py-2 text-left">{label}</th><td className="border border-slate-300 px-3 py-2 font-semibold text-[#0f172a]">{value(entry)}</td></tr>)}</tbody>
+        <tbody>{[["Name", offer.fullName], ["Employee ID", offer.employeeId], ["Designation", offer.designation], ["Location", offer.workLocation], ["Joining Date", date(offer.joiningDate)]].map(([label, entry]) => <tr key={label}><th className="w-40 border border-slate-300 bg-slate-50 px-3 py-2 text-left">{label}</th><td className="border border-slate-300 px-3 py-2 font-semibold text-[#0f172a]">{value(entry)}</td></tr>)}</tbody>
       </table>
 
       <table className="mt-6 w-full border-collapse">
@@ -127,7 +127,6 @@ function EmploymentDetailsLetter({ offer }) {
           <li>Your compensation may be restructured while protecting the applicable gross salary.</li>
           <li>Group Mediclaim, where applicable, covers eligible dependants according to company policy.</li>
           <li>Working schedule: {value(offer.workingDays)}, {value(offer.officeTiming)}; lunch break {value(offer.lunchBreak)}; weekly off {value(offer.weeklyOff)}.</li>
-          {offer.termsAndConditions && <li>{offer.termsAndConditions}</li>}
         </ul>
       </div>
       <div className="mt-8 grid gap-8 sm:grid-cols-2 sm:gap-12"><Signature label="Authorized Signatory" value={offer.companySignature || offer.hrSignature} /><Signature label="Company Seal" value={offer.companySeal} /></div>
@@ -136,7 +135,7 @@ function EmploymentDetailsLetter({ offer }) {
 }
 
 function DocumentMeta({ offer, compact = false }) {
-  return <div className={`flex flex-wrap items-start justify-between gap-3 sm:gap-6 ${compact ? "text-[10px]" : "text-xs"}`}><div><p><strong>Offer Letter ID:</strong> {value(offer.offerLetterNumber, "Draft")}</p><p><strong>Employee ID:</strong> {value(offer.employeeId, "Pending")}</p></div><div className="sm:text-right"><p><strong>Issue Date:</strong> {date(offer.issueDate)}</p><p><strong>Official Contact:</strong> {value(offer.officialEmail)} · {value(offer.officialMobileNumber || offer.mobileNumber)}</p></div></div>;
+  return <div className={`flex flex-wrap items-start justify-between gap-3 sm:gap-6 ${compact ? "text-[10px]" : "text-xs"}`}><div><p><strong>Offer Letter ID:</strong> {value(offer.offerLetterNumber, "Draft")}</p><p><strong>Employee ID:</strong> {value(offer.employeeId, "Pending")}</p></div><div className="sm:text-right"><p><strong>Issue Date:</strong> {date(offer.issueDate)}</p><p><strong>Official Contact:</strong> {value(offer.officialMobileNumber || offer.mobileNumber)}</p></div></div>;
 }
 
 function SalaryRow({ label, monthly, annual, total = false, accent = false }) {

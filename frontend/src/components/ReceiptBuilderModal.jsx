@@ -304,7 +304,7 @@ function ReceiptTemplate({ receipt, summary }) {
           </dl>
         </section>
 
-        <section className="mt-2.5 grid gap-3 md:grid-cols-[1fr_120px_170px]">
+        <section className="mt-2.5 grid gap-3 md:grid-cols-[1fr_170px]">
           <div>
             <p className="text-xs font-black text-[#f97316]">Amount in Words</p>
             <p className="mt-0.5 text-xs font-semibold">{amountInWords(summary.currentPayment)}</p>
@@ -316,14 +316,8 @@ function ReceiptTemplate({ receipt, summary }) {
               <Detail label="Payment Date" value={displayDate(receipt.paymentDate)} />
             </dl>
           </div>
-          <div className="grid place-items-center">
-            <div className="grid h-24 w-24 place-items-center rounded-full border-[3px] border-[#f97316] text-center text-[9px] font-black uppercase text-[#f97316]">
-              Authorized<br />Signature
-            </div>
-          </div>
           <div className="flex flex-col items-center justify-end">
-            <p className="font-serif text-xl italic text-[#f97316]">{receipt.authorizedName}</p>
-            <div className="mt-3 w-full border-t border-slate-500 pt-1.5 text-center text-xs font-semibold">Authorized Signatory</div>
+            <div className="w-full border-t border-slate-500 pt-1.5 text-center text-xs font-semibold">Authorized Signatory</div>
           </div>
         </section>
 

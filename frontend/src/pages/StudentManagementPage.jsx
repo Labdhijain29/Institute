@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { UserCheck, X } from "lucide-react";
+import { UserCheck, UserPlus, X } from "lucide-react";
 import { api } from "../api/client.js";
 import { DataTable } from "../components/DataTable.jsx";
 
@@ -8,11 +8,13 @@ const initialAssignment = { course: "", batch: "", admissionDate: new Date().toI
 
 export function StudentManagementPage() {
   const [students, setStudents] = useState([]); const [courses, setCourses] = useState([]); const [batches, setBatches] = useState([]); const [fees, setFees] = useState([]);
+  const [counsellors, setCounsellors] = useState([]); const [registrationOpen, setRegistrationOpen] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null); const [form, setForm] = useState(initialAssignment); const [message, setMessage] = useState(""); const [saving, setSaving] = useState(false);
 
   const load = async () => {
-    const [studentData, courseData, batchData, feeData] = await Promise.all([api("/students?limit=100"), api("/courses?limit=100"), api("/batches?limit=100"), api("/fees?limit=100")]);
+    const [studentData, courseData, batchData, feeData, userData] = await Promise.all([api("/students?limit=100"), api("/courses?limit=100"), api("/batches?limit=100"), api("/fees?limit=100"), api("/users?limit=100")]);
     setStudents(studentData.items || []); setCourses(courseData.items || []); setBatches(batchData.items || []); setFees(feeData.items || []);
+    setCounsellors((userData.items || []).filter((user) => user.role === "Counsellor" && user.isActive !== false));
   };
   useEffect(() => { load().catch((error) => setMessage(error.message)); }, []);
 
@@ -35,9 +37,10 @@ export function StudentManagementPage() {
   const availableBatches = batches.filter((batch) => idOf(batch.course) === form.course && !["Completed", "Cancelled"].includes(batch.status));
 
   return <div className="space-y-5">
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><h2 className="text-xl font-bold">Students</h2><p className="text-sm text-slate-500">Assign registered students to a course and batch, then initialize their fee structure.</p></section>
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-xl font-bold">Students</h2><p className="text-sm text-slate-500">Assign registered students to a course and batch, then initialize their fee structure.</p></div><button onClick={() => setRegistrationOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]"><UserPlus size={16} /> Register Student</button></div></section>
     {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
     <DataTable columns={columns} rows={students} />
+    <StudentRegistrationModal open={registrationOpen} courses={courses} batches={batches} counsellors={counsellors} onClose={() => setRegistrationOpen(false)} onSaved={async (text) => { setRegistrationOpen(false); setMessage(text); await load(); }} />
     {activeStudent && <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"><div className="w-full max-w-2xl rounded-lg bg-white p-5 shadow-xl"><div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-bold">Assign Course & Batch</h2><p className="text-sm text-slate-500">{activeStudent.name} · {activeStudent.studentId}</p></div><button onClick={() => setActiveStudent(null)} className="rounded-md p-2 hover:bg-slate-100"><X size={18} /></button></div>
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
         <Field label="Course"><select required className={inputClass} value={form.course} onChange={(e) => selectCourse(e.target.value)}><option value="">Select course</option>{courses.filter((item) => item.isActive !== false).map((course) => <option key={course._id} value={course._id}>{course.name} ({course.duration})</option>)}</select></Field>
@@ -53,3 +56,77 @@ export function StudentManagementPage() {
 
 const inputClass = "mt-1.5 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316] disabled:bg-slate-100";
 function Field({ label, children }) { return <label className="block text-sm font-semibold">{label}{children}</label>; }
+
+const today = () => new Date().toISOString().slice(0, 10);
+const emptyRegistration = () => ({ admissionDate: today(), firstName: "", lastName: "", gender: "", dateOfBirth: "", mobile: "", email: "", photo: null, guardianName: "", guardianMobile: "", address: "", city: "", state: "", highestQualification: "", currentStatus: "", course: "", batch: "", learningMode: "", totalFees: "", registrationFee: "0", discount: "0", leadSource: "", counsellor: "", remarks: "" });
+
+function SectionTitle({ children }) { return <h3 className="border-b border-slate-200 pb-2 text-sm font-bold text-[#ea580c] sm:col-span-2">{children}</h3>; }
+function fileUrl(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = () => reject(new Error("Unable to read student photo")); reader.readAsDataURL(file); }); }
+
+function StudentRegistrationModal({ open, courses, batches, counsellors, onClose, onSaved }) {
+  const [form, setForm] = useState(emptyRegistration);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  if (!open) return null;
+
+  const set = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const reset = () => { setForm(emptyRegistration()); setError(""); };
+  const selectedCourse = courses.find((course) => course._id === form.course);
+  const availableBatches = batches.filter((batch) => idOf(batch.course) === form.course && !["Completed", "Cancelled"].includes(batch.status));
+
+  const submit = async (event) => {
+    event.preventDefault(); setSaving(true); setError("");
+    try {
+      const name = `${form.firstName.trim()} ${form.lastName.trim()}`;
+      const documents = form.photo ? [{ title: form.photo.name, type: form.photo.type, url: await fileUrl(form.photo) }] : [];
+      const lead = await api("/leads", { method: "POST", body: JSON.stringify({ name, mobile: form.mobile, email: form.email, courseInterested: form.course, courseName: selectedCourse?.name, source: form.leadSource, counsellorAssigned: form.counsellor, status: "Faculty Approved", admissionStatus: "Done", remarks: form.remarks }) });
+      const result = await api(`/leads/${lead._id}/convert`, { method: "POST", body: JSON.stringify({ course: form.course, batch: form.batch || undefined, totalFees: Number(form.totalFees), discount: Number(form.discount) || 0, initialPayment: Number(form.registrationFee) || 0, paymentMode: "Cash", documents }) });
+      await api(`/students/${result.student._id}`, { method: "PATCH", body: JSON.stringify({ name, parentName: form.guardianName, parentMobile: form.guardianMobile, address: { line1: form.address, city: form.city, state: form.state }, courseName: selectedCourse?.name, admissionDate: form.admissionDate, performance: JSON.stringify({ gender: form.gender, dateOfBirth: form.dateOfBirth, highestQualification: form.highestQualification, currentStatus: form.currentStatus, learningMode: form.learningMode, remarks: form.remarks }) }) });
+      reset(); await onSaved(`Student ${result.student.studentId} registered and admitted successfully`);
+    } catch (err) { setError(err.message); } finally { setSaving(false); }
+  };
+
+  return <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"><div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-5 shadow-xl">
+    <div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-bold">Register Student</h2><p className="text-sm text-slate-500">Create a student admission record</p></div><button onClick={onClose} className="rounded-md p-2 hover:bg-slate-100" aria-label="Close"><X size={18} /></button></div>
+    <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
+      <SectionTitle>Basic Information</SectionTitle>
+      <Field label="Student ID"><input disabled value="Generated on registration" className={inputClass} /></Field>
+      <Field label="Admission Date"><input required type="date" className={inputClass} value={form.admissionDate} onChange={(e) => set("admissionDate", e.target.value)} /></Field>
+      <Field label="First Name *"><input required className={inputClass} value={form.firstName} onChange={(e) => set("firstName", e.target.value)} /></Field>
+      <Field label="Last Name *"><input required className={inputClass} value={form.lastName} onChange={(e) => set("lastName", e.target.value)} /></Field>
+      <Field label="Gender *"><select required className={inputClass} value={form.gender} onChange={(e) => set("gender", e.target.value)}><option value="">Select gender</option><option>Male</option><option>Female</option><option>Other</option></select></Field>
+      <Field label="Date of Birth *"><input required type="date" max={today()} className={inputClass} value={form.dateOfBirth} onChange={(e) => set("dateOfBirth", e.target.value)} /></Field>
+      <Field label="Mobile Number *"><input required inputMode="numeric" maxLength="10" className={inputClass} value={form.mobile} onChange={(e) => set("mobile", e.target.value)} /></Field>
+      <Field label="Email Address *"><input required type="email" className={inputClass} value={form.email} onChange={(e) => set("email", e.target.value)} /></Field>
+      <Field label="Student Photo (Optional)"><input type="file" accept="image/*" className={inputClass} onChange={(e) => set("photo", e.target.files?.[0] || null)} /></Field>
+      <div />
+      <SectionTitle>Parent / Guardian</SectionTitle>
+      <Field label="Father / Guardian Name *"><input required className={inputClass} value={form.guardianName} onChange={(e) => set("guardianName", e.target.value)} /></Field>
+      <Field label="Father / Guardian Mobile *"><input required inputMode="numeric" maxLength="10" className={inputClass} value={form.guardianMobile} onChange={(e) => set("guardianMobile", e.target.value)} /></Field>
+      <SectionTitle>Address</SectionTitle>
+      <Field label="Address *"><input required className={inputClass} value={form.address} onChange={(e) => set("address", e.target.value)} /></Field>
+      <Field label="City *"><input required className={inputClass} value={form.city} onChange={(e) => set("city", e.target.value)} /></Field>
+      <Field label="State *"><input required className={inputClass} value={form.state} onChange={(e) => set("state", e.target.value)} /></Field><div />
+      <SectionTitle>Education</SectionTitle>
+      <Field label="Highest Qualification"><input className={inputClass} value={form.highestQualification} onChange={(e) => set("highestQualification", e.target.value)} /></Field>
+      <Field label="Current Status"><input className={inputClass} value={form.currentStatus} onChange={(e) => set("currentStatus", e.target.value)} /></Field>
+      <SectionTitle>Course Information</SectionTitle>
+      <Field label="Course *"><select required className={inputClass} value={form.course} onChange={(e) => { const course = courses.find((item) => item._id === e.target.value); setForm({ ...form, course: e.target.value, batch: "", totalFees: course?.fees ?? "" }); }}><option value="">Select course</option>{courses.filter((course) => course.isActive !== false).map((course) => <option key={course._id} value={course._id}>{course.name}</option>)}</select></Field>
+      {/* Batch selection is intentionally disabled for student registration.
+      <Field label="Batch *"><select required disabled={!form.course} className={inputClass} value={form.batch} onChange={(e) => set("batch", e.target.value)}><option value="">Select batch</option>{availableBatches.map((batch) => <option key={batch._id} value={batch._id}>{batch.name}</option>)}</select></Field>
+      */}
+      <Field label="Learning Mode *"><select required className={inputClass} value={form.learningMode} onChange={(e) => set("learningMode", e.target.value)}><option value="">Select mode</option><option>Online</option><option>Offline</option><option>Hybrid</option></select></Field><div />
+      {/* <SectionTitle>Fee Information</SectionTitle>
+      <Field label="Total Course Fee *"><input required min="0" type="number" className={inputClass} value={form.totalFees} onChange={(e) => set("totalFees", e.target.value)} /></Field>
+      <Field label="Registration Fee"><input min="0" type="number" className={inputClass} value={form.registrationFee} onChange={(e) => set("registrationFee", e.target.value)} /></Field>
+      <Field label="Discount"><input min="0" type="number" className={inputClass} value={form.discount} onChange={(e) => set("discount", e.target.value)} /></Field><div /> */}
+      <SectionTitle>Lead Information</SectionTitle>
+      <Field label="Lead Source *"><select required className={inputClass} value={form.leadSource} onChange={(e) => set("leadSource", e.target.value)}><option value="">Select source</option>{["Walk-in", "Website", "Referral", "Social Media", "Campaign", "Other"].map((source) => <option key={source}>{source}</option>)}</select></Field>
+      <Field label="Counsellor *"><select required className={inputClass} value={form.counsellor} onChange={(e) => set("counsellor", e.target.value)}><option value="">Select counsellor</option>{counsellors.map((user) => <option key={user._id} value={user._id}>{user.name}</option>)}</select></Field>
+      <SectionTitle>Remarks (Optional)</SectionTitle>
+      <label className="block text-sm font-semibold sm:col-span-2"><textarea rows="3" className={`${inputClass} h-auto`} value={form.remarks} onChange={(e) => set("remarks", e.target.value)} /></label>
+      {error && <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 sm:col-span-2">{error}</p>}
+      <div className="flex justify-end gap-2 sm:col-span-2"><button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button><button type="button" onClick={reset} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Reset</button><button disabled={saving} className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315] disabled:opacity-60">{saving ? "Registering..." : "Register Student"}</button></div>
+    </form>
+  </div></div>;
+}

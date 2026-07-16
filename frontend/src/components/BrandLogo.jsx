@@ -36,7 +36,7 @@ export function BrandLockup({
         src={brandIcon}
         alt=""
         aria-hidden="true"
-        className={`${logoClassName} shrink-0 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.22)]`}
+        className={`${logoClassName} shrink-0 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.22)] ${isLight ? "rounded-md bg-[#111315] p-1" : ""}`}
       />
       <span className={`min-w-0 leading-none ${textClassName}`}>
         <span className="block whitespace-nowrap text-[19px] font-black tracking-normal">

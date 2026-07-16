@@ -410,7 +410,7 @@ export function HomePage() {
           <div className="relative mx-auto flex min-h-[560px] max-w-7xl flex-col justify-center px-4 py-14 sm:px-6 md:min-h-[calc(100vh-76px)] lg:px-8">
             <div className="max-w-3xl">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fdba74]">Coding Walla Website & Management System</p>
-              <h1 className="mt-5 text-4xl font-black leading-tight sm:text-5xl md:text-6xl">Coding Walla</h1>
+              <h1 className="mt-5 text-4xl font-black leading-tight sm:text-5xl md:text-6xl"><span className="text-white">Coding </span><span className="text-[#f7931E]">Walla</span></h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-100">Professional coding courses with live classes, real projects, placement support, and a role-based management system for every student journey.</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <PrimaryButton to="/courses">Explore Courses</PrimaryButton>
@@ -889,7 +889,7 @@ export function ITServicesPage() {
               <article key={project.name} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft dark:border-white/10 dark:bg-white/5">
                 <img src={project.image} alt={project.name} className="h-48 w-full object-cover" loading="lazy" />
                 <div className="p-5">
-                  <h2 className="text-lg font-black">{project.name}</h2>
+                  <h2 className="text-lg font-black text-[#111315] dark:text-white">{project.name === "Institute Management CRM" ? <>Institute Management <span className="text-[#f97316]">CRM</span></> : project.name}</h2>
                   <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{project.description}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {project.technologies.map((item) => (

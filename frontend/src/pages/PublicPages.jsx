@@ -173,14 +173,10 @@ function CourseDetailsModal({ course, onClose }) {
           <img src={course.image} alt={`${course.name} course`} className="h-48 w-full rounded-md object-cover sm:h-56 md:h-full" />
           <div>
             <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{course.overview}</p>
-            <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 text-sm">
               <p className="rounded-md bg-slate-50 p-3 dark:bg-white/5">
                 <span className="block text-xs text-slate-500 dark:text-slate-400">Duration</span>
                 <span className="font-bold">{course.duration}</span>
-              </p>
-              <p className="rounded-md bg-slate-50 p-3 dark:bg-white/5">
-                <span className="block text-xs text-slate-500 dark:text-slate-400">Fees</span>
-                <span className="font-bold">{course.fees}</span>
               </p>
             </div>
             <div className="mt-4 space-y-3 text-sm leading-6">

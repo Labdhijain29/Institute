@@ -8,6 +8,7 @@ import { StudentDashboard } from "./pages/Dashboard.jsx";
 import { StudentFees } from "./pages/Fees.jsx";
 import { StudentMaterials } from "./pages/Materials.jsx";
 import { StudentProfile } from "./pages/Profile.jsx";
+import { StudentRegistrationForm } from "./pages/RegistrationForm.jsx";
 
 const pages = {
   "/student/dashboard": StudentDashboard,
@@ -16,6 +17,7 @@ const pages = {
   "/student/assignments": StudentAssignments,
   "/student/materials": StudentMaterials,
   "/student/fees": StudentFees,
+  "/student/registration-form": StudentRegistrationForm,
   "/student/profile": StudentProfile
 };
 

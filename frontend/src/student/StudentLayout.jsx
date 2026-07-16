@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BookOpen, ClipboardCheck, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, ReceiptIndianRupee, UserRound, X } from "lucide-react";
+import { BookOpen, ClipboardCheck, FileDown, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, ReceiptIndianRupee, UserRound, X } from "lucide-react";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { BrandLockup } from "../components/BrandLogo.jsx";
 
@@ -10,6 +10,7 @@ export const studentMenu = [
   { label: "Assignments", path: "/student/assignments", icon: FileText },
   { label: "Study Material", path: "/student/materials", icon: BookOpen },
   { label: "Fees", path: "/student/fees", icon: ReceiptIndianRupee },
+  { label: "Registration Form", path: "/student/registration-form", icon: FileDown },
   { label: "Profile", path: "/student/profile", icon: UserRound }
 ];
 

@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { UserCheck, UserPlus, X } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Download, Printer, UserCheck, UserPlus, X } from "lucide-react";
 import { api } from "../api/client.js";
 import { DataTable } from "../components/DataTable.jsx";
+import { RegistrationPaper } from "../student/pages/RegistrationForm.jsx";
+import { downloadRegistrationPdf } from "../utils/registrationPdf.js";
 
 const idOf = (value) => value?._id || value || "";
 const initialAssignment = { course: "", batch: "", admissionDate: new Date().toISOString().slice(0, 10), totalFees: "", discount: "0" };
@@ -66,13 +68,25 @@ function fileUrl(file) { return new Promise((resolve, reject) => { const reader 
 function StudentRegistrationModal({ open, courses, batches, counsellors, onClose, onSaved }) {
   const [form, setForm] = useState(emptyRegistration);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState("");
+  const printRef = useRef(null);
   if (!open) return null;
 
   const set = (key, value) => setForm((current) => ({ ...current, [key]: value }));
   const reset = () => { setForm(emptyRegistration()); setError(""); };
   const selectedCourse = courses.find((course) => course._id === form.course);
   const availableBatches = batches.filter((batch) => idOf(batch.course) === form.course && !["Completed", "Cancelled"].includes(batch.status));
+  const printableStudent = {
+    name: `${form.firstName} ${form.lastName}`.trim(), email: form.email, mobile: form.mobile,
+    gender: form.gender, dateOfBirth: form.dateOfBirth, admissionDate: form.admissionDate,
+    parentName: form.guardianName, parentMobile: form.guardianMobile,
+    address: { line1: form.address, city: form.city, state: form.state },
+    highestQualification: form.highestQualification, currentStatus: form.currentStatus,
+    courseName: selectedCourse?.name, batchName: availableBatches.find((batch) => batch._id === form.batch)?.name,
+    learningMode: form.learningMode, remarks: form.remarks
+  };
+  const download = async () => { setDownloading(true); try { await downloadRegistrationPdf(printRef.current); } finally { setDownloading(false); } };
 
   const submit = async (event) => {
     event.preventDefault(); setSaving(true); setError("");
@@ -87,7 +101,7 @@ function StudentRegistrationModal({ open, courses, batches, counsellors, onClose
   };
 
   return <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"><div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-5 shadow-xl">
-    <div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-bold">Register Student</h2><p className="text-sm text-slate-500">Create a student admission record</p></div><button onClick={onClose} className="rounded-md p-2 hover:bg-slate-100" aria-label="Close"><X size={18} /></button></div>
+    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-lg font-bold">Register Student</h2><p className="text-sm text-slate-500">Create a student admission record</p></div><div className="flex items-center gap-2"><button type="button" onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold hover:border-[#f97316] hover:text-[#f97316]"><Printer size={16} /> Print Form</button><button type="button" disabled={downloading} onClick={download} className="inline-flex items-center gap-2 rounded-md bg-[#111315] px-3 py-2 text-sm font-semibold text-white hover:bg-[#f97316] disabled:opacity-60"><Download size={16} /> {downloading ? "Preparing..." : "Download PDF"}</button><button onClick={onClose} className="rounded-md p-2 hover:bg-slate-100" aria-label="Close"><X size={18} /></button></div></div>
     <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
       <SectionTitle>Basic Information</SectionTitle>
       <Field label="Student ID"><input disabled value="Generated on registration" className={inputClass} /></Field>
@@ -128,5 +142,6 @@ function StudentRegistrationModal({ open, courses, batches, counsellors, onClose
       {error && <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 sm:col-span-2">{error}</p>}
       <div className="flex justify-end gap-2 sm:col-span-2"><button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button><button type="button" onClick={reset} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Reset</button><button disabled={saving} className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315] disabled:opacity-60">{saving ? "Registering..." : "Register Student"}</button></div>
     </form>
+    <RegistrationPaper student={printableStudent} printRef={printRef} className="fixed -left-[10000px] top-0 w-[794px] print:static print:w-[210mm]" />
   </div></div>;
 }

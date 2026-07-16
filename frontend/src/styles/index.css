@@ -129,7 +129,9 @@ textarea {
   #certificate-print-area,
   #certificate-print-area *,
   #offer-letter-print-area,
-  #offer-letter-print-area * {
+  #offer-letter-print-area *,
+  #student-registration-print-area,
+  #student-registration-print-area * {
     visibility: visible;
   }
 
@@ -155,6 +157,16 @@ textarea {
     position: absolute;
     inset: 0 auto auto 0;
     width: 210mm;
+    box-shadow: none;
+  }
+
+  #student-registration-print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 210mm;
+    max-width: 210mm;
+    min-height: 297mm;
+    margin: 0;
     box-shadow: none;
   }
 

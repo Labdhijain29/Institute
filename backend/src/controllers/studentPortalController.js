@@ -52,6 +52,12 @@ function assignmentFilter(student) {
 export const portalData = asyncHandler(async (req, res) => {
   const student = await resolveStudent(req.user);
   const scopedFilter = assignmentFilter(student);
+  let registrationDetails = {};
+  try {
+    registrationDetails = student.performance ? JSON.parse(student.performance) : {};
+  } catch {
+    registrationDetails = {};
+  }
 
   const [attendanceRows, assignmentRows, materialRows, feeRows, payments] = await Promise.all([
     Attendance.find({ student: student._id }).sort({ date: -1 }).lean(),
@@ -89,7 +95,17 @@ export const portalData = asyncHandler(async (req, res) => {
       mobile: req.user.mobile || student.mobile || "",
       profilePicture: req.user.avatar || "",
       courseName: student.course?.name || "Not assigned",
-      batchName: student.batch?.name || "Not assigned"
+      batchName: student.batch?.name || "Not assigned",
+      admissionDate: student.admissionDate,
+      parentName: student.parentName || "",
+      parentMobile: student.parentMobile || "",
+      address: student.address || {},
+      gender: registrationDetails.gender || "",
+      dateOfBirth: registrationDetails.dateOfBirth || "",
+      highestQualification: registrationDetails.highestQualification || "",
+      currentStatus: registrationDetails.currentStatus || "",
+      learningMode: registrationDetails.learningMode || "",
+      remarks: registrationDetails.remarks || ""
     },
     dashboard: {
       attendancePercentage,

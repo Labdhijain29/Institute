@@ -82,8 +82,8 @@ export const sidebarGroups = [
       { path: "certificates" }
     ]
   },
-  { label: "Academics", icon: BookOpen, items: [{ path: "courses" }, { path: "batches" }, { path: "lecture-reports" }, { path: "materials" }] },
-  { label: "Finance", icon: BadgeIndianRupee, items: [{ path: "fees" }, { path: "receipts" }, { path: "payroll" }] },
+  // { label: "Academics", icon: BookOpen, items: [{ path: "courses" }, { path: "batches" }, { path: "lecture-reports" }, { path: "materials" }] },
+  // { label: "Finance", icon: BadgeIndianRupee, items: [{ path: "fees" }, { path: "receipts" }, { path: "payroll" }] },
   {
     label: "Employee Management",
     icon: BriefcaseBusiness,
@@ -95,16 +95,18 @@ export const sidebarGroups = [
       { path: "faculty-dashboard" },
       { path: "hr" },
       { path: "offers" },
-      { path: "employee-reports" },
-      { path: "leave-requests" },
-      { path: "tasks" },
+      // { path: "employee-reports" },
+      // { path: "leave-requests" },
+      // { path: "tasks" },
       { path: "digital-marketing-management" }
     ]
   },
-  { label: "Reports", icon: ClipboardCheck, items: [{ path: "reports" }] },
-  { label: "Administration", icon: Settings, items: [{ path: "notifications" }, { path: "users" }, { path: "office-ips" }, { path: "settings" }, { path: "permissions" }] }
+  // { label: "Reports", icon: ClipboardCheck, items: [{ path: "reports" }] },
+  { label: "Administration", icon: Settings, items: [{ path: "notifications" }, { path: "users" }, , { path: "settings" }, { path: "permissions" }] }
 ];
 
 export function menuForRole(role) {
   return baseMenu.filter((item) => item.roles.includes("*") || item.roles.includes(role));
 }
+
+// { path: "office-ips" }

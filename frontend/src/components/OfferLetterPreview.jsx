@@ -81,7 +81,7 @@ function AppointmentLetter({ offer }) {
       </div>
 
       <div className="mt-7 grid gap-8 sm:grid-cols-2 sm:gap-10">
-        <div><p>With Best Wishes,</p><p>Yours sincerely,</p><p className="mt-1 font-black">For {company.name.toUpperCase()}</p><p className="mt-8 font-serif text-lg italic text-[#f97316]">{value(offer.hrSignature, "HR Manager")}</p><p className="border-t border-slate-400 pt-1 text-xs font-bold">Talent Acquisition Manager / Authorized Signatory</p></div>
+        <div><p>With Best Wishes,</p><p>Yours sincerely,</p><p className="mt-1 font-black">For {company.name.toUpperCase()}</p><p className="mt-8 font-serif text-lg italic text-[#f97316]">{value( "")}</p><p className="border-t border-slate-400 pt-1 text-xs font-bold">Talent Acquisition Manager / Authorized Signatory</p></div>
         <VerificationQr offer={offer} />
       </div>
 
@@ -110,11 +110,11 @@ function EmploymentDetailsLetter({ offer }) {
 
       <table className="mt-6 w-full border-collapse">
         <thead className="bg-[#0f172a] text-white"><tr><th className="border border-[#0f172a] px-4 py-3 text-left">Payroll</th><th className="border border-slate-600 px-4 py-3 text-right">Rs. (Per Month)</th><th className="border border-slate-600 px-4 py-3 text-right">Rs. (Per Annum)</th></tr></thead>
-        <tbody>
+        {/* <tbody>
           {salaryRows.map(([label, entry]) => <SalaryRow key={label} label={label} monthly={entry} />)}
           <SalaryRow label="Gross Fixed Salary" monthly={monthlyGross} annual={offer.ctc || monthlyGross * 12} total />
           <SalaryRow label="Net Salary" monthly={offer.netSalary} total accent />
-        </tbody>
+        </tbody> */}
       </table>
 
       <div className="mt-6 space-y-3 text-justify">
@@ -150,7 +150,7 @@ function VerificationQr({ offer }) {
   const [source, setSource] = useState("");
   const payload = JSON.stringify({ verificationUrl: offer.verificationUrl || "https://www.codingwallah.com/verify-offer", offerLetterId: offer.offerLetterNumber || "Draft", employeeId: offer.employeeId || "Pending" });
   useEffect(() => { QRCode.toDataURL(payload, { width: 160, margin: 1, errorCorrectionLevel: "M" }).then(setSource).catch(() => setSource("")); }, [payload]);
-  return <div className="flex items-end justify-end gap-3">{source && <img src={source} alt="Offer verification QR code" className="h-20 w-20" />}<div className="text-[10px]"><p className="font-black uppercase">Verify Offer</p><p>{value(offer.offerLetterNumber, "Draft")}</p><p>{value(offer.employeeId, "Pending")}</p></div></div>;
+  // return <div className="flex items-end justify-end gap-3">{source && <img src={source} alt="Offer verification QR code" className="h-20 w-20" />}<div className="text-[10px]"><p className="font-black uppercase">Verify Offer</p><p>{value(offer.offerLetterNumber, "Draft")}</p><p>{value(offer.employeeId, "Pending")}</p></div></div>;
 }
 
 function OfferFooter({ offer, page }) {

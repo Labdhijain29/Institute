@@ -20,7 +20,7 @@ export const ROLE_PERMISSIONS = {
   Manager: ["leads:*", "receipts:*", "certificates:*", "offers:*", "payments:read", "students:read", "reports:read", "attendance:read", "leaves:read", "tasks:*", "demos:*", "notices:read"],
   HR: ["staff:*", "attendance:*", "salary:*", "leaves:*", "reports:read", "lectures:read", "tasks:read", "notices:read"],
   Telecaller: ["leads:create", "leads:read", "leads:update", "leads:forward", "followups:*", "attendance:read", "leaves:create", "leaves:read", "notices:read"],
-  Counsellor: ["leads:read", "leads:update", "leads:forward", "demos:*", "attendance:read", "leaves:create", "leaves:read", "notices:read"],
+  Counsellor: ["leads:read", "leads:update", "leads:forward", "students:read", "courses:read", "batches:read", "fees:read", "demos:*", "attendance:read", "leaves:create", "leaves:read", "notices:read"],
   Faculty: ["leads:read", "leads:approve", "batches:read", "students:read", "students:create", "attendance:*", "lectures:*", "leaves:create", "leaves:read", "materials:*", "assignments:*", "tests:*", "notices:read"],
   Accountant: ["fees:*", "payments:*", "receipts:*", "expenses:*", "salary:*", "reports:read", "attendance:read", "leaves:create", "leaves:read", "notices:read"],
   Receptionist: ["leads:create", "leads:read", "demos:create", "visitors:*", "attendance:read", "leaves:create", "leaves:read", "notices:read"],

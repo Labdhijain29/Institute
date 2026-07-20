@@ -44,7 +44,7 @@ export const baseMenu = [
   { label: "Telecaller Dashboard", path: "telecaller-dashboard", icon: PhoneCall, roles: ["Super Admin", "Admin", "Manager", "Telecaller", "Receptionist"], workflowRole: "Telecaller" },
   { label: "Counsellor Dashboard", path: "counsellor-dashboard", icon: PhoneCall, roles: ["Super Admin", "Admin", "Manager", "Counsellor"], workflowRole: "Counsellor" },
   { label: "Faculty Dashboard", path: "faculty-dashboard", icon: GraduationCap, roles: ["Super Admin", "Admin", "Manager", "Faculty"], workflowRole: "Faculty" },
-  { label: "Admissions", path: "admissions", icon: GraduationCap, roles: ["Super Admin", "Admin", "Faculty"], workflowRole: "Admissions" },
+  { label: "Admissions", path: "admissions", icon: GraduationCap, roles: ["Super Admin", "Admin", "Counsellor", "Faculty"], workflowRole: "Admissions" },
   { label: "Students", path: "students", icon: UsersRound, roles: ["Super Admin", "Admin", "Faculty", "Accountant"] },
   { label: "Courses", path: "courses", icon: BookOpen, roles: ["Super Admin", "Admin", "Faculty"] },
   { label: "Batches", path: "batches", icon: CalendarDays, roles: ["Super Admin", "Admin", "Faculty"] },

@@ -312,11 +312,35 @@ export function LeadsPage({ module }) {
   };
 
   const leadStats = useMemo(() => {
-    const counts = workflowStatLeads.reduce((result, lead) => {
-      const stage = leadStage(lead);
-      return { ...result, [stage]: result[stage] + 1 };
-    }, { total: workflowStatLeads.length, active: 0, pending: 0, completed: 0 });
-    return counts;
+    const today = new Date();
+    const isToday = (value) => {
+      if (!value) return false;
+      const date = new Date(value);
+      return date.getFullYear() === today.getFullYear()
+        && date.getMonth() === today.getMonth()
+        && date.getDate() === today.getDate();
+    };
+    const disposition = (lead) => {
+      const calls = lead.callHistory || [];
+      return String(calls[calls.length - 1]?.status || lead.status || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_-]+/g, " ");
+    };
+    const isDisposition = (lead, values) => values.includes(disposition(lead));
+
+    return workflowStatLeads.reduce((counts, lead) => ({
+      all: counts.all + 1,
+      today: counts.today + Number(isToday(lead.leadDate || lead.createdAt)),
+      fresh: counts.fresh + Number(
+        ["New", "Assigned"].includes(lead.status) && !(lead.callHistory || []).length
+      ),
+      npc: counts.npc + Number(isDisposition(lead, ["npc", "not picking call", "not picked", "no answer"])),
+      detailSent: counts.detailSent + Number(isDisposition(lead, ["detail sent", "details sent"])),
+      followUp: counts.followUp + Number(isDisposition(lead, ["follow up", "follow-up"])),
+      callback: counts.callback + Number(isDisposition(lead, ["call back", "callback", "call back later"])),
+      complete: counts.complete + Number(leadStage(lead) === "completed")
+    }), { all: 0, today: 0, fresh: 0, npc: 0, detailSent: 0, followUp: 0, callback: 0, complete: 0 });
   }, [workflowStatLeads, isTelecallerFlow, isCounsellorFlow, facultyHandoffs]);
 
   const sortedLeads = useMemo(() => {
@@ -477,11 +501,15 @@ export function LeadsPage({ module }) {
         </div>
         {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-semibold text-[#c2410c]">{message}</p>}
         {(isTelecallerFlow || isCounsellorFlow) && (
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard label="Total Leads" value={leadStats.total} tone="ink" />
-            <StatCard label="Active Leads" value={leadStats.active} tone="pine" />
-            <StatCard label="Pending Leads" value={leadStats.pending} tone="amber" />
-            <StatCard label="Completed Leads" value={leadStats.completed} tone="coral" />
+          <section className="grid gap-3 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
+            <StatCard label="All Leads" value={leadStats.all} tone="coral" />
+            <StatCard label="Today" value={leadStats.today} tone="ink" />
+            <StatCard label="Fresh" value={leadStats.fresh} tone="pine" />
+            <StatCard label="NPC" value={leadStats.npc} tone="amber" />
+            <StatCard label="Detail Sent" value={leadStats.detailSent} tone="pine" />
+            <StatCard label="Follow Up" value={leadStats.followUp} tone="amber" />
+            <StatCard label="Callback" value={leadStats.callback} tone="ink" />
+            <StatCard label="Complete" value={leadStats.complete} tone="coral" />
           </section>
         )}
         <EmployeeDashboardWidget compact />

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Download, Plus, RefreshCw, UserCheck, X } from "lucide-react";
 import { api } from "../api/client.js";
+import { useAuth } from "../auth/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
 import { StatCard } from "../components/StatCard.jsx";
 import { CreateLeadModal, normalizeLeadPayload } from "./LeadsPage.jsx";
@@ -74,6 +75,8 @@ function admissionStage(lead) {
 }
 
 export function AdmissionsDashboardPage() {
+  const { user } = useAuth();
+  const canManageAdmissions = ["Super Admin", "Admin", "Faculty"].includes(user?.role);
   const [leads, setLeads] = useState([]);
   const [students, setStudents] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -221,7 +224,7 @@ export function AdmissionsDashboardPage() {
     {
       key: "actions",
       label: "Actions",
-      render: (row) => row.convertedStudent ? "-" : (
+      render: (row) => !canManageAdmissions || row.convertedStudent ? "-" : (
         <button onClick={() => openAdmission(row)} className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-[#ea580c] hover:bg-[#fff3e8]">
           <UserCheck size={15} /> Admit
         </button>
@@ -249,7 +252,7 @@ export function AdmissionsDashboardPage() {
             <p className="mt-1 text-sm text-slate-500">Track counselling pipeline, convert ready leads, assign courses and initialize fees.</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => { setLeadForm(emptyLead()); setCreateLeadOpen(true); }} className={buttonClass}><Plus size={16} /> Create Lead</button>
+            {canManageAdmissions && <button onClick={() => { setLeadForm(emptyLead()); setCreateLeadOpen(true); }} className={buttonClass}><Plus size={16} /> Create Lead</button>}
             <button onClick={load} className={secondaryButtonClass}><RefreshCw size={16} /> Refresh</button>
             <button onClick={() => downloadFile(`admissions-${todayInput()}.csv`, toCsv(enrichedStudents))} className={secondaryButtonClass}><Download size={16} /> Export CSV</button>
           </div>

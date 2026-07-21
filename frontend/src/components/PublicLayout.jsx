@@ -113,7 +113,7 @@ export function Footer() {
           <div className="mt-3 space-y-2 text-sm text-slate-300">
             <p>+91 9098875825</p>
             <p>info@codingwallah.com</p>
-            <p>1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010</p>
+            <p>1st Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010</p>
           </div>
         </div>
         <div>

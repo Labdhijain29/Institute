@@ -5,7 +5,7 @@ import { BrandLockup, brandLogo } from "./BrandLogo.jsx";
 const defaults = {
   name: "Coding Walla",
   tagline: "From Learning to Earning",
-  address: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay Nagar, Indore, MP, 452010",
+  address: "1st Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay Nagar, Indore, MP, 452010",
   phone: "+91 9098875825",
   email: "info@codingwallah.com",
   website: "www.codingwallah.com"

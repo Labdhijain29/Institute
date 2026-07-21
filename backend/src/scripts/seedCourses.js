@@ -5,7 +5,7 @@ import { Course } from "../models/Course.js";
 const courses = [
   {
     name: "Full Stack Development with Gen AI",
-    duration: "9 Months",
+    duration: "6 Months",
     fees: 58000,
     description: "Build complete web applications while using Gen AI tools for coding, debugging, documentation, and deployment workflows.",
     modules: ["Frontend", "Backend", "Databases", "Gen AI"],
@@ -13,7 +13,7 @@ const courses = [
   },
   {
     name: "Java Full Stack with Gen AI",
-    duration: "9 Months",
+    duration: "6 Months",
     fees: 56000,
     description: "Master Java backend development, modern frontend integration, and Gen AI-assisted enterprise application building.",
     modules: ["Core Java", "Spring Boot", "React", "Gen AI"],
@@ -21,7 +21,7 @@ const courses = [
   },
   {
     name: "Python Full Stack with Gen AI",
-    duration: "8 Months",
+    duration: "6 Months",
     fees: 54000,
     description: "Create full stack applications using Python frameworks and Gen AI tools for faster development and automation.",
     modules: ["Python", "Django", "React", "Gen AI"],
@@ -61,7 +61,7 @@ const courses = [
   },
   {
     name: "AI/ML with Gen AI",
-    duration: "8 Months",
+    duration: "5 Months",
     fees: 64000,
     description: "Learn machine learning foundations, applied AI systems, and Gen AI concepts through guided projects.",
     modules: ["ML", "Deep Learning", "NLP", "Gen AI"],

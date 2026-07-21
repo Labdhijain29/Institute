@@ -23,6 +23,7 @@ import {
 import trainer1Image from "../assets/trainer1.jpeg";
 import trainer2Image from "../assets/trainer2.jpeg";
 import trainer3Image from "../assets/trainer3.jpeg";
+import trainer4Image from "../assets/trainer4.jpeg";
 
 export const navItems = [
   { label: "Home", path: "/" },
@@ -315,7 +316,14 @@ export const trainers = [
     experience: "9 years",
     image: trainer3Image,
     description: "Helps students understand analytics, Python, visualization, and applied data science through hands-on practice."
-  }
+  },
+  {
+    name: "Ritika Singh",
+    expertise: "Senior executive",
+    experience: "5+ years",
+    image: trainer4Image,
+    description: "Mentors learners in data analysis, machine learning workflows, and industry-ready data science projects."
+  },
 ];
 
 export const trustMilestones = [

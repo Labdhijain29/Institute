@@ -1,5 +1,11 @@
 import React from "react";
+import { FileDown } from "lucide-react";
 import { MetricCard, Panel, formatCurrency, formatDate } from "../components/StudentUI.jsx";
+
+function openRegistrationForm() {
+  window.history.pushState({}, "", "/student/registration-form");
+  window.dispatchEvent(new Event("popstate"));
+}
 
 function formatTime(value) {
   return value ? new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-";
@@ -30,6 +36,18 @@ export function StudentDashboard({ data }) {
         <MetricCard label="Pending Assignments" value={dashboard.pendingAssignments} />
         <MetricCard label="Remaining Fees" value={formatCurrency(dashboard.remainingFees)} />
       </div>
+
+      <Panel>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-lg font-bold">Registration Form</p>
+            <p className="mt-1 text-sm text-slate-500">Review your submitted registration details or save a copy for your records.</p>
+          </div>
+          <button onClick={openRegistrationForm} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-[#111315] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#f97316]">
+            <FileDown size={17} /> Review Form
+          </button>
+        </div>
+      </Panel>
 
       <Panel title="My Attendance">
         <div className="grid gap-3 text-sm sm:grid-cols-4">

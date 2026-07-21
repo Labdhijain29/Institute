@@ -402,25 +402,140 @@ export function HomePage() {
   return (
     <>
       <main>
-        <section className="relative min-h-[560px] overflow-hidden bg-[#111315] text-white md:min-h-[calc(100vh-76px)]">
-          <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=2000&q=85" alt="Futuristic technology workspace with code screens" className="absolute inset-0 h-full w-full object-cover object-center opacity-90" />
-          <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(17,19,21,.97)_0%,rgba(17,19,21,.84)_40%,rgba(17,19,21,.36)_72%,rgba(249,115,22,.18)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_32%,rgba(56,189,248,.28),transparent_32%),radial-gradient(circle_at_84%_70%,rgba(249,115,22,.28),transparent_28%),linear-gradient(180deg,rgba(17,19,21,.12)_0%,rgba(17,19,21,.7)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#111315] via-[#111315]/55 to-transparent" />
-          <div className="relative mx-auto flex min-h-[560px] max-w-7xl flex-col justify-center px-4 py-14 sm:px-6 md:min-h-[calc(100vh-76px)] lg:px-8">
-            <div className="max-w-3xl">
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#fdba74]">Coding Walla Website & Management System</p>
-              <h1 className="mt-5 text-4xl font-black leading-tight sm:text-5xl md:text-6xl"><span className="text-white">Coding </span><span className="text-[#f7931E]">Walla</span></h1>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-100">Professional coding courses with live classes, real projects, placement support, and a role-based management system for every student journey.</p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <PrimaryButton to="/courses">Explore Courses</PrimaryButton>
-                <button onClick={() => setEnquiryOpen(true)} className="inline-flex h-12 items-center gap-2 rounded-md bg-white px-5 text-sm font-bold text-[#111315] shadow-sm transition hover:bg-[#f97316] hover:text-white">
-                  <Send size={17} /> Enquiry
-                </button>
+        <section className="relative overflow-hidden bg-[#07090c] text-white">
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(249,115,22,0.22),transparent_30%),radial-gradient(circle_at_80%_25%,rgba(255,255,255,0.08),transparent_22%),radial-gradient(circle_at_70%_80%,rgba(249,115,22,0.16),transparent_28%),linear-gradient(180deg,#06070a_0%,#0b0f14_55%,#06070a_100%)]" />
+  <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:72px_72px]" />
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.2)_55%,rgba(0,0,0,0.65)_100%)]" />
+
+  <div className="absolute -top-24 left-10 h-72 w-72 rounded-full bg-[#f97316]/20 blur-3xl animate-pulse" />
+  <div className="absolute right-0 top-20 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl animate-pulse" />
+  <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-[#f97316]/10 blur-3xl animate-pulse" />
+
+  <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 md:min-h-[calc(100vh-76px)] flex items-center">
+    <div className="grid w-full items-center gap-10 lg:grid-cols-2">
+      <div className="max-w-2xl">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-[0.18em] text-[#fdba74] backdrop-blur-xl">
+          <span className="h-2 w-2 rounded-full bg-[#f97316] shadow-[0_0_18px_rgba(249,115,22,0.8)]" />
+          🚀 India&apos;s Career-Focused Tech Learning Platform
+        </div>
+
+        <h1 className="mt-6 text-4xl font-black leading-tight sm:text-5xl md:text-6xl lg:text-7xl">
+          <span className="block text-white">Learn.</span>
+          <span className="block bg-gradient-to-r from-[#fff7ed] via-[#f97316] to-[#fdba74] bg-clip-text text-transparent">
+            Code.
+          </span>
+          <span className="block text-white">Build. Succeed.</span>
+        </h1>
+
+        <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+          Master Java, Python, MERN Stack, Data Analytics, Data Science, and AI/ML with live classes, real-world projects, expert mentorship, and placement support.
+        </p>
+
+        <div className="mt-8 flex flex-wrap gap-3">
+          <PrimaryButton to="/courses">Explore Courses</PrimaryButton>
+          <button
+            onClick={() => setEnquiryOpen(true)}
+            className="inline-flex h-12 items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-xl transition duration-300 hover:scale-[1.03] hover:border-[#f97316]/40 hover:bg-[#f97316] hover:shadow-[0_0_30px_rgba(249,115,22,0.35)]"
+          >
+            <Send size={17} /> Book Free Demo
+          </button>
+        </div>
+
+        <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-200">
+          {['Live Classes', 'Real Projects', 'Certifications', 'Placement Support'].map((item) => (
+            <div
+              key={item}
+              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-md"
+            >
+              ✓ {item}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {stats.map(([label, value]) => (
+            <div
+              key={label}
+              className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl"
+            >
+              <p className="text-3xl font-black text-[#f97316]">{value}</p>
+              <p className="mt-1 text-sm font-semibold text-slate-300">{label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="relative">
+        <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-r from-[#f97316]/20 via-white/5 to-cyan-400/10 blur-2xl" />
+        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/6 p-4 shadow-[0_20px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+          <div className="rounded-[1.6rem] border border-white/10 bg-[#0b1016]/90 p-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 rounded-full bg-red-400/80" />
+                <span className="h-3 w-3 rounded-full bg-yellow-400/80" />
+                <span className="h-3 w-3 rounded-full bg-green-400/80" />
+              </div>
+              <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-slate-300">
+                Live Coding Dashboard
               </div>
             </div>
+
+            <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-4">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(249,115,22,0.18),transparent_35%),radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.16),transparent_30%)]" />
+                <div className="relative">
+                  <p className="text-xs uppercase tracking-[0.22em] text-[#fdba74]">Coding Walla</p>
+                  <div className="mt-3 space-y-2 font-mono text-sm text-slate-200">
+                    <div><span className="text-[#f97316]">const</span> skill = <span className="text-cyan-300">'career'</span>;</div>
+                    <div><span className="text-[#f97316]">function</span> <span className="text-white">buildFuture</span>() {'{'}</div>
+                    <div className="pl-4">return <span className="text-[#fdba74]">'learn to earn'</span>;</div>
+                    <div>{'}'}</div>
+                  </div>
+                  <div className="mt-5 flex gap-3">
+                    <div className="rounded-xl bg-white/8 px-3 py-2 text-xs text-slate-200">Java</div>
+                    <div className="rounded-xl bg-white/8 px-3 py-2 text-xs text-slate-200">Python</div>
+                    <div className="rounded-xl bg-white/8 px-3 py-2 text-xs text-slate-200">MERN</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-4">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Analytics</p>
+                  <div className="mt-4 h-28 rounded-xl bg-[linear-gradient(135deg,rgba(249,115,22,0.22),rgba(255,255,255,0.06))]" />
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400">AI/ML</p>
+                  <div className="mt-4 flex items-center justify-center rounded-xl border border-dashed border-white/10 bg-[#0f141b] py-8 text-sm text-slate-300">
+                    Intelligent learning paths
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-3 gap-3">
+              {['Python', 'Java', 'React', 'JavaScript', 'SQL', 'Power BI'].map((item) => (
+                <div
+                  key={item}
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-center text-xs font-semibold text-slate-200"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
+        </div>
+
+        <div className="absolute -left-4 top-10 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-xs font-semibold text-white shadow-lg backdrop-blur-xl animate-bounce">
+          95% Placement
+        </div>
+        <div className="absolute -right-2 bottom-10 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-xs font-semibold text-white shadow-lg backdrop-blur-xl animate-bounce">
+          200+ Projects
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
         <section className={sectionClass}>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -974,7 +1089,7 @@ export function ContactPage() {
             {[
               [Phone, "Phone Number", "+91 9098875825"],
               [Mail, "Email", "info@codingwallah.com"],
-              [MapPin, "Address", "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010"]
+              [MapPin, "Address", "1st Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay nagar, Indore, MP, 452010"]
             ].map(([Icon, title, text]) => (
               <div key={title} className="rounded-lg border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
                 <Icon className="text-[#f97316]" size={24} />

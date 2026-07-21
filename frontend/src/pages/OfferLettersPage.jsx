@@ -33,7 +33,7 @@ const emptyOffer = {
   officialMobileNumber: "",
   companyName: "Coding Walla",
   companyTagline: "From Learning to Earning",
-  companyAddress: "1nd Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay Nagar, Indore, MP, 452010",
+  companyAddress: "1st Floor, 91, Ratna Lok Colony RD, Near Medanta Hospital, Vijay Nagar, Indore, MP, 452010",
   companyWebsite: "www.codingwallah.com",
   companyEmail: "info@codingwallah.com",
   companyPhone: "+91 9098875825",

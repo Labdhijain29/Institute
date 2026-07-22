@@ -36,7 +36,7 @@ export const navItems = [
 
 export const courses = [
   {
-    name: "Full Stack Development with Gen AI",
+    name: "Full Stack Development with Generative AI",
     level: "Advanced",
     duration: "9 Months",
     fees: "Rs. 58,000",
@@ -47,7 +47,7 @@ export const courses = [
     careers: "Full Stack Developer, Product Engineer, Web App Developer"
   },
   {
-    name: "Java Full Stack with Gen AI",
+    name: "Java Full Stack Development with Generative AI",
     level: "Advanced",
     duration: "9 Months",
     fees: "Rs. 56,000",
@@ -58,7 +58,7 @@ export const courses = [
     careers: "Java Full Stack Developer, Backend Engineer, Software Trainee"
   },
   {
-    name: "Python Full Stack with Gen AI",
+    name: "Python Full Stack Development with Generative AI",
     level: "Advanced",
     duration: "8 Months",
     fees: "Rs. 54,000",
@@ -69,7 +69,7 @@ export const courses = [
     careers: "Python Full Stack Developer, Backend Developer, Automation Engineer"
   },
   {
-    name: "MERN Full Stack with Gen AI",
+    name: "MERN Stack Development with Generative AI",
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 42,000",
@@ -80,7 +80,7 @@ export const courses = [
     careers: "Frontend Developer, MERN Developer, Junior Full Stack Engineer"
   },
   {
-    name: "MEAN Full Stack with Gen AI",
+    name: "MEAN Stack Development with Generative AI",
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 42,000",
@@ -91,7 +91,7 @@ export const courses = [
     careers: "MEAN Stack Developer, Angular Developer, Junior Full Stack Engineer"
   },
   {
-    name: "Data Analytics with Gen AI",
+    name: "Data Analytics with Generative AI",
     level: "Intermediate",
     duration: "5 Months",
     fees: "Rs. 38,000",
@@ -102,7 +102,7 @@ export const courses = [
     careers: "Data Analyst, BI Analyst, Reporting Analyst"
   },
   {
-    name: "Data Engineering with Gen AI",
+    name: "Data Engineering with Generative AI",
     level: "Advanced",
     duration: "7 Months",
     fees: "Rs. 55,000",
@@ -113,7 +113,7 @@ export const courses = [
     careers: "Data Engineer Trainee, ETL Developer, Data Operations Associate"
   },
   {
-    name: "AI/ML with Gen AI",
+    name: "Artificial Intelligence & Machine Learning with Generative AI",
     level: "Advanced",
     duration: "8 Months",
     fees: "Rs. 64,000",
@@ -124,7 +124,7 @@ export const courses = [
     careers: "ML Engineer Trainee, AI Developer, Applied Data Science Intern"
   },
   {
-    name: "Cloud Computing with Gen AI",
+    name: "Cloud Computing with Generative AI",
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 48,000",
@@ -135,7 +135,7 @@ export const courses = [
     careers: "Cloud Support Associate, Cloud Engineer Trainee, Infrastructure Support Executive"
   },
   {
-    name: "AWS with Gen AI",
+    name: "AWS Cloud Practitioner & Solutions Architect with Generative AI",
     level: "Intermediate",
     duration: "5 Months",
     fees: "Rs. 45,000",
@@ -146,7 +146,7 @@ export const courses = [
     careers: "AWS Cloud Trainee, Cloud Support Engineer, Junior Cloud Administrator"
   },
   {
-    name: "DevOps with Gen AI",
+    name: "DevOps Engineering with Generative AI",
     level: "Advanced",
     duration: "6 Months",
     fees: "Rs. 52,000",
@@ -157,7 +157,7 @@ export const courses = [
     careers: "DevOps Engineer Trainee, Release Engineer, Cloud DevOps Associate"
   },
   {
-    name: "Cyber Security with Gen AI",
+    name: "Cyber Security & Ethical Hacking with Generative AI",
     level: "Intermediate",
     duration: "4 Months",
     fees: "Rs. 36,000",
@@ -168,7 +168,7 @@ export const courses = [
     careers: "SOC Analyst Trainee, Cyber Security Intern, Security Support Executive"
   },
   {
-    name: "iOS Development with Gen AI",
+    name: "iOS App Development with Generative AI",
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 50,000",
@@ -179,7 +179,7 @@ export const courses = [
     careers: "iOS Developer Trainee, Mobile App Developer, Swift Developer"
   },
   {
-    name: "Android Development with Gen AI",
+    name: "Android App Development with Generative AI",
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 48,000",
@@ -190,7 +190,7 @@ export const courses = [
     careers: "Android Developer Trainee, Mobile App Developer, Kotlin Developer"
   },
   {
-    name: "Flutter Development with Gen AI",
+    name: "Flutter Cross Platform Development with Generative AI",
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 50,000",

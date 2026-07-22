@@ -4,6 +4,7 @@ import { LoginPage } from "./pages/LoginPage.jsx";
 import { Shell } from "./layouts/Shell.jsx";
 import { PublicLayout } from "./components/PublicLayout.jsx";
 import { AboutPage, ContactPage, CoursesPage, HomePage, ITServicesPage, ServicesPage } from "./pages/PublicPages.jsx";
+import { CourseDetailPage } from "./pages/CourseDetailPage.jsx";
 import { StudentPortal } from "./student/StudentPortal.jsx";
 import { MarketingPortal } from "./marketing/MarketingPortal.jsx";
 
@@ -62,6 +63,10 @@ function Root() {
       return <RedirectToDashboard user={user} />;
     }
     return <LoginPage initialMode={path === "/register" ? "register" : "login"} />;
+  }
+
+  if (path.startsWith("/courses/")) {
+    return <PublicLayout path="/courses" dark={dark} setDark={setDark}><CourseDetailPage slug={decodeURIComponent(path.slice("/courses/".length))} /></PublicLayout>;
   }
 
   const pages = {

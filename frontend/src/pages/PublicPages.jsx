@@ -4,6 +4,7 @@ import { api, publicApi } from "../api/client.js";
 import { navigateTo, Footer } from "../components/PublicLayout.jsx";
 import { courses as staticCourses, partners, services, stats, testimonials, trainers, trustMilestones, values, whyChoose } from "../data/publicContent.js";
 import { EnquiryForm } from "../components/EnquiryForm.jsx";
+import { courseDetails, courseSlug } from "../data/courseDetails.js";
 
 const sectionClass = "mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-14 lg:px-8";
 const inputClass = "h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white";
@@ -25,7 +26,8 @@ function normalizePublicCourse(course, index) {
 }
 
 function usePublicCourses() {
-  const [items, setItems] = useState(staticCourses);
+  const supportedCourses = useMemo(() => staticCourses.filter((course) => courseDetails.some((detail) => detail.name === course.name)), []);
+  const [items, setItems] = useState(supportedCourses);
 
   useEffect(() => {
     let active = true;
@@ -40,14 +42,14 @@ function usePublicCourses() {
     loadCourses()
       .then((data) => {
         if (!active) return;
-        const nextCourses = (data.items || []).map(normalizePublicCourse);
-        setItems(nextCourses.length ? nextCourses : staticCourses);
+        const nextCourses = (data.items || []).map(normalizePublicCourse).filter((course) => courseDetails.some((detail) => detail.name === course.name));
+        setItems(nextCourses.length ? nextCourses : supportedCourses);
       })
       .catch(() => {
-        if (active) setItems(staticCourses);
+        if (active) setItems(supportedCourses);
       });
     return () => { active = false; };
-  }, []);
+  }, [supportedCourses]);
 
   return items;
 }
@@ -733,10 +735,9 @@ export function CoursesPage() {
         </div>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((course) => (
-            <CourseCard key={course.name} course={course} onLearnMore={setSelectedCourse} onCounsellor={setCounsellorCourse} onBuyNow={setPurchaseCourse} showFees={false} />
+            <CourseCard key={course.name} course={course} onLearnMore={(item) => navigateTo(`/courses/${courseSlug(item.name)}`)} onCounsellor={setCounsellorCourse} onBuyNow={setPurchaseCourse} showFees={false} />
           ))}
         </div>
-        <CourseDetailsModal course={selectedCourse} onClose={() => setSelectedCourse(null)} />
         <CounsellorLeadModal course={counsellorCourse} courseOptions={publicCourses} onClose={() => setCounsellorCourse(null)} />
         <CoursePurchaseModal course={purchaseCourse} courseOptions={publicCourses} onClose={() => setPurchaseCourse(null)} />
       </main>

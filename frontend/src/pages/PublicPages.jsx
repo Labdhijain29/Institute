@@ -42,7 +42,7 @@ function usePublicCourses() {
       .then((data) => {
         if (!active) return;
         const fetchedCourses = (data.items || []).map(normalizePublicCourse);
-        const coursesByName = new Map(staticCourses.map((course) => [course.name, course]));
+        // const coursesByName = new Map(staticCourses.map((course) => [course.name, course]));
         fetchedCourses.forEach((course) => coursesByName.set(course.name, course));
         setItems([...coursesByName.values()]);
       })

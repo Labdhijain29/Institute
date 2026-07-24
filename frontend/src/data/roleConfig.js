@@ -82,7 +82,7 @@ export const sidebarGroups = [
       { path: "certificates" }
     ]
   },
-  // { label: "Academics", icon: BookOpen, items: [{ path: "courses" }, { path: "batches" }, { path: "lecture-reports" }, { path: "materials" }] },
+  { label: "Academics", icon: BookOpen, items: [{ path: "courses" }, { path: "batches" }, { path: "lecture-reports" }, { path: "materials" }] },
   // { label: "Finance", icon: BadgeIndianRupee, items: [{ path: "fees" }, { path: "receipts" }, { path: "payroll" }] },
   {
     label: "Employee Management",

@@ -24,6 +24,8 @@ import trainer1Image from "../assets/trainer1.jpeg";
 import trainer2Image from "../assets/trainer2.jpeg";
 import trainer3Image from "../assets/trainer3.jpeg";
 import trainer4Image from "../assets/trainer4.jpeg";
+import trainer5Image from "../assets/trainer5.jpeg";
+import trainer6Image from "../assets/trainer6.jpeg"
 
 export const navItems = [
   { label: "Home", path: "/" },
@@ -318,13 +320,28 @@ export const trainers = [
     description: "Helps students understand analytics, Python, visualization, and applied data science through hands-on practice."
   },
   {
-    name: "Ritika Singh",
-    expertise: "Senior executive",
-    experience: "5+ years",
+    name: "Labdhi jain",
+    expertise: "MERN Stack Developer",
+    experience: "3+ years",
     image: trainer4Image,
-    description: "Mentors learners in data analysis, machine learning workflows, and industry-ready data science projects."
+    description: "Helps students build responsive, scalable web applications using MongoDB, Express.js, React.js, and Node.js through hands-on, real-world projects."
   },
-];
+  {
+    name: "Shivani Madhukar",
+    expertise: "Senior Counsellor",
+    experience: "5+ years",
+    image: trainer5Image,
+    description: "Guides students in choosing the right career path, courses, and training programs through personalized counseling and expert advice."
+  },
+   {
+    name: "Ritika Singh",
+    expertise: "Senior Counsellor",
+    experience: "5+ years",
+    image: trainer6Image,
+    description: "Helps students make informed career decisions by providing expert guidance on courses, admissions, and future opportunities."
+  },
+
+]
 
 export const trustMilestones = [
   ["12+", "Years of training excellence", Trophy],

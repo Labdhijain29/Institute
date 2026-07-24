@@ -26,6 +26,11 @@ import trainer3Image from "../assets/trainer3.jpeg";
 import trainer4Image from "../assets/trainer4.jpeg";
 import trainer5Image from "../assets/trainer5.jpeg";
 import trainer6Image from "../assets/trainer6.jpeg";
+import student1Image from "../assets/student1.jpeg";
+import student2Image from "../assets/student2.jpeg";
+import student3Image from "../assets/student3.jpeg";
+import student4Image from "../assets/student4.jpeg";
+import FullStackImage from "../assets/FullStackImage.jpeg";
 
 export const navItems = [
   { label: "Home", path: "/" },
@@ -42,7 +47,7 @@ export const courses = [
     level: "Advanced",
     duration: "9 Months",
     fees: "Rs. 58,000",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80",
+    image: FullStackImage,
     skills: ["Frontend", "Backend", "Databases", "Gen AI"],
     overview: "Build complete web applications while using Gen AI tools for coding, debugging, documentation, and deployment workflows.",
     syllabus: "HTML, CSS, JavaScript, React, backend APIs, SQL/NoSQL, auth, testing, deployment, Gen AI coding assistants.",
@@ -250,22 +255,28 @@ export const values = [
 
 export const testimonials = [
   {
-    name: "Aarav Mehta",
-    course: "MERN Stack",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
-    feedback: "The project reviews made interviews much easier. I could explain every line I had written."
+    name: "Ankit Sharma",
+    course: "Data Analytics",
+    image: student1Image,
+    // feedback: "The project reviews made interviews much easier. I could explain every line I had written."
   },
   {
-    name: "Priya Nair",
-    course: "Data Science",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80",
-    feedback: "I joined as a beginner and left with dashboards, notebooks, and confidence to apply."
+    name: "Deepak Chouhan",
+    course: "Data Analytics",
+    image: student2Image,
+    // feedback: "I joined as a beginner and left with dashboards, notebooks, and confidence to apply."
   },
   {
-    name: "Rohan Singh",
-    course: "Full Stack Development",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
-    feedback: "The placement team helped me fix my resume and prepare for real technical rounds."
+    name: "Nitesh Jat",
+    course: "Java FullStack Development",
+    image: student3Image,
+    // feedback: "The placement team helped me fix my resume and prepare for real technical rounds."
+  },
+   {
+    name: "Kapil Jat",
+    course: "Java FullStack Development",
+    image: student4Image,
+    // feedback: "The placement team helped me fix my resume and prepare for real technical rounds."
   }
 ];
 

@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowRight, BriefcaseBusiness, CheckCircle2, ChevronRight, ClipboardCheck, Clock3, Code2, Database, Globe2, Headphones, HelpCircle, Layers3, Mail, MapPin, Palette, Phone, Rocket, Search, Send, Server, ShieldCheck, ShoppingCart, Smartphone, Star, Users, X } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, CheckCircle2, ChevronLeft, ChevronRight, ClipboardCheck, Clock3, Code2, Database, Globe2, Headphones, HelpCircle, Layers3, Mail, MapPin, Palette, Phone, Rocket, Search, Send, Server, ShieldCheck, ShoppingCart, Smartphone, Star, Users, X } from "lucide-react";
 import { api, publicApi } from "../api/client.js";
 import { navigateTo, Footer } from "../components/PublicLayout.jsx";
 import { courses as staticCourses, partners, services, stats, testimonials, trainers, trustMilestones, values, whyChoose } from "../data/publicContent.js";
 import { EnquiryForm } from "../components/EnquiryForm.jsx";
-import { courseDetails, courseSlug } from "../data/courseDetails.js";
+import { courseSlug } from "../data/courseDetails.js";
 
 const sectionClass = "mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-14 lg:px-8";
 const inputClass = "h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white";
@@ -26,8 +26,7 @@ function normalizePublicCourse(course, index) {
 }
 
 function usePublicCourses() {
-  const supportedCourses = useMemo(() => staticCourses.filter((course) => courseDetails.some((detail) => detail.name === course.name)), []);
-  const [items, setItems] = useState(supportedCourses);
+  const [items, setItems] = useState(staticCourses);
 
   useEffect(() => {
     let active = true;
@@ -42,14 +41,16 @@ function usePublicCourses() {
     loadCourses()
       .then((data) => {
         if (!active) return;
-        const nextCourses = (data.items || []).map(normalizePublicCourse).filter((course) => courseDetails.some((detail) => detail.name === course.name));
-        setItems(nextCourses.length ? nextCourses : supportedCourses);
+        const fetchedCourses = (data.items || []).map(normalizePublicCourse);
+        const coursesByName = new Map(staticCourses.map((course) => [course.name, course]));
+        fetchedCourses.forEach((course) => coursesByName.set(course.name, course));
+        setItems([...coursesByName.values()]);
       })
       .catch(() => {
-        if (active) setItems(supportedCourses);
+        if (active) setItems(staticCourses);
       });
     return () => { active = false; };
-  }, [supportedCourses]);
+  }, []);
 
   return items;
 }
@@ -400,11 +401,20 @@ function CTA() {
 export function HomePage() {
   const publicCourses = usePublicCourses();
   const [enquiryOpen, setEnquiryOpen] = useState(false);
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
+
+  const showPreviousTestimonial = () => {
+    setTestimonialIndex((index) => (index - 1 + testimonials.length) % testimonials.length);
+  };
+
+  const showNextTestimonial = () => {
+    setTestimonialIndex((index) => (index + 1) % testimonials.length);
+  };
 
   return (
     <>
       <main>
-        <section className="relative overflow-hidden bg-[#07090c] text-white">
+        <section className="relative overflow-hidden bg-[#07090c] text-white lg:h-[calc(100vh-76px)]">
   <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(249,115,22,0.22),transparent_30%),radial-gradient(circle_at_80%_25%,rgba(255,255,255,0.08),transparent_22%),radial-gradient(circle_at_70%_80%,rgba(249,115,22,0.16),transparent_28%),linear-gradient(180deg,#06070a_0%,#0b0f14_55%,#06070a_100%)]" />
   <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:72px_72px]" />
   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.2)_55%,rgba(0,0,0,0.65)_100%)]" />
@@ -413,15 +423,15 @@ export function HomePage() {
   <div className="absolute right-0 top-20 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl animate-pulse" />
   <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-[#f97316]/10 blur-3xl animate-pulse" />
 
-  <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 md:min-h-[calc(100vh-76px)] flex items-center">
-    <div className="grid w-full items-center gap-10 lg:grid-cols-2">
+  <div className="relative mx-auto flex max-w-7xl items-center px-4 py-14 sm:px-6 lg:h-full lg:px-8 lg:py-6">
+    <div className="grid w-full items-center gap-10 lg:grid-cols-2 lg:gap-8">
       <div className="max-w-2xl">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-[0.18em] text-[#fdba74] backdrop-blur-xl">
           <span className="h-2 w-2 rounded-full bg-[#f97316] shadow-[0_0_18px_rgba(249,115,22,0.8)]" />
           🚀 India&apos;s Career-Focused Tech Learning Platform
         </div>
 
-        <h1 className="mt-6 text-4xl font-black leading-tight sm:text-5xl md:text-6xl lg:text-7xl">
+        <h1 className="mt-6 text-4xl font-black leading-tight sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl">
           <span className="block text-white">Learn.</span>
           <span className="block bg-gradient-to-r from-[#fff7ed] via-[#f97316] to-[#fdba74] bg-clip-text text-transparent">
             Code.
@@ -429,11 +439,11 @@ export function HomePage() {
           <span className="block text-white">Build. Succeed.</span>
         </h1>
 
-        <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+        <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg lg:mt-4">
           Master Java, Python, MERN Stack, Data Analytics, Data Science, and AI/ML with live classes, real-world projects, expert mentorship, and placement support.
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-7 flex flex-wrap gap-3 lg:mt-5">
           <PrimaryButton to="/courses">Explore Courses</PrimaryButton>
           <button
             onClick={() => setEnquiryOpen(true)}
@@ -443,7 +453,7 @@ export function HomePage() {
           </button>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-200">
+        <div className="mt-7 flex flex-wrap gap-3 text-sm text-slate-200 lg:mt-5">
           {['Live Classes', 'Real Projects', 'Certifications', 'Placement Support'].map((item) => (
             <div
               key={item}
@@ -454,11 +464,11 @@ export function HomePage() {
           ))}
         </div>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4 lg:mt-6">
           {stats.map(([label, value]) => (
             <div
               key={label}
-              className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl"
+              className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl lg:p-4"
             >
               <p className="text-3xl font-black text-[#f97316]">{value}</p>
               <p className="mt-1 text-sm font-semibold text-slate-300">{label}</p>
@@ -565,23 +575,21 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className={sectionClass}>
-          <SectionHeader eyebrow="Popular Courses" title="Pick a path and build proof of skill." />
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {publicCourses.map((course) => (
-              <CourseCard key={course.name} course={course} showFees={false} />
-            ))}
-          </div>
-        </section>
-
         <section className="bg-white dark:bg-[#12181c]">
           <div className={sectionClass}>
-            <SectionHeader eyebrow="Testimonials" title="Students trust the process because it stays practical." />
-            <div className="grid gap-5 md:grid-cols-3">
+            <div className="flex items-end justify-between gap-4">
+              <SectionHeader eyebrow="Testimonials" title="Students trust the process because it stays practical." />
+              <div className="mb-8 hidden items-center gap-2 sm:flex">
+                <button onClick={showPreviousTestimonial} className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 transition hover:border-[#f97316] hover:text-[#f97316] dark:border-white/10" aria-label="Show previous testimonial"><ChevronLeft size={20} /></button>
+                <button onClick={showNextTestimonial} className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 transition hover:border-[#f97316] hover:text-[#f97316] dark:border-white/10" aria-label="Show next testimonial"><ChevronRight size={20} /></button>
+              </div>
+            </div>
+            <div className="overflow-hidden">
+              <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}>
               {testimonials.map((item) => (
-                <article key={item.name} className="rounded-lg border border-slate-200 p-5 dark:border-white/10">
+                <article key={item.name} className="w-full shrink-0 rounded-lg border border-slate-200 p-5 dark:border-white/10 sm:p-7">
                   <div className="flex items-center gap-3">
-                    <img src={item.image} alt={item.name} className="h-12 w-12 rounded-md object-cover" loading="lazy" />
+                    <img src={item.image} alt={item.name} className="h-14 w-14 rounded-full object-cover" loading="lazy" />
                     <div>
                       <h3 className="font-black">{item.name}</h3>
                       <p className="text-sm text-[#ea580c]">{item.course}</p>
@@ -589,6 +597,16 @@ export function HomePage() {
                   </div>
                   <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">{item.feedback}</p>
                 </article>
+              ))}
+              </div>
+            </div>
+            <div className="mt-5 flex items-center justify-center gap-3 sm:hidden">
+              <button onClick={showPreviousTestimonial} className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 dark:border-white/10" aria-label="Show previous testimonial"><ChevronLeft size={20} /></button>
+              <button onClick={showNextTestimonial} className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 dark:border-white/10" aria-label="Show next testimonial"><ChevronRight size={20} /></button>
+            </div>
+            <div className="mt-5 flex justify-center gap-2" aria-label="Testimonial slide navigation">
+              {testimonials.map((item, index) => (
+                <button key={item.name} onClick={() => setTestimonialIndex(index)} className={`h-2 rounded-full transition-all ${testimonialIndex === index ? "w-6 bg-[#f97316]" : "w-2 bg-slate-300 dark:bg-white/30"}`} aria-label={`Show testimonial from ${item.name}`} />
               ))}
             </div>
             <p className="mt-10 text-center text-sm font-bold uppercase tracking-[0.16em] text-[#f97316]">Our Hiring Partners</p>

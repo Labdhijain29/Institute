@@ -500,7 +500,7 @@ export function HomePage() {
                   <div className="mt-3 space-y-2 font-mono text-sm text-slate-200">
                     <div><span className="text-[#f97316]">const</span> skill = <span className="text-cyan-300">'career'</span>;</div>
                     <div><span className="text-[#f97316]">function</span> <span className="text-white">buildFuture</span>() {'{'}</div>
-                    <div className="pl-4">return <span className="text-[#fdba74]">'learn to earn'</span>;</div>
+                    <div className="pl-4">return <span className="text-[#fdba74]">'From learning to earning'</span>;</div>
                     <div>{'}'}</div>
                   </div>
                   <div className="mt-5 flex gap-3">

@@ -30,6 +30,7 @@ import student1Image from "../assets/student1.jpeg";
 import student2Image from "../assets/student2.jpeg";
 import student3Image from "../assets/student3.jpeg";
 import student4Image from "../assets/student4.jpeg";
+import student5Image from "../assets/student5.jpeg";
 import FullStackImage from "../assets/FullStackImage.jpeg";
 
 export const navItems = [
@@ -255,28 +256,34 @@ export const values = [
 
 export const testimonials = [
   {
-    name: "Ankit Sharma",
-    course: "Data Analytics",
-    image: student1Image,
-    // feedback: "The project reviews made interviews much easier. I could explain every line I had written."
-  },
-  {
     name: "Deepak Chouhan",
     course: "Data Analytics",
     image: student2Image,
-    // feedback: "I joined as a beginner and left with dashboards, notebooks, and confidence to apply."
+    feedback: "I joined as a beginner and left with dashboards, notebooks, and confidence to apply."
+  },
+  {
+    name: "Ankit Sharma",
+    course: "Data Analytics",
+    image: student1Image,
+    feedback: "The project reviews made interviews much easier. I could explain every line I had written."
   },
   {
     name: "Nitesh Jat",
     course: "Java FullStack Development",
     image: student3Image,
-    // feedback: "The placement team helped me fix my resume and prepare for real technical rounds."
+    feedback: "The placement team helped me fix my resume and prepare for real technical rounds."
   },
    {
     name: "Kapil Jat",
     course: "Java FullStack Development",
     image: student4Image,
-    // feedback: "The placement team helped me fix my resume and prepare for real technical rounds."
+    feedback: "The placement team helped me fix my resume and prepare for real technical rounds."
+  },
+   {
+    name: "Anshika Tudha",
+    course: "Data Analyst",
+    image: student5Image,
+    feedback: "The placement team helped me fix my resume."
   }
 ];
 

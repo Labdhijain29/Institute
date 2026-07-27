@@ -1,5 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, BriefcaseBusiness, CheckCircle2, ChevronLeft, ChevronRight, ClipboardCheck, Clock3, Code2, Database, Globe2, Headphones, HelpCircle, Layers3, Mail, MapPin, Palette, Phone, Rocket, Search, Send, Server, ShieldCheck, ShoppingCart, Smartphone, Star, Users, X } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import Marquee from "react-fast-marquee";
 import { api, publicApi } from "../api/client.js";
 import { navigateTo, Footer } from "../components/PublicLayout.jsx";
 import { courses as staticCourses, partners, services, stats, testimonials, trainers, trustMilestones, values, whyChoose } from "../data/publicContent.js";
@@ -402,14 +405,23 @@ export function HomePage() {
   const publicCourses = usePublicCourses();
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const autoplay = useRef(Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: true }));
+  const [testimonialViewportRef, testimonialApi] = useEmblaCarousel({ align: "center", loop: true, skipSnaps: false }, [autoplay.current]);
 
-  const showPreviousTestimonial = () => {
-    setTestimonialIndex((index) => (index - 1 + testimonials.length) % testimonials.length);
-  };
+  useEffect(() => {
+    if (!testimonialApi) return undefined;
+    const updateSelectedTestimonial = () => setTestimonialIndex(testimonialApi.selectedScrollSnap());
+    updateSelectedTestimonial();
+    testimonialApi.on("select", updateSelectedTestimonial);
+    testimonialApi.on("reInit", updateSelectedTestimonial);
+    return () => {
+      testimonialApi.off("select", updateSelectedTestimonial);
+      testimonialApi.off("reInit", updateSelectedTestimonial);
+    };
+  }, [testimonialApi]);
 
-  const showNextTestimonial = () => {
-    setTestimonialIndex((index) => (index + 1) % testimonials.length);
-  };
+  const showPreviousTestimonial = () => testimonialApi?.scrollPrev();
+  const showNextTestimonial = () => testimonialApi?.scrollNext();
 
   return (
     <>
@@ -575,64 +587,45 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="bg-white dark:bg-[#12181c]">
+        <section className="overflow-hidden bg-[#fcfaf8] py-4 dark:bg-[#12181c]">
           <div className={sectionClass}>
-            <div className="flex items-end justify-between gap-4">
-              <SectionHeader eyebrow="Testimonials" title="Students trust the process because it stays practical." />
-              <div className="mb-8 hidden items-center gap-2 sm:flex">
-                <button onClick={showPreviousTestimonial} className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 transition hover:border-[#f97316] hover:text-[#f97316] dark:border-white/10" aria-label="Show previous testimonial"><ChevronLeft size={20} /></button>
-                <button onClick={showNextTestimonial} className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 transition hover:border-[#f97316] hover:text-[#f97316] dark:border-white/10" aria-label="Show next testimonial"><ChevronRight size={20} /></button>
+            <div className="mx-auto max-w-3xl text-center">
+              <SectionHeader eyebrow="Testimonials" title="Students trust the process because it stays practical." text="Real learner stories from classrooms, projects, and career journeys." />
+            </div>
+            <div className="relative mt-7 sm:mt-10">
+              <button onClick={showPreviousTestimonial} className="absolute left-0 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-md transition hover:border-[#f97316] hover:text-[#f97316] dark:border-white/10 dark:bg-[#1b2229] dark:text-white sm:left-4 lg:left-8" aria-label="Show previous testimonial"><ChevronLeft size={20} /></button>
+              <button onClick={showNextTestimonial} className="absolute right-0 top-1/2 z-20 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-md transition hover:border-[#f97316] hover:text-[#f97316] dark:border-white/10 dark:bg-[#1b2229] dark:text-white sm:right-4 lg:right-8" aria-label="Show next testimonial"><ChevronRight size={20} /></button>
+              <div className="overflow-hidden py-8" ref={testimonialViewportRef}>
+                <div className="flex touch-pan-y">
+                  {testimonials.map((item, index) => {
+                    const active = index === testimonialIndex;
+                    return <div key={item.name} className="min-w-0 shrink-0 basis-[82%] px-3 sm:basis-[46%] sm:px-4 lg:basis-1/3 lg:px-5">
+                      <article className={`min-h-[272px] rounded-3xl border bg-white p-6 shadow-sm transition-all duration-500 ease-out dark:bg-[#171e24] sm:p-7 ${active ? "relative z-10 scale-105 border-[#f97316] opacity-100 shadow-[0_22px_55px_rgba(234,88,12,0.22)] lg:scale-110" : "scale-[0.85] border-slate-200 opacity-50 shadow-none dark:border-white/10"}`}>
+                        <span className="text-4xl font-black leading-none text-[#f97316]/35">“</span>
+                        <p className="mt-2 text-base leading-7 text-slate-600 dark:text-slate-300">{item.feedback}</p>
+                        <div className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-5 dark:border-white/10">
+                          <img src={item.image} alt={item.name} className={`rounded-full object-cover ring-2 ring-[#f97316]/25 transition-all duration-500 ${active ? "h-16 w-16" : "h-11 w-11"}`} loading="lazy" />
+                          <div><h3 className="font-black text-slate-950 dark:text-white">{item.name}</h3><p className="mt-0.5 text-sm font-semibold text-[#ea580c]">{item.course}</p></div>
+                        </div>
+                      </article>
+                    </div>;
+                  })}
+                </div>
               </div>
             </div>
-            <div className="overflow-hidden">
-              <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}>
-              {testimonials.map((item) => (
-                <article key={item.name} className="w-full shrink-0 rounded-lg border border-slate-200 p-5 dark:border-white/10 sm:p-7">
-                  <div className="flex items-center gap-3">
-                    <img src={item.image} alt={item.name} className="h-14 w-14 rounded-full object-cover" loading="lazy" />
-                    <div>
-                      <h3 className="font-black">{item.name}</h3>
-                      <p className="text-sm text-[#ea580c]">{item.course}</p>
-                    </div>
-                  </div>
-                  <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">{item.feedback}</p>
-                </article>
-              ))}
-              </div>
+            <div className="mt-4 flex justify-center gap-2" aria-label="Testimonial slide navigation">
+              {testimonials.map((item, index) => <button key={item.name} onClick={() => testimonialApi?.scrollTo(index)} className={`h-2 rounded-full transition-all ${testimonialIndex === index ? "w-7 bg-[#f97316]" : "w-2 bg-slate-300 dark:bg-white/30"}`} aria-label={`Show testimonial from ${item.name}`} />)}
             </div>
-            <div className="mt-5 flex items-center justify-center gap-3 sm:hidden">
-              <button onClick={showPreviousTestimonial} className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 dark:border-white/10" aria-label="Show previous testimonial"><ChevronLeft size={20} /></button>
-              <button onClick={showNextTestimonial} className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 dark:border-white/10" aria-label="Show next testimonial"><ChevronRight size={20} /></button>
-            </div>
-            <div className="mt-5 flex justify-center gap-2" aria-label="Testimonial slide navigation">
-              {testimonials.map((item, index) => (
-                <button key={item.name} onClick={() => setTestimonialIndex(index)} className={`h-2 rounded-full transition-all ${testimonialIndex === index ? "w-6 bg-[#f97316]" : "w-2 bg-slate-300 dark:bg-white/30"}`} aria-label={`Show testimonial from ${item.name}`} />
-              ))}
-            </div>
-            <p className="mt-10 text-center text-sm font-bold uppercase tracking-[0.16em] text-[#f97316]">Our Hiring Partners</p>
-            <div className="mt-10 overflow-hidden border-y border-slate-200 py-5 dark:border-white/10">
-              <div className="partner-marquee flex w-max items-center gap-4">
-                {[...partners, ...partners].map((partner, index) => (
-                  <div key={`${partner.name}-${index}`} className="flex h-24 w-40 shrink-0 flex-col items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-5 shadow-sm dark:border-white/10 dark:bg-white/5">
-                    {partner.logoText ? (
-                      <span className="text-3xl font-black tracking-wide text-[#6f2cff]">{partner.logoText}</span>
-                    ) : (
-                      <img
-                        src={partner.logo}
-                        alt=""
-                        title={partner.name}
-                        className="max-h-10 max-w-32 object-contain"
-                        loading="lazy"
-                        onError={(event) => {
-                          if (event.currentTarget.src !== partner.fallbackLogo) {
-                            event.currentTarget.src = partner.fallbackLogo;
-                          }
-                        }}
-                      />
-                    )}
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-300">{partner.name}</span>
-                  </div>
-                ))}
+            <div className="mt-16 border-t border-slate-200 pt-12 dark:border-white/10">
+              <p className="text-center text-sm font-black uppercase tracking-[0.2em] text-[#f97316]">Our Hiring Partners</p>
+              <p className="mx-auto mt-3 max-w-xl text-center text-sm text-slate-500 dark:text-slate-300">Our learners prepare for opportunities across trusted global and Indian technology companies.</p>
+              <div className="mt-8 space-y-4">
+                {[partners.slice(0, Math.ceil(partners.length / 2)), partners.slice(Math.ceil(partners.length / 2))].map((partnerRow, rowIndex) => <Marquee key={rowIndex} direction={rowIndex === 0 ? "left" : "right"} speed={34} gradient gradientColor="rgb(252, 250, 248)" gradientWidth={72} pauseOnHover>
+                  {partnerRow.map((partner) => <div key={`${partner.name}-${rowIndex}`} className="group mx-2 flex h-24 w-44 shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/10">
+                    {partner.logoText ? <span className="text-3xl font-black tracking-wide text-[#6f2cff]">{partner.logoText}</span> : <img src={partner.logo} alt="" title={partner.name} className="max-h-10 max-w-32 object-contain" loading="lazy" onError={(event) => { if (event.currentTarget.src !== partner.fallbackLogo) event.currentTarget.src = partner.fallbackLogo; }} />}
+                    <span className="text-xs font-bold text-slate-500">{partner.name}</span>
+                  </div>)}
+                </Marquee>)}
               </div>
             </div>
           </div>

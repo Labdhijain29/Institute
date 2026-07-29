@@ -12,9 +12,18 @@ import { courses as publicCourses } from "../data/publicContent.js";
 const emptyLead = {
   name: "",
   mobile: "",
+  email: "",
   courseInterested: "",
   leadDate: new Date().toISOString().slice(0, 10),
   college: "",
+  city: "",
+  state: "",
+  qualification: "",
+  currentYear: "",
+  learningMode: "",
+  preferredTime: "",
+  howHeard: "",
+  message: "",
   source: "Website",
   priority: "Warm",
   remarks: ""
@@ -29,11 +38,9 @@ const dummyFacultyUsers = [
 const FACULTY_HANDOFF_KEY = "crm_faculty_handoffs";
 const emptyFollowUp = {
   followUpDate: new Date().toISOString().slice(0, 10),
-  nextFollowUpDate: "",
-  status: "Interested",
-  remarks: ""
+  followUpTime: "",
+  notes: ""
 };
-const followUpStatuses = ["Interested", "Not Interested", "Call Back Later", "Demo Scheduled", "Converted", "Lost"];
 
 const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-IN") : "-");
 const idOf = (value) => (typeof value === "object" ? value?._id : value);
@@ -61,9 +68,18 @@ function leadToForm(lead) {
   return {
     name: lead.name || "",
     mobile: lead.mobile || "",
+    email: lead.email || "",
     courseInterested: lead.courseName || idOf(lead.courseInterested) || "",
     leadDate: dateInput(lead.leadDate || lead.createdAt) || new Date().toISOString().slice(0, 10),
     college: lead.college || "",
+    city: lead.city || "",
+    state: lead.state || "",
+    qualification: lead.qualification || "",
+    currentYear: lead.currentYear || "",
+    learningMode: lead.learningMode || "",
+    preferredTime: lead.preferredTime || "",
+    howHeard: lead.howHeard || "",
+    message: lead.message || "",
     source: lead.source || "Website",
     priority: lead.priority || "Warm",
     remarks: lead.remarks || "",
@@ -171,12 +187,6 @@ export function LeadsPage({ module }) {
     setActiveLead(lead);
     setFollowUpForm(emptyFollowUp);
     setFollowUpOpen(true);
-    try {
-      const data = await api(`/leads/${lead._id}/follow-ups`);
-      setFollowUps(data.items || []);
-    } catch {
-      setFollowUps([]);
-    }
   };
 
   const openDetails = async (lead) => {
@@ -193,9 +203,10 @@ export function LeadsPage({ module }) {
   const saveFollowUp = async (event) => {
     event.preventDefault();
     if (!activeLead?._id) return;
-    await api(`/leads/${activeLead._id}/follow-ups`, {
+    const dueAt = new Date(`${followUpForm.followUpDate}T${followUpForm.followUpTime}`);
+    await api("/followups", {
       method: "POST",
-      body: JSON.stringify(followUpForm)
+      body: JSON.stringify({ leadId: activeLead._id, dueAt: dueAt.toISOString(), notes: followUpForm.notes })
     });
     setFollowUpOpen(false);
     setActiveLead(null);
@@ -483,6 +494,24 @@ export function LeadsPage({ module }) {
     }
   ];
 
+  // Keep the telecaller and counsellor work queues focused on the fields they need
+  // to act on. Other lead-management views still retain the complete record.
+  const dashboardHiddenColumnKeys = new Set([
+    "enquiryId",
+    "email",
+    "college",
+    "city",
+    "qualification",
+    "priority",
+    "telecallerAssigned",
+    "followUpStatus",
+    "facultyAssigned",
+    "followUpDate"
+  ]);
+  const displayedColumns = (isTelecallerFlow || isCounsellorFlow)
+    ? columns.filter((column) => !dashboardHiddenColumnKeys.has(column.key))
+    : columns;
+
   return (
     <div className="space-y-4">
       <section className="min-w-0 space-y-4">
@@ -547,11 +576,11 @@ export function LeadsPage({ module }) {
             </label>
           </section>
         )}
-        <DataTable columns={columns} rows={sortedLeads} />
+        <DataTable columns={displayedColumns} rows={sortedLeads} />
       </section>
       <CreateLeadModal open={createOpen} form={form} setForm={setForm} courses={courses} onSubmit={createLead} onClose={() => { setCreateOpen(false); setForm(emptyLead); }} isTelecallerFlow={isTelecallerFlow} />
       <CreateLeadModal open={editOpen} form={form} setForm={setForm} courses={courses} onSubmit={updateLead} onClose={() => { setEditOpen(false); setActiveLead(null); setForm(emptyLead); }} title="Edit Lead" submitLabel="Update Lead" />
-      <FollowUpModal open={followUpOpen} lead={activeLead} form={followUpForm} setForm={setFollowUpForm} followUps={followUps} onSubmit={saveFollowUp} onClose={() => setFollowUpOpen(false)} />
+      <FollowUpModal open={followUpOpen} lead={activeLead} form={followUpForm} setForm={setFollowUpForm} onSubmit={saveFollowUp} onClose={() => setFollowUpOpen(false)} />
       <LeadDetailsModal open={detailsOpen} lead={activeLead} courses={courses} followUps={followUps} onClose={() => setDetailsOpen(false)} />
     </div>
   );
@@ -567,9 +596,16 @@ export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, o
   return (
     <ModalShell title={title || (isTelecallerFlow ? "Generate Lead" : "New Lead")} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-3">
-        {["name", "mobile", "college", "source"].map((field) => (
-          <input required={["name", "mobile"].includes(field)} key={field} className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" placeholder={field} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
-        ))}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Name *"><input required className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
+          <Field label="Mobile *"><input required type="tel" inputMode="numeric" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value.replace(/\D/g, "").slice(0, 10) })} /></Field>
+          <Field label="Email"><input type="email" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
+          <Field label="College / School"><input className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.college} onChange={(e) => setForm({ ...form, college: e.target.value })} /></Field>
+          <Field label="City"><input className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
+          <Field label="State"><input className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} /></Field>
+          <Field label="Qualification"><input className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.qualification} onChange={(e) => setForm({ ...form, qualification: e.target.value })} /></Field>
+          <Field label="Current Year / Semester"><input className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.currentYear} onChange={(e) => setForm({ ...form, currentYear: e.target.value })} /></Field>
+        </div>
         <SearchableSelect
           options={courseOptions}
           value={form.courseInterested}
@@ -577,18 +613,21 @@ export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, o
           placeholder="Select course..."
           searchPlaceholder="Search course..."
         />
-        <input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.leadDate} onChange={(e) => setForm({ ...form, leadDate: e.target.value })} />
-        <select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
-          <option>Hot</option>
-          <option>Warm</option>
-          <option>Cold</option>
-        </select>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Lead Date"><input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.leadDate} onChange={(e) => setForm({ ...form, leadDate: e.target.value })} /></Field>
+          <Field label="Source"><input className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} /></Field>
+          <Field label="Learning Mode"><select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.learningMode} onChange={(e) => setForm({ ...form, learningMode: e.target.value })}><option value="">Select mode</option>{["Online", "Offline", "Hybrid"].map((mode) => <option key={mode}>{mode}</option>)}</select></Field>
+          <Field label="Preferred Time"><select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.preferredTime} onChange={(e) => setForm({ ...form, preferredTime: e.target.value })}><option value="">Select time</option>{["Morning", "Afternoon", "Evening", "Weekend"].map((time) => <option key={time}>{time}</option>)}</select></Field>
+          <Field label="How Heard"><input className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.howHeard} onChange={(e) => setForm({ ...form, howHeard: e.target.value })} /></Field>
+          <Field label="Priority"><select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}><option>Hot</option><option>Warm</option><option>Cold</option><option>Normal</option></select></Field>
+        </div>
         {form.status !== undefined && (
-          <select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+          <select aria-label="Lead status" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
             {["New", "Assigned", "Contacted", "Interested", "Not Interested", "Follow-up", "Forwarded", "Forwarded to Counsellor", "Forwarded to Faculty", "Demo Scheduled", "Converted", "Lost"].map((status) => <option key={status}>{status}</option>)}
           </select>
         )}
-        <textarea className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" placeholder="remarks" value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} />
+        <Field label="Message / Query"><textarea className="min-h-20 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} /></Field>
+        <Field label="Remarks"><textarea className="min-h-20 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} /></Field>
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button>
           <button className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">{submitLabel}</button>
@@ -598,31 +637,25 @@ export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, o
   );
 }
 
-function FollowUpModal({ open, lead, form, setForm, followUps, onSubmit, onClose }) {
+function FollowUpModal({ open, lead, form, setForm, onSubmit, onClose }) {
   if (!open) return null;
   return (
-    <ModalShell title={`Follow Up${lead?.name ? ` - ${lead.name}` : ""}`} onClose={onClose} wide>
+    <ModalShell title={`Follow Up${lead?.name ? ` - ${lead.name}` : ""}`} onClose={onClose}>
       <form onSubmit={onSubmit} className="grid gap-3 md:grid-cols-2">
-        <Field label="Follow-up Date">
+        <Field label="Follow-up Date *">
           <input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.followUpDate} onChange={(e) => setForm({ ...form, followUpDate: e.target.value })} required />
         </Field>
-        <Field label="Next Follow-up Date">
-          <input type="date" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.nextFollowUpDate} onChange={(e) => setForm({ ...form, nextFollowUpDate: e.target.value })} />
+        <Field label="Follow-up Time *">
+          <input type="time" className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.followUpTime} onChange={(e) => setForm({ ...form, followUpTime: e.target.value })} required />
         </Field>
-        <Field label="Status">
-          <select className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-            {followUpStatuses.map((status) => <option key={status}>{status}</option>)}
-          </select>
-        </Field>
-        <Field label="Remarks" className="md:col-span-2">
-          <textarea className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} />
+        <Field label="Notes" className="md:col-span-2">
+          <textarea className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
         </Field>
         <div className="flex flex-col-reverse gap-2 md:col-span-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button>
           <button className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">Save Follow Up</button>
         </div>
       </form>
-      <FollowUpHistory followUps={followUps} />
     </ModalShell>
   );
 }

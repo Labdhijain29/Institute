@@ -204,7 +204,8 @@ function CourseDetailsModal({ course, onClose }) {
 }
 
 function CounsellorLeadModal({ course, courseOptions, onClose }) {
-  const [form, setForm] = useState({ fullName: "", mobile: "", course: course?.name || "", message: "" });
+  const emptyForm = (courseName = course?.name || "") => ({ fullName: "", mobile: "", email: "", city: "", state: "", college: "", qualification: "", currentYear: "", course: courseName, learningMode: "", preferredTime: "", howHeard: "", message: "" });
+  const [form, setForm] = useState(() => emptyForm());
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
 
@@ -218,15 +219,12 @@ function CounsellorLeadModal({ course, courseOptions, onClose }) {
       await publicApi("/public/enquiries", {
         method: "POST",
         body: JSON.stringify({
-          fullName: form.fullName,
-          mobile: form.mobile,
-          course: form.course,
-          message: form.message,
+          ...form,
           sendToCounsellor: true
         })
       });
       setStatus("Submitted. A counsellor will contact you shortly.");
-      setForm({ fullName: "", mobile: "", course: course.name, message: "" });
+      setForm(emptyForm(course.name));
     } catch (err) {
       setError(err.message);
     }
@@ -245,14 +243,16 @@ function CounsellorLeadModal({ course, courseOptions, onClose }) {
           </button>
         </div>
         <form onSubmit={submit} className="space-y-4 p-5">
-          <label className="block text-sm font-bold">
-            Name
-            <input required className={`${inputClass} mt-2`} value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} />
-          </label>
-          <label className="block text-sm font-bold">
-            Contact No.
-            <input required inputMode="numeric" className={`${inputClass} mt-2`} value={form.mobile} onChange={(event) => setForm({ ...form, mobile: event.target.value })} />
-          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-bold">Name<input required className={`${inputClass} mt-2`} value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} /></label>
+            <label className="block text-sm font-bold">Contact No.<input required type="tel" inputMode="numeric" maxLength={10} className={`${inputClass} mt-2`} value={form.mobile} onChange={(event) => setForm({ ...form, mobile: event.target.value.replace(/\D/g, "").slice(0, 10) })} /></label>
+            <label className="block text-sm font-bold">Email<input type="email" className={`${inputClass} mt-2`} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>
+            <label className="block text-sm font-bold">City<input className={`${inputClass} mt-2`} value={form.city} onChange={(event) => setForm({ ...form, city: event.target.value })} /></label>
+            <label className="block text-sm font-bold">State<input className={`${inputClass} mt-2`} value={form.state} onChange={(event) => setForm({ ...form, state: event.target.value })} /></label>
+            <label className="block text-sm font-bold">College / School<input className={`${inputClass} mt-2`} value={form.college} onChange={(event) => setForm({ ...form, college: event.target.value })} /></label>
+            <label className="block text-sm font-bold">Qualification<input className={`${inputClass} mt-2`} value={form.qualification} onChange={(event) => setForm({ ...form, qualification: event.target.value })} /></label>
+            <label className="block text-sm font-bold">Current Year / Semester<input className={`${inputClass} mt-2`} value={form.currentYear} onChange={(event) => setForm({ ...form, currentYear: event.target.value })} /></label>
+          </div>
           <label className="block text-sm font-bold">
             Course Interested In
             <select className={`${inputClass} mt-2`} value={form.course} onChange={(event) => setForm({ ...form, course: event.target.value })}>
@@ -261,6 +261,11 @@ function CounsellorLeadModal({ course, courseOptions, onClose }) {
               ))}
             </select>
           </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-bold">Learning Mode<select className={`${inputClass} mt-2`} value={form.learningMode} onChange={(event) => setForm({ ...form, learningMode: event.target.value })}><option value="">Select mode</option><option>Online</option><option>Offline</option><option>Hybrid</option></select></label>
+            <label className="block text-sm font-bold">Preferred Time<select className={`${inputClass} mt-2`} value={form.preferredTime} onChange={(event) => setForm({ ...form, preferredTime: event.target.value })}><option value="">Select time</option><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Weekend</option></select></label>
+            <label className="block text-sm font-bold sm:col-span-2">How did you hear about us?<input className={`${inputClass} mt-2`} value={form.howHeard} onChange={(event) => setForm({ ...form, howHeard: event.target.value })} /></label>
+          </div>
           <label className="block text-sm font-bold">
             Message
             <textarea rows="3" className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-3 text-sm text-ink outline-none focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/15 dark:border-white/10 dark:bg-white/5 dark:text-white" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} />

@@ -18,6 +18,7 @@ import { DigitalMarketingManagementPage } from "../pages/DigitalMarketingManagem
 import { EmployeeOperationsPage } from "../pages/EmployeeOperationsPage.jsx";
 import { UserApprovalPage } from "../pages/UserApprovalPage.jsx";
 import { BrandLockup } from "../components/BrandLogo.jsx";
+import { FollowUpNotificationBell } from "../components/FollowUpNotificationBell.jsx";
 
 export function Shell() {
   const { user, logout } = useAuth();
@@ -129,6 +130,7 @@ export function Shell() {
             <input className="w-full bg-transparent text-sm outline-none" placeholder="Search records" />
           </div>
           <div className="flex items-center gap-3">
+            {user.role === "Telecaller" && <FollowUpNotificationBell />}
             <div className="hidden text-right sm:block">
               <p className="text-sm font-semibold">{user.name}</p>
               <p className="text-xs text-slate-500">{user.email}</p>

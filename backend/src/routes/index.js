@@ -40,6 +40,7 @@ import { studentEnrollmentRoutes } from "./studentEnrollmentRoutes.js";
 import { digitalMarketingRoutes } from "./digitalMarketingRoutes.js";
 import { employeeRoutes } from "./employeeRoutes.js";
 import { userApprovalRoutes } from "./userApprovalRoutes.js";
+import { followUpRoutes } from "./followUpRoutes.js";
 
 export const apiRoutes = Router();
 
@@ -67,6 +68,7 @@ apiRoutes.use("/roles", make(Role, "settings", ["name"]));
 apiRoutes.use("/permissions", make(Permission, "settings", ["key", "module"]));
 apiRoutes.use("/leads", leadRoutes);
 apiRoutes.use("/follow-ups", make(FollowUp, "followups"));
+apiRoutes.use("/followups", followUpRoutes);
 apiRoutes.use("/students", make(Student, "students", ["studentId", "name", "mobile", "email"]));
 apiRoutes.use("/courses", make(Course, "courses", ["name", "description"]));
 apiRoutes.use("/batches", make(Batch, "batches", ["name", "timing"]));

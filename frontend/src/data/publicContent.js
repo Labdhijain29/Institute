@@ -46,7 +46,7 @@ export const courses = [
   {
     name: "Full Stack Development with Generative AI",
     level: "Advanced",
-    duration: "9 Months",
+    duration: "8 Months",
     fees: "Rs. 58,000",
     image: FullStackImage,
     skills: ["Frontend", "Backend", "Databases", "Gen AI"],
@@ -57,7 +57,7 @@ export const courses = [
   {
     name: "Java Full Stack Development with Generative AI",
     level: "Advanced",
-    duration: "9 Months",
+    duration: "6 Months",
     fees: "Rs. 56,000",
     image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=900&q=80",
     skills: ["Core Java", "Spring Boot", "React", "Gen AI"],
@@ -68,7 +68,7 @@ export const courses = [
   {
     name: "Python Full Stack Development with Generative AI",
     level: "Advanced",
-    duration: "8 Months",
+    duration: "6 Months",
     fees: "Rs. 54,000",
     image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=900&q=80",
     skills: ["Python", "Django", "React", "Gen AI"],
@@ -123,7 +123,7 @@ export const courses = [
   {
     name: "Artificial Intelligence & Machine Learning with Generative AI",
     level: "Advanced",
-    duration: "8 Months",
+    duration: "7 Months",
     fees: "Rs. 64,000",
     image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=80",
     skills: ["ML", "Deep Learning", "NLP", "Gen AI"],
@@ -167,7 +167,7 @@ export const courses = [
   {
     name: "Cyber Security & Ethical Hacking with Generative AI",
     level: "Intermediate",
-    duration: "4 Months",
+    duration: "5 Months",
     fees: "Rs. 36,000",
     image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
     skills: ["Networking", "OWASP", "Security Tools", "Gen AI"],

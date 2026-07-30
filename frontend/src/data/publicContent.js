@@ -32,6 +32,22 @@ import student3Image from "../assets/student3.jpeg";
 import student4Image from "../assets/student4.jpeg";
 import student5Image from "../assets/student5.jpeg";
 import FullStackImage from "../assets/FullStackImage.jpeg";
+import JavaImage from "../assets/Java.jpeg";
+import PythonImage from "../assets/Python.jpeg";
+import NetworkingImage from "../assets/Networking.jpeg";
+import MEANImage from "../assets/MEAN.jpeg";
+import MERNImage from "../assets/MERN.jpeg";
+import IOSImage from "../assets/IOS.jpeg";
+import FlutterImage from "../assets/Flutter.jpeg";
+import DevopsImage from "../assets/Devops.jpeg";
+import DataAnalyticsImage from "../assets/DataAnalytics.jpeg";
+import DataEngineeringImage from "../assets/DataEngeering.jpeg";
+import CyberSecurityImage from "../assets/CyberSecurity.jpeg";
+import CloudComputingImage from "../assets/CloudComputing.jpeg";
+import AWSImage from "../assets/AWS.jpeg";
+import AndroidImage from "../assets/Android.jpeg";
+import AIMLImage from "../assets/AIML.jpeg";
+
 
 export const navItems = [
   { label: "Home", path: "/" },
@@ -59,7 +75,7 @@ export const courses = [
     level: "Advanced",
     duration: "6 Months",
     fees: "Rs. 56,000",
-    image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=900&q=80",
+    image: JavaImage,
     skills: ["Core Java", "Spring Boot", "React", "Gen AI"],
     overview: "Master Java backend development, modern frontend integration, and Gen AI-assisted enterprise application building.",
     syllabus: "Core Java, OOP, DSA, JDBC, Spring Boot, REST APIs, React basics, databases, Gen AI productivity workflows.",
@@ -70,7 +86,7 @@ export const courses = [
     level: "Advanced",
     duration: "6 Months",
     fees: "Rs. 54,000",
-    image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=900&q=80",
+    image: PythonImage,
     skills: ["Python", "Django", "React", "Gen AI"],
     overview: "Create full stack applications using Python frameworks and Gen AI tools for faster development and automation.",
     syllabus: "Python, OOP, Django/FastAPI, REST APIs, React basics, databases, deployment, prompt-based coding support.",
@@ -81,7 +97,7 @@ export const courses = [
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 42,000",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=900&q=80",
+    image: MERNImage,
     skills: ["MongoDB", "Express", "React", "Gen AI"],
     overview: "Build production-grade MERN applications with Gen AI support for components, APIs, tests, and deployment tasks.",
     syllabus: "HTML, CSS, JavaScript, React, Express, MongoDB, authentication, deployment, Gen AI code generation.",
@@ -92,7 +108,7 @@ export const courses = [
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 42,000",
-    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
+    image: MEANImage,
     skills: ["MongoDB", "Express", "Angular", "Gen AI"],
     overview: "Develop MEAN stack applications and use Gen AI to accelerate frontend, backend, and API development.",
     syllabus: "JavaScript, Angular, Node.js, Express, MongoDB, REST APIs, auth, deployment, Gen AI-assisted workflows.",
@@ -103,7 +119,7 @@ export const courses = [
     level: "Intermediate",
     duration: "5 Months",
     fees: "Rs. 38,000",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80",
+    image: DataAnalyticsImage,
     skills: ["Excel", "SQL", "Power BI", "Gen AI"],
     overview: "Analyze business data, create dashboards, and use Gen AI for faster insights, summaries, and reporting.",
     syllabus: "Excel, SQL, statistics basics, Power BI, dashboard design, data storytelling, Gen AI for analytics.",
@@ -114,7 +130,7 @@ export const courses = [
     level: "Advanced",
     duration: "7 Months",
     fees: "Rs. 55,000",
-    image: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=900&q=80",
+    image: DataEngineeringImage,
     skills: ["Python", "SQL", "ETL", "Gen AI"],
     overview: "Build data pipelines, warehouses, and automation workflows with Gen AI-supported development and documentation.",
     syllabus: "Python, SQL, ETL pipelines, data modeling, warehousing, cloud basics, orchestration, Gen AI for data workflows.",
@@ -125,7 +141,7 @@ export const courses = [
     level: "Advanced",
     duration: "7 Months",
     fees: "Rs. 64,000",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=80",
+    image: AIMLImage,
     skills: ["ML", "Deep Learning", "NLP", "Gen AI"],
     overview: "Learn machine learning foundations, applied AI systems, and Gen AI concepts through guided projects.",
     syllabus: "Python, statistics, ML algorithms, neural networks, NLP, LLM basics, prompt engineering, model deployment.",
@@ -136,7 +152,7 @@ export const courses = [
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 48,000",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80",
+    image: CloudComputingImage,
     skills: ["Cloud", "Linux", "Networking", "Gen AI"],
     overview: "Understand cloud infrastructure, services, monitoring, and Gen AI-supported cloud operations.",
     syllabus: "Cloud fundamentals, Linux, networking, compute, storage, security basics, monitoring, Gen AI for cloud tasks.",
@@ -147,7 +163,7 @@ export const courses = [
     level: "Intermediate",
     duration: "5 Months",
     fees: "Rs. 45,000",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80",
+    image: AWSImage,
     skills: ["AWS", "EC2", "S3", "Gen AI"],
     overview: "Learn AWS services, deployment basics, and Gen AI tools that support cloud planning and operations.",
     syllabus: "IAM, EC2, S3, VPC basics, RDS, Lambda basics, CloudWatch, deployment, Gen AI for AWS documentation.",
@@ -158,7 +174,7 @@ export const courses = [
     level: "Advanced",
     duration: "6 Months",
     fees: "Rs. 52,000",
-    image: "https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a?auto=format&fit=crop&w=900&q=80",
+    image: DevopsImage,
     skills: ["Docker", "Kubernetes", "CI/CD", "Gen AI"],
     overview: "Build DevOps pipelines, container workflows, and automation processes with Gen AI-assisted troubleshooting.",
     syllabus: "Linux, Git, Docker, Kubernetes basics, CI/CD, monitoring, cloud deployment, Gen AI for automation.",
@@ -169,7 +185,7 @@ export const courses = [
     level: "Intermediate",
     duration: "5 Months",
     fees: "Rs. 36,000",
-    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
+    image: CyberSecurityImage,
     skills: ["Networking", "OWASP", "Security Tools", "Gen AI"],
     overview: "Build security fundamentals and use Gen AI responsibly for analysis, reporting, and security learning.",
     syllabus: "Networking, Linux security, OWASP Top 10, vulnerability scanning, incident basics, Gen AI for reports.",
@@ -180,7 +196,7 @@ export const courses = [
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 50,000",
-    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=900&q=80",
+    image: IOSImage,
     skills: ["Swift", "SwiftUI", "APIs", "Gen AI"],
     overview: "Create iOS apps using Swift and SwiftUI with Gen AI-assisted coding, UI ideas, and debugging.",
     syllabus: "Swift basics, SwiftUI, navigation, API integration, local storage, app architecture, Gen AI coding support.",
@@ -191,7 +207,7 @@ export const courses = [
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 48,000",
-    image: "https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?auto=format&fit=crop&w=900&q=80",
+    image: AndroidImage,
     skills: ["Kotlin", "Android Studio", "Firebase", "Gen AI"],
     overview: "Build Android applications using Kotlin, Firebase, APIs, and Gen AI-assisted development practices.",
     syllabus: "Kotlin, Android Studio, layouts, activities, navigation, Firebase, API integration, Gen AI for debugging.",
@@ -202,7 +218,7 @@ export const courses = [
     level: "Intermediate",
     duration: "6 Months",
     fees: "Rs. 50,000",
-    image: "https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=900&q=80",
+    image: FlutterImage,
     skills: ["Flutter", "Dart", "Firebase", "Gen AI"],
     overview: "Create cross-platform mobile apps with Flutter and use Gen AI for UI generation, debugging, and code help.",
     syllabus: "Dart basics, Flutter widgets, navigation, state management, Firebase, API integration, Gen AI workflows.",
@@ -213,7 +229,7 @@ export const courses = [
     level: "Beginner",
     duration: "4 Months",
     fees: "Rs. 32,000",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80",
+    image: NetworkingImage,
     skills: ["TCP/IP", "Routing", "Switching", "Gen AI"],
     overview: "Build strong computer networking fundamentals and use Gen AI for guided troubleshooting, documentation, and scenario practice.",
     syllabus: "Network fundamentals, OSI/TCP-IP models, IP addressing, subnetting, routing, switching, DNS, DHCP, firewalls, basic network security, Gen AI for troubleshooting.",

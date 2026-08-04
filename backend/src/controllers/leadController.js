@@ -103,29 +103,45 @@ export const createLeadFollowUp = asyncHandler(async (req, res) => {
   const lead = await Lead.findById(req.params.id);
   if (!lead) throw new ApiError(404, "Lead not found");
 
+  const isAssigned = sameId(lead.telecallerAssigned, req.user._id) || sameId(lead.createdBy, req.user._id);
+  if (!canManageAnyLead(req.user.role) && !isAssigned) {
+    throw new ApiError(403, "Only the assigned telecaller can create this follow-up");
+  }
+
+  const dueAt = new Date(req.body.dueAt || req.body.followUpDate);
+  if (Number.isNaN(dueAt.getTime())) {
+    throw new ApiError(400, "A valid follow-up date and time is required");
+  }
+
+  const remarks = typeof req.body.notes === "string" ? req.body.notes.trim() : (req.body.remarks || "").trim();
+
   const followUp = await FollowUp.create({
     lead: lead._id,
     assignedTo: req.user._id,
     createdBy: req.user._id,
-    dueAt: req.body.followUpDate,
+    dueAt,
     nextDueAt: req.body.nextFollowUpDate,
-    status: req.body.status,
-    remarks: req.body.remarks,
+    status: req.body.status || "Pending",
+    remarks,
     type: req.body.status === "Demo Scheduled" ? "Demo" : "Call"
   });
 
-  lead.followUpDate = req.body.nextFollowUpDate || req.body.followUpDate || lead.followUpDate;
-  lead.status = req.body.status || lead.status;
-  lead.remarks = req.body.remarks || lead.remarks;
+  lead.followUpDate = req.body.nextFollowUpDate || dueAt;
+  lead.status = req.body.status || "Follow-up";
+  lead.remarks = remarks || lead.remarks;
   lead.callHistory.push({
     by: req.user._id,
-    status: req.body.status,
-    remarks: req.body.remarks,
-    followUpDate: req.body.nextFollowUpDate || req.body.followUpDate
+    status: req.body.status || "Follow-up",
+    remarks,
+    followUpDate: req.body.nextFollowUpDate || dueAt
   });
   await lead.save();
 
-  res.status(201).json(await followUp.populate("createdBy", "name email role"));
+  await followUp.populate([
+    { path: "createdBy", select: "name email role" },
+    { path: "lead", select: "name mobile" }
+  ]);
+  res.status(201).json({ item: followUp, lead });
 });
 
 export const facultyOptions = asyncHandler(async (_req, res) => {

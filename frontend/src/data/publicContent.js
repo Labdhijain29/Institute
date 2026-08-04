@@ -339,8 +339,15 @@ export const trainers = [
     image: trainer1Image,
     description: "Guides students in Java, backend logic, and real-world application development with practical project mentoring."
   },
+    {
+    name: "Deepika Rathod",
+    expertise: "Managing Director",
+    experience: "3+ years",
+    image: trainer5Image,
+    description: "Develop and implement the company's vision, mission, and long-term business strategy."
+  },
   {
-    name: "Shazia Khan",
+    name: "Shazia Umar",
     expertise: "Senior Data Scientist",
     experience: "9+ years",
     image: trainer2Image,
@@ -359,13 +366,6 @@ export const trainers = [
     experience: "3+ years",
     image: trainer4Image,
     description: "Helps students build responsive, scalable web applications using MongoDB, Express.js, React.js, and Node.js through hands-on, real-world projects."
-  },
-  {
-    name: "Shivani Madhukar",
-    expertise: "Senior Counsellor",
-    experience: "5+ years",
-    image: trainer5Image,
-    description: "Guides students in choosing the right career path, courses, and training programs through personalized counseling and expert advice."
   },
   {
     name: "Ritika Singh",

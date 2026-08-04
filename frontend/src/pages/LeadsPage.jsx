@@ -114,6 +114,7 @@ export function LeadsPage({ module }) {
   const [activeLead, setActiveLead] = useState(null);
   const [followUpForm, setFollowUpForm] = useState(emptyFollowUp);
   const [followUps, setFollowUps] = useState([]);
+  const [savingFollowUp, setSavingFollowUp] = useState(false);
   const [message, setMessage] = useState("");
   const [sortBy, setSortBy] = useState("date");
   const [sortDirection, setSortDirection] = useState("desc");
@@ -204,15 +205,28 @@ export function LeadsPage({ module }) {
     event.preventDefault();
     if (!activeLead?._id) return;
     const dueAt = new Date(`${followUpForm.followUpDate}T${followUpForm.followUpTime}`);
-    await api("/followups", {
-      method: "POST",
-      body: JSON.stringify({ leadId: activeLead._id, dueAt: dueAt.toISOString(), notes: followUpForm.notes })
-    });
-    setFollowUpOpen(false);
-    setActiveLead(null);
-    setFollowUpForm(emptyFollowUp);
-    setMessage("Follow-up saved successfully");
-    await loadLeads();
+    if (Number.isNaN(dueAt.getTime())) {
+      setMessage("Please enter a valid follow-up date and time");
+      return;
+    }
+    setSavingFollowUp(true);
+    try {
+      const data = await api(`/leads/${activeLead._id}/follow-ups`, {
+        method: "POST",
+        body: JSON.stringify({ dueAt: dueAt.toISOString(), notes: followUpForm.notes })
+      });
+      const savedFollowUp = data.item;
+      setLeads((current) => current.map((lead) => lead._id === data.lead._id ? data.lead : lead));
+      setFollowUps((current) => [savedFollowUp, ...current]);
+      setFollowUpOpen(false);
+      setActiveLead(null);
+      setFollowUpForm(emptyFollowUp);
+      setMessage("Follow-up saved successfully");
+    } catch (error) {
+      setMessage(error.message || "Unable to save follow-up");
+    } finally {
+      setSavingFollowUp(false);
+    }
   };
 
   const forward = async (lead) => {
@@ -348,7 +362,7 @@ export function LeadsPage({ module }) {
       ),
       npc: counts.npc + Number(isDisposition(lead, ["npc", "not picking call", "not picked", "no answer"])),
       detailSent: counts.detailSent + Number(isDisposition(lead, ["detail sent", "details sent"])),
-      followUp: counts.followUp + Number(isDisposition(lead, ["follow up", "follow-up"])),
+      followUp: counts.followUp + Number(isToday(lead.followUpDate)),
       callback: counts.callback + Number(isDisposition(lead, ["call back", "callback", "call back later"])),
       complete: counts.complete + Number(leadStage(lead) === "completed")
     }), { all: 0, today: 0, fresh: 0, npc: 0, detailSent: 0, followUp: 0, callback: 0, complete: 0 });
@@ -536,7 +550,7 @@ export function LeadsPage({ module }) {
             <StatCard label="Fresh" value={leadStats.fresh} tone="pine" />
             <StatCard label="NPC" value={leadStats.npc} tone="amber" />
             <StatCard label="Detail Sent" value={leadStats.detailSent} tone="pine" />
-            <StatCard label="Follow Up" value={leadStats.followUp} tone="amber" />
+            <StatCard label="Today's Follow-ups" value={leadStats.followUp} tone="amber" />
             <StatCard label="Callback" value={leadStats.callback} tone="ink" />
             <StatCard label="Complete" value={leadStats.complete} tone="coral" />
           </section>
@@ -580,7 +594,7 @@ export function LeadsPage({ module }) {
       </section>
       <CreateLeadModal open={createOpen} form={form} setForm={setForm} courses={courses} onSubmit={createLead} onClose={() => { setCreateOpen(false); setForm(emptyLead); }} isTelecallerFlow={isTelecallerFlow} />
       <CreateLeadModal open={editOpen} form={form} setForm={setForm} courses={courses} onSubmit={updateLead} onClose={() => { setEditOpen(false); setActiveLead(null); setForm(emptyLead); }} title="Edit Lead" submitLabel="Update Lead" />
-      <FollowUpModal open={followUpOpen} lead={activeLead} form={followUpForm} setForm={setFollowUpForm} onSubmit={saveFollowUp} onClose={() => setFollowUpOpen(false)} />
+      <FollowUpModal open={followUpOpen} lead={activeLead} form={followUpForm} setForm={setFollowUpForm} onSubmit={saveFollowUp} saving={savingFollowUp} onClose={() => setFollowUpOpen(false)} />
       <LeadDetailsModal open={detailsOpen} lead={activeLead} courses={courses} followUps={followUps} onClose={() => setDetailsOpen(false)} />
     </div>
   );
@@ -637,7 +651,7 @@ export function CreateLeadModal({ open, form, setForm, courses = [], onSubmit, o
   );
 }
 
-function FollowUpModal({ open, lead, form, setForm, onSubmit, onClose }) {
+function FollowUpModal({ open, lead, form, setForm, onSubmit, saving, onClose }) {
   if (!open) return null;
   return (
     <ModalShell title={`Follow Up${lead?.name ? ` - ${lead.name}` : ""}`} onClose={onClose}>
@@ -653,7 +667,7 @@ function FollowUpModal({ open, lead, form, setForm, onSubmit, onClose }) {
         </Field>
         <div className="flex flex-col-reverse gap-2 md:col-span-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button>
-          <button className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">Save Follow Up</button>
+          <button disabled={saving} className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315] disabled:cursor-not-allowed disabled:opacity-60">{saving ? "Saving..." : "Save Follow Up"}</button>
         </div>
       </form>
     </ModalShell>

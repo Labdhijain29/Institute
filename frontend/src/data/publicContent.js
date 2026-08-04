@@ -334,7 +334,7 @@ export const partners = [
 export const trainers = [
   {
     name: "Lakhan Rathod",
-    expertise: "Senior Java Developer",
+    expertise: "Owner & Senior Java Developer",
     experience: "7+ years",
     image: trainer1Image,
     description: "Guides students in Java, backend logic, and real-world application development with practical project mentoring."

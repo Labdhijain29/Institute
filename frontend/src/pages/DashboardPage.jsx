@@ -106,10 +106,14 @@ export function DashboardPage({ module }) {
   }, []);
 
   useEffect(() => {
+    if (!showReceiptManager) {
+      setCourses([]);
+      return;
+    }
     api("/courses?limit=100")
       .then((data) => setCourses(data.items || []))
       .catch((error) => setMessage(error.message));
-  }, []);
+  }, [showReceiptManager]);
 
   const createLead = async (event) => {
     event.preventDefault();

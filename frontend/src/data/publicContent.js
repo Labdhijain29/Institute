@@ -26,6 +26,8 @@ import trainer3Image from "../assets/trainer3.jpeg";
 import trainer4Image from "../assets/trainer4.jpeg";
 import trainer5Image from "../assets/trainer5.jpeg";
 import trainer6Image from "../assets/trainer6.jpeg";
+import trainer7Image from "../assets/trainer7.jpeg";
+import trainer8Image from "../assets/trainer8.jpeg";
 import student1Image from "../assets/student1.jpeg";
 import student2Image from "../assets/student2.jpeg";
 import student3Image from "../assets/student3.jpeg";
@@ -345,6 +347,20 @@ export const trainers = [
     experience: "3+ years",
     image: trainer5Image,
     description: "Develop and implement the company's vision, mission, and long-term business strategy."
+  },
+     {
+    name: "Megha",
+    expertise: "HR",
+    experience: "5+ years",
+    image: trainer7Image,
+    description: "Ensure compliance with company policies and HR procedures."
+  },
+     {
+    name: "Aditi",
+    expertise: "HR",
+    experience: "5+ years",
+    image: trainer8Image,
+    description: "Handle end-to-end recruitment and hiring processes."
   },
   {
     name: "Shazia Umar",

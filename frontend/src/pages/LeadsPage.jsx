@@ -146,10 +146,14 @@ export function LeadsPage({ module }) {
   }, [workflowRole]);
 
   useEffect(() => {
+    if (!canCreateLead) {
+      setCourses([]);
+      return;
+    }
     api("/courses?limit=100")
       .then((data) => setCourses(data.items || []))
       .catch((err) => setMessage(err.message));
-  }, []);
+  }, [canCreateLead]);
 
   useEffect(() => {
     if (!isCounsellorFlow) return;

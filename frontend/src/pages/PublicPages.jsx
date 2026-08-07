@@ -231,8 +231,8 @@ function CounsellorLeadModal({ course, courseOptions, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ink/60 px-4 py-6 backdrop-blur-sm">
-      <article className="w-full max-w-lg overflow-hidden rounded-lg border border-slate-200 bg-white shadow-soft dark:border-white/10 dark:bg-[#12181c]">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-ink/60 p-3 backdrop-blur-sm sm:p-5">
+      <article className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-soft dark:border-white/10 dark:bg-[#12181c] sm:max-h-[calc(100dvh-2.5rem)]">
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-white/10">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#f97316]">Counsellor Enquiry</p>
@@ -242,7 +242,7 @@ function CounsellorLeadModal({ course, courseOptions, onClose }) {
             <X size={18} />
           </button>
         </div>
-        <form onSubmit={submit} className="space-y-4 p-5">
+        <form onSubmit={submit} className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block text-sm font-bold">Name<input required className={`${inputClass} mt-2`} value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} /></label>
             <label className="block text-sm font-bold">Contact No.<input required type="tel" inputMode="numeric" maxLength={10} className={`${inputClass} mt-2`} value={form.mobile} onChange={(event) => setForm({ ...form, mobile: event.target.value.replace(/\D/g, "").slice(0, 10) })} /></label>
@@ -272,7 +272,7 @@ function CounsellorLeadModal({ course, courseOptions, onClose }) {
           </label>
           {status && <p className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{status}</p>}
           {error && <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <div className="sticky bottom-0 -mx-5 flex flex-col-reverse gap-2 border-t border-slate-200 bg-white px-5 pb-1 pt-4 sm:flex-row sm:justify-end dark:border-white/10 dark:bg-[#12181c]">
             <button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-bold">
               Cancel
             </button>

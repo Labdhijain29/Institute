@@ -113,6 +113,12 @@ textarea {
   page-break-after: auto;
 }
 
+.salary-slip-paper {
+  width: min(794px, 100%);
+  min-height: 1123px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 @page {
   size: A4;
   margin: 0;
@@ -134,7 +140,9 @@ textarea {
   #offer-letter-print-area,
   #offer-letter-print-area *,
   #student-registration-print-area,
-  #student-registration-print-area * {
+  #student-registration-print-area *,
+  #salary-slip-print-area,
+  #salary-slip-print-area * {
     visibility: visible;
   }
 
@@ -164,6 +172,16 @@ textarea {
   }
 
   #student-registration-print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 210mm;
+    max-width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    box-shadow: none;
+  }
+
+  #salary-slip-print-area {
     position: absolute;
     inset: 0 auto auto 0;
     width: 210mm;

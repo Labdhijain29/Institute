@@ -200,10 +200,25 @@ export const employeeList = asyncHandler(async (_req, res) => {
 });
 
 export const payrollEmployeeOptions = asyncHandler(async (_req, res) => {
-  const items = await User.find({ role: { $nin: ["Student", "Parent"] }, isActive: true })
-    .select("name role department designation employeeId monthlySalary")
+  const users = await User.find({ role: { $nin: ["Student", "Parent"] }, isActive: true })
+    .select("name role department designation employeeId dateOfJoining monthlySalary")
     .sort({ name: 1 })
     .lean();
+  const staffRows = await Staff.find({ user: { $in: users.map((user) => user._id) } })
+    .select("user employeeCode joiningDate department designation monthlySalary salary")
+    .lean();
+  const staffByUser = new Map(staffRows.map((staff) => [String(staff.user), staff]));
+  const items = users.map((user) => {
+    const staff = staffByUser.get(String(user._id));
+    return {
+      ...user,
+      employeeCode: user.employeeId || staff?.employeeCode || "",
+      department: user.department || staff?.department || "",
+      designation: user.designation || staff?.designation || "",
+      dateOfJoining: user.dateOfJoining || staff?.joiningDate || null,
+      monthlySalary: Number(user.monthlySalary || staff?.monthlySalary || staff?.salary || 0)
+    };
+  });
   res.json({ items, total: items.length });
 });
 
@@ -297,39 +312,56 @@ export const submitLectureReport = asyncHandler(async (req, res) => {
 
 export const calculatePayroll = asyncHandler(async (req, res) => {
   if (!["Super Admin", "Admin", "HR", "Accountant"].includes(req.user.role)) throw new ApiError(403, "Permission denied");
-  const { user, month, bonus = 0, incentives = 0, deductions = 0, advanceSalary = 0 } = req.body;
+  const { user, month, basicSalary, hra = 0, specialAllowance = 0, deductions = 0, advanceSalary = 0, leaveDeduction = 0, employeeCode, department, designation, dateOfJoining, uan = "", workingDays, paidLeave = 0 } = req.body;
   if (!user || !month) throw new ApiError(400, "Employee and month are required");
   const employee = await User.findById(user);
   if (!employee) throw new ApiError(404, "Employee not found");
   const staff = await Staff.findOne({ user });
   const { start, end, days } = monthRange(month);
   const rows = await Attendance.find({ user, date: { $gte: start, $lte: end } });
-  const monthlySalary = Number(employee.monthlySalary || staff?.monthlySalary || staff?.salary || 0);
-  const perDaySalary = days ? monthlySalary / days : 0;
+  const basic = basicSalary === undefined || basicSalary === null
+    ? Number(employee.monthlySalary || staff?.monthlySalary || staff?.salary || 0)
+    : Number(basicSalary);
+  const grossAmount = basic + Number(hra) + Number(specialAllowance);
+  const perDaySalary = days ? grossAmount / days : 0;
   const presentDays = rows.filter((row) => ["Present", "Late", "Pending Logout"].includes(row.status)).length;
   const leaveDays = rows.filter((row) => row.status === "Leave").length;
   const halfDays = rows.filter((row) => row.status === "Half Day").length;
   const lateMarks = rows.filter((row) => row.status === "Late").length;
   const payableDays = presentDays + leaveDays + halfDays * 0.5;
-  const attendanceDeductions = Math.max(monthlySalary - payableDays * perDaySalary, 0);
-  const netAmount = Math.max(monthlySalary - attendanceDeductions - Number(deductions) - Number(advanceSalary) + Number(bonus) + Number(incentives), 0);
+  // Attendance remains recorded for reporting, but only an explicitly entered
+  // leave deduction can reduce the salary on the payroll slip.
+  const explicitLeaveDeduction = Number(leaveDeduction || 0);
+  const totalWorkingDays = workingDays === undefined || workingDays === null ? days : Number(workingDays);
+  const netAmount = Math.max(grossAmount - explicitLeaveDeduction - Number(deductions) - Number(advanceSalary), 0);
   const payroll = await Salary.findOneAndUpdate(
     { user, month },
     {
       user,
       month,
-      monthlySalary,
-      basicSalary: monthlySalary,
+      employeeCode: employeeCode || employee.employeeId || staff?.employeeCode || "Not Available",
+      department: department || employee.department || staff?.department || "Not Available",
+      designation: designation || employee.designation || staff?.designation || "Not Available",
+      dateOfJoining: dateOfJoining || employee.dateOfJoining || staff?.joiningDate || null,
+      uan: uan || "Not Available",
+      workingDays: totalWorkingDays,
+      paidLeave: Number(paidLeave || 0),
+      monthlySalary: basic,
+      basicSalary: basic,
+      hra: Number(hra),
+      specialAllowance: Number(specialAllowance),
       perDaySalary,
       payableDays,
       presentDays,
       leaveDays,
       lateMarks,
       halfDays,
-      grossAmount: monthlySalary,
-      deductions: Number(deductions) + attendanceDeductions,
-      bonus,
-      incentives,
+      grossAmount,
+      deductions: Number(deductions) + explicitLeaveDeduction,
+      leaveDeduction: explicitLeaveDeduction,
+      otherDeduction: Number(deductions),
+      bonus: 0,
+      incentives: 0,
       advanceSalary,
       netAmount,
       status: "Pending"
@@ -338,6 +370,17 @@ export const calculatePayroll = asyncHandler(async (req, res) => {
   );
   await logActivity(req, "payroll-calculate", "salary", { payroll: payroll._id, month });
   res.json(payroll);
+});
+
+export const payrollSlip = asyncHandler(async (req, res) => {
+  if (!['Super Admin', 'Admin', 'HR', 'Accountant'].includes(req.user.role)) throw new ApiError(403, 'Permission denied');
+  const payroll = await Salary.findById(req.params.id)
+    .populate('user', 'name employeeId department designation dateOfJoining')
+    .lean();
+  if (!payroll) throw new ApiError(404, 'Payroll record not found');
+
+  const staff = payroll.user?._id ? await Staff.findOne({ user: payroll.user._id }).select('employeeCode joiningDate department designation').lean() : null;
+  res.json({ payroll, employee: payroll.user, staff });
 });
 
 export const exportReport = asyncHandler(async (req, res) => {

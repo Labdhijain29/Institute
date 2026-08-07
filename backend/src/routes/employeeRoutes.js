@@ -12,6 +12,7 @@ import {
   logoutAttendance,
   myEmployeeDashboard,
   payrollEmployeeOptions,
+  payrollSlip,
   reviewLeave,
   submitLectureReport
 } from "../controllers/employeeController.js";
@@ -32,4 +33,5 @@ employeeRoutes.patch("/leaves/:id/review", permit("leaves:update"), reviewLeave)
 employeeRoutes.get("/lecture-reports", listLectureReports);
 employeeRoutes.post("/lecture-reports", submitLectureReport);
 employeeRoutes.post("/payroll/calculate", permit("salary:create"), calculatePayroll);
+employeeRoutes.get("/payroll/:id/slip", permit("salary:read"), payrollSlip);
 employeeRoutes.get("/reports/export", permit("reports:read"), exportReport);

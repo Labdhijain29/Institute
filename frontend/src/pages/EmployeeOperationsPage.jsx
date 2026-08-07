@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Download, LogIn, LogOut, Plus, RefreshCw, Save } from "lucide-react";
+import { Download, Edit3, Eye, FileText, LogIn, LogOut, Plus, RefreshCw, Save, Trash2 } from "lucide-react";
 import { api } from "../api/client.js";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
 import { StatCard } from "../components/StatCard.jsx";
+import { SalarySlipModal } from "../components/SalarySlipModal.jsx";
 
 const inputClass = "h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-[#f97316]";
 const buttonClass = "inline-flex items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]";
@@ -15,6 +16,14 @@ function today() {
 
 function monthNow() {
   return new Date().toISOString().slice(0, 7);
+}
+
+function payrollDefaults() {
+  return { user: "", month: monthNow(), employeeCode: "", department: "", designation: "", dateOfJoining: "", uan: "", workingDays: 0, paidLeave: 0, basicSalary: 0, hra: 0, specialAllowance: 0, leaveDeduction: 0, deductions: 0, advanceSalary: 0 };
+}
+
+function dateInput(value) {
+  return value ? new Date(value).toISOString().slice(0, 10) : "";
 }
 
 function formatTime(value) {
@@ -75,8 +84,10 @@ export function EmployeeOperationsPage({ module }) {
 
   const [leaveForm, setLeaveForm] = useState({ leaveType: "Casual", fromDate: today(), toDate: today(), days: 1, reason: "" });
   const [lectureForm, setLectureForm] = useState({ date: today(), courseName: "", batchName: "", classTiming: "", topicTaught: "", durationMinutes: 60, studentAttendanceCount: 0, notes: "" });
-  const [payrollForm, setPayrollForm] = useState({ user: "", month: monthNow(), bonus: 0, incentives: 0, deductions: 0, advanceSalary: 0 });
+  const [payrollForm, setPayrollForm] = useState(payrollDefaults);
   const [ipForm, setIpForm] = useState({ label: "", ipAddress: "", remarks: "" });
+  const [salarySlip, setSalarySlip] = useState({ open: false, loading: false, data: null });
+  const [editingPayroll, setEditingPayroll] = useState(null);
 
   const loadBase = async () => {
     setLoading(true);
@@ -147,7 +158,8 @@ export function EmployeeOperationsPage({ module }) {
       { key: "monthlySalary", label: "Monthly", render: (row) => `₹${Number(row.monthlySalary || row.grossAmount || 0).toLocaleString("en-IN")}` },
       { key: "deductions", label: "Deductions", render: (row) => `₹${Number(row.deductions || 0).toLocaleString("en-IN")}` },
       { key: "netAmount", label: "Payable", render: (row) => `₹${Number(row.netAmount || 0).toLocaleString("en-IN")}` },
-      { key: "status", label: "Status" }
+      { key: "status", label: "Status" },
+      { key: "actions", label: "Actions", render: (row) => <div className="flex items-center gap-2"><button onClick={() => openSalarySlip(row)} className="inline-flex items-center gap-1 rounded border border-[#f97316]/30 px-2 py-1 text-xs font-semibold text-[#c2410c] hover:bg-[#fff3e8]"><Eye size={14} /> View</button><button onClick={() => editPayroll(row)} className="inline-flex items-center gap-1 rounded border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"><Edit3 size={14} /> Edit</button><button onClick={() => deletePayroll(row)} className="inline-flex items-center gap-1 rounded border border-red-200 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"><Trash2 size={14} /> Delete</button></div> }
     ];
     if (path === "leave-requests") return [
       { key: "leaveType", label: "Type" },
@@ -237,10 +249,73 @@ export function EmployeeOperationsPage({ module }) {
     event.preventDefault();
     try {
       await api("/employee/payroll/calculate", { method: "POST", body: JSON.stringify(payrollForm) });
-      setMessage("Payroll calculated");
+      setMessage(editingPayroll ? "Payroll updated" : "Payroll calculated");
+      setEditingPayroll(null);
       await loadRows();
       await loadBase();
     } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  const editPayroll = (payroll) => {
+    setPayrollForm({
+      user: payroll.user?._id || payroll.user || "",
+      month: payroll.month || monthNow(),
+      basicSalary: Number(payroll.basicSalary || payroll.monthlySalary || 0),
+      hra: Number(payroll.hra || 0),
+      specialAllowance: Number(payroll.specialAllowance || 0),
+      leaveDeduction: Number(payroll.leaveDeduction || 0),
+      deductions: Number(payroll.otherDeduction ?? payroll.deductions ?? 0),
+      advanceSalary: Number(payroll.advanceSalary || 0),
+      employeeCode: payroll.employeeCode || "",
+      department: payroll.department || "",
+      designation: payroll.designation || "",
+      dateOfJoining: dateInput(payroll.dateOfJoining),
+      uan: payroll.uan || "",
+      workingDays: Number(payroll.workingDays || 0),
+      paidLeave: Number(payroll.paidLeave || 0)
+    });
+    setEditingPayroll(payroll);
+    setSalarySlip({ open: false, loading: false, data: null });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const deletePayroll = async (payroll) => {
+    if (!window.confirm(`Delete payroll for ${payroll.month}? This cannot be undone.`)) return;
+    try {
+      await api(`/salaries/${payroll._id}`, { method: "DELETE" });
+      setMessage("Payroll record deleted");
+      setSalarySlip({ open: false, loading: false, data: null });
+      await loadRows();
+      await loadBase();
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  const payrollPreview = useMemo(() => {
+    const basic = Number(payrollForm.basicSalary || 0);
+    const hra = Number(payrollForm.hra || 0);
+    const specialAllowance = Number(payrollForm.specialAllowance || 0);
+    const gross = basic + hra + specialAllowance;
+    const manualDeductions = Number(payrollForm.leaveDeduction || 0) + Number(payrollForm.deductions || 0) + Number(payrollForm.advanceSalary || 0);
+    return { basic, hra, specialAllowance, gross, manualDeductions, estimated: Math.max(gross - manualDeductions, 0) };
+  }, [payrollForm]);
+
+  const selectPayrollEmployee = (employeeId) => {
+    const employee = users.find((item) => item._id === employeeId);
+    const monthDays = new Date(Number((payrollForm.month || monthNow()).slice(0, 4)), Number((payrollForm.month || monthNow()).slice(5, 7)), 0).getDate();
+    setPayrollForm((current) => ({ ...current, user: employeeId, basicSalary: Number(employee?.monthlySalary || 0), employeeCode: employee?.employeeCode || "", department: employee?.department || "", designation: employee?.designation || "", dateOfJoining: dateInput(employee?.dateOfJoining), workingDays: monthDays }));
+  };
+
+  const openSalarySlip = async (payroll) => {
+    setSalarySlip({ open: true, loading: true, data: null });
+    try {
+      const data = await api(`/employee/payroll/${payroll._id}/slip`);
+      setSalarySlip({ open: true, loading: false, data });
+    } catch (error) {
+      setSalarySlip({ open: false, loading: false, data: null });
       setMessage(error.message);
     }
   };
@@ -351,17 +426,26 @@ export function EmployeeOperationsPage({ module }) {
       )}
 
       {path === "payroll" && canPayroll && (
-        <Panel title="Calculate Payroll">
+        <Panel title={editingPayroll ? "Edit Payroll" : "Calculate Payroll"} action={editingPayroll ? <button type="button" onClick={() => { setEditingPayroll(null); setPayrollForm(payrollDefaults()); }} className="text-sm font-semibold text-[#c2410c]">Cancel Edit</button> : null}>
+          <p className="mb-4 text-sm text-slate-500">Complete all employee and salary fields for a proper payslip. Salary is reduced only by the deductions you explicitly enter below.</p>
           <form onSubmit={calculatePayroll} className="grid gap-3 md:grid-cols-4">
-            <select required className={inputClass} value={payrollForm.user} onChange={(event) => setPayrollForm({ ...payrollForm, user: event.target.value })}>
-              <option value="">Select employee</option>
-              {users.map((item) => <option key={item._id} value={item._id}>{item.name} ({item.role})</option>)}
-            </select>
-            <input type="month" className={inputClass} value={payrollForm.month} onChange={(event) => setPayrollForm({ ...payrollForm, month: event.target.value })} />
-            {["bonus", "incentives", "deductions", "advanceSalary"].map((field) => (
-              <input key={field} type="number" className={inputClass} placeholder={field} value={payrollForm[field]} onChange={(event) => setPayrollForm({ ...payrollForm, [field]: Number(event.target.value) })} />
-            ))}
-            <button className={buttonClass}><Save size={16} /> Calculate</button>
+            <PayrollField label="Employee"><select required className={inputClass} value={payrollForm.user} onChange={(event) => selectPayrollEmployee(event.target.value)}><option value="">Select employee</option>{users.map((item) => <option key={item._id} value={item._id}>{item.name} ({item.role})</option>)}</select></PayrollField>
+            <PayrollField label="Payroll Month"><input type="month" className={inputClass} value={payrollForm.month} onChange={(event) => setPayrollForm({ ...payrollForm, month: event.target.value })} /></PayrollField>
+            <PayrollField label="Employee Code"><input className={inputClass} placeholder="Optional" value={payrollForm.employeeCode} onChange={(event) => setPayrollForm({ ...payrollForm, employeeCode: event.target.value })} /></PayrollField>
+            <PayrollField label="Date of Joining"><input type="date" className={inputClass} value={payrollForm.dateOfJoining} onChange={(event) => setPayrollForm({ ...payrollForm, dateOfJoining: event.target.value })} /></PayrollField>
+            <PayrollField label="Department"><input className={inputClass} placeholder="Optional" value={payrollForm.department} onChange={(event) => setPayrollForm({ ...payrollForm, department: event.target.value })} /></PayrollField>
+            <PayrollField label="Designation"><input className={inputClass} placeholder="Optional" value={payrollForm.designation} onChange={(event) => setPayrollForm({ ...payrollForm, designation: event.target.value })} /></PayrollField>
+            <PayrollField label="UAN"><input className={inputClass} placeholder="Optional" value={payrollForm.uan} onChange={(event) => setPayrollForm({ ...payrollForm, uan: event.target.value })} /></PayrollField>
+            <PayrollField label="Working Days"><input type="number" min="0" className={inputClass} value={payrollForm.workingDays} onChange={(event) => setPayrollForm({ ...payrollForm, workingDays: Number(event.target.value) })} /></PayrollField>
+            <PayrollField label="Paid Leave"><input type="number" min="0" className={inputClass} value={payrollForm.paidLeave} onChange={(event) => setPayrollForm({ ...payrollForm, paidLeave: Number(event.target.value) })} /></PayrollField>
+            <PayrollField label="Basic Salary (₹)" hint="Auto-filled from employee profile"><input type="number" min="0" required className={inputClass} value={payrollForm.basicSalary} onChange={(event) => setPayrollForm({ ...payrollForm, basicSalary: Number(event.target.value) })} /></PayrollField>
+            <PayrollField label="HRA (₹)"><input type="number" min="0" className={inputClass} value={payrollForm.hra} onChange={(event) => setPayrollForm({ ...payrollForm, hra: Number(event.target.value) })} /></PayrollField>
+            <PayrollField label="Special Allowance (₹)"><input type="number" min="0" className={inputClass} value={payrollForm.specialAllowance} onChange={(event) => setPayrollForm({ ...payrollForm, specialAllowance: Number(event.target.value) })} /></PayrollField>
+            <PayrollField label="Leave Deduction (₹)"><input type="number" min="0" className={inputClass} value={payrollForm.leaveDeduction} onChange={(event) => setPayrollForm({ ...payrollForm, leaveDeduction: Number(event.target.value) })} /></PayrollField>
+            <PayrollField label="Other Deduction (₹)" hint="Manual deduction besides leave"><input type="number" min="0" className={inputClass} value={payrollForm.deductions} onChange={(event) => setPayrollForm({ ...payrollForm, deductions: Number(event.target.value) })} /></PayrollField>
+            <PayrollField label="Advance Salary (₹)" hint="Salary advance already paid"><input type="number" min="0" className={inputClass} value={payrollForm.advanceSalary} onChange={(event) => setPayrollForm({ ...payrollForm, advanceSalary: Number(event.target.value) })} /></PayrollField>
+            <div className="rounded-md border border-orange-100 bg-orange-50 px-3 py-2 text-sm md:col-span-2"><p className="font-semibold text-slate-800">Gross Salary: ₹{payrollPreview.gross.toLocaleString("en-IN")} · Estimated Net Salary: ₹{payrollPreview.estimated.toLocaleString("en-IN")}</p><p className="mt-1 text-xs text-slate-600">Gross = Basic ₹{payrollPreview.basic.toLocaleString("en-IN")} + HRA ₹{payrollPreview.hra.toLocaleString("en-IN")} + Special Allowance ₹{payrollPreview.specialAllowance.toLocaleString("en-IN")}. Leave deduction will be applied on Calculate.</p></div>
+            <button className={buttonClass}><Save size={16} /> {editingPayroll ? "Update Payroll" : "Calculate Payroll"}</button>
           </form>
         </Panel>
       )}
@@ -393,6 +477,11 @@ export function EmployeeOperationsPage({ module }) {
       <Panel title={path === "employee-desk" ? "Monthly Attendance" : "Records"} action={loading ? <span className="text-sm text-slate-500">Loading...</span> : null}>
         <DataTable columns={path === "employee-desk" ? attendanceColumns : columns} rows={path === "employee-desk" ? (me?.attendance || []) : rows} />
       </Panel>
+      <SalarySlipModal open={salarySlip.open} loading={salarySlip.loading} data={salarySlip.data} onClose={() => setSalarySlip({ open: false, loading: false, data: null })} onEdit={() => salarySlip.data?.payroll && editPayroll(salarySlip.data.payroll)} onDelete={() => salarySlip.data?.payroll && deletePayroll(salarySlip.data.payroll)} />
     </div>
   );
+}
+
+function PayrollField({ label, hint, children }) {
+  return <label className="block text-sm font-semibold text-slate-700"><span>{label}</span>{hint && <span className="ml-1 text-xs font-normal text-slate-400">({hint})</span>}<div className="mt-1">{children}</div></label>;
 }

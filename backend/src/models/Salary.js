@@ -5,8 +5,17 @@ const salarySchema = new mongoose.Schema(
   {
     user: objectId("User"),
     month: { type: String, required: true },
+    employeeCode: String,
+    department: String,
+    designation: String,
+    dateOfJoining: Date,
+    uan: String,
+    workingDays: { type: Number, default: 0 },
+    paidLeave: { type: Number, default: 0 },
     monthlySalary: { type: Number, default: 0 },
     basicSalary: { type: Number, default: 0 },
+    hra: { type: Number, default: 0 },
+    specialAllowance: { type: Number, default: 0 },
     perDaySalary: { type: Number, default: 0 },
     payableDays: { type: Number, default: 0 },
     presentDays: { type: Number, default: 0 },
@@ -15,6 +24,10 @@ const salarySchema = new mongoose.Schema(
     halfDays: { type: Number, default: 0 },
     grossAmount: Number,
     deductions: { type: Number, default: 0 },
+    // Stored separately so a payslip can show the existing payroll calculation
+    // as meaningful line items without changing the total deduction workflow.
+    leaveDeduction: { type: Number, default: 0 },
+    otherDeduction: { type: Number, default: 0 },
     bonus: { type: Number, default: 0 },
     incentives: { type: Number, default: 0 },
     advanceSalary: { type: Number, default: 0 },

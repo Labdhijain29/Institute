@@ -3,7 +3,7 @@ import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { api } from "../api/client.js";
 import { DataTable } from "../components/DataTable.jsx";
 
-const emptyCourse = { name: "", duration: "", fees: "", description: "", isActive: true };
+const emptyCourse = { name: "", duration: "", fees: "", description: "", image: "", isActive: true };
 
 export function CourseManagementPage() {
   const [courses, setCourses] = useState([]);
@@ -16,7 +16,7 @@ export function CourseManagementPage() {
   useEffect(() => { load().catch((error) => setMessage(error.message)); }, []);
 
   const showCreate = () => { setEditing(null); setForm(emptyCourse); setOpen(true); setMessage(""); };
-  const showEdit = (course) => { setEditing(course); setForm({ name: course.name || "", duration: course.duration || "", fees: course.fees ?? "", description: course.description || "", isActive: course.isActive !== false }); setOpen(true); setMessage(""); };
+  const showEdit = (course) => { setEditing(course); setForm({ name: course.name || "", duration: course.duration || "", fees: course.fees ?? "", description: course.description || "", image: course.image || "", isActive: course.isActive !== false }); setOpen(true); setMessage(""); };
   const submit = async (event) => {
     event.preventDefault();
     try {
@@ -33,7 +33,18 @@ export function CourseManagementPage() {
     } catch (error) { setMessage(error.message); }
   };
 
+  const chooseImage = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { setMessage("Please choose an image file"); return; }
+    if (file.size > 2 * 1024 * 1024) { setMessage("Course image must be 2 MB or smaller"); return; }
+    try {
+      const image = await readImage(file);
+      setForm((current) => ({ ...current, image }));
+    } catch { setMessage("Unable to read the selected course image"); }
+  };
+
   const columns = [
+    { key: "image", label: "Photo", render: (row) => row.image ? <img src={row.image} alt="" className="h-10 w-14 rounded object-cover" /> : <span className="text-slate-400">—</span> },
     { key: "name", label: "Course Name" }, { key: "duration", label: "Duration" },
     { key: "fees", label: "Total Fees", render: (row) => `₹${Number(row.fees || 0).toLocaleString("en-IN")}` },
     { key: "isActive", label: "Status", render: (row) => row.isActive === false ? "Inactive" : "Active" },
@@ -47,6 +58,7 @@ export function CourseManagementPage() {
     {open && <Modal title={editing ? "Edit Course" : "New Course"} onClose={() => setOpen(false)}><form onSubmit={submit} className="space-y-3">
       <Field label="Course Name"><input required className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
       <div className="grid gap-3 sm:grid-cols-2"><Field label="Duration"><input required placeholder="e.g. 6 Months" className={inputClass} value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} /></Field><Field label="Total Fees"><input required min="0" type="number" className={inputClass} value={form.fees} onChange={(e) => setForm({ ...form, fees: e.target.value })} /></Field></div>
+      <Field label="Course Photo (Optional)"><input type="file" accept="image/*" className={inputClass} onChange={(e) => chooseImage(e.target.files?.[0])} /><p className="mt-1 text-xs font-normal text-slate-500">JPG, PNG, or WebP · maximum 2 MB</p>{form.image && <div className="mt-2 flex items-center gap-3"><img src={form.image} alt="Course preview" className="h-20 w-28 rounded-md border border-slate-200 object-cover" /><button type="button" onClick={() => setForm({ ...form, image: "" })} className="text-sm font-semibold text-red-600 hover:underline">Remove photo</button></div>}</Field>
       <Field label="Description"><textarea className={`${inputClass} min-h-24`} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
       <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Active Course</label>
       <Actions onClose={() => setOpen(false)} label={editing ? "Update Course" : "Create Course"} />
@@ -56,5 +68,6 @@ export function CourseManagementPage() {
 
 const inputClass = "mt-1.5 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]";
 function Field({ label, children }) { return <label className="block text-sm font-semibold">{label}{children}</label>; }
+function readImage(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); }
 function Actions({ onClose, label }) { return <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={onClose} className="rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button><button className="rounded-md bg-[#f97316] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111315]">{label}</button></div>; }
 function Modal({ title, onClose, children }) { return <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"><div className="w-full max-w-xl rounded-lg bg-white p-5 shadow-xl"><div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-bold">{title}</h2><button onClick={onClose} className="rounded-md p-2 hover:bg-slate-100"><X size={18} /></button></div>{children}</div></div>; }

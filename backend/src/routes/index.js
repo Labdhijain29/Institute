@@ -41,6 +41,7 @@ import { digitalMarketingRoutes } from "./digitalMarketingRoutes.js";
 import { employeeRoutes } from "./employeeRoutes.js";
 import { userApprovalRoutes } from "./userApprovalRoutes.js";
 import { followUpRoutes } from "./followUpRoutes.js";
+import { attendanceRoutes } from "./attendanceRoutes.js";
 
 export const apiRoutes = Router();
 
@@ -77,6 +78,7 @@ apiRoutes.use("/staff", make(Staff, "staff", ["employeeCode", "department", "des
 apiRoutes.use("/fees", make(Fee, "fees"));
 apiRoutes.use("/payments", make(Payment, "payments", ["receiptNo", "mode"]));
 apiRoutes.use("/receipts", receiptRoutes);
+apiRoutes.use("/attendance", attendanceRoutes);
 apiRoutes.use("/attendance", make(Attendance, "attendance"));
 apiRoutes.use("/leaves", make(Leave, "leaves"));
 apiRoutes.use("/lecture-reports", make(LectureReport, "lectures", ["topicTaught", "courseName", "batchName"]));

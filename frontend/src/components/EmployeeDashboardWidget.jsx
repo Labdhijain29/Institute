@@ -22,7 +22,10 @@ export function EmployeeDashboardWidget({ compact = false }) {
   const [data, setData] = useState(null);
   const [message, setMessage] = useState("");
   const month = new Date().toISOString().slice(0, 7);
-  const isEmployeeView = !["Super Admin", "Admin", "Student", "Parent"].includes(user.role);
+  // Every non-student user has an individual attendance record.  Keep this
+  // widget role-neutral so it is available on the main and role-specific
+  // staff dashboards alike.
+  const isEmployeeView = !["Student", "Parent"].includes(user.role);
 
   const load = async () => {
     if (!isEmployeeView) return;

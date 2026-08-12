@@ -13,6 +13,7 @@ import { CourseManagementPage } from "../pages/CourseManagementPage.jsx";
 import { BatchManagementPage } from "../pages/BatchManagementPage.jsx";
 import { StudentManagementPage } from "../pages/StudentManagementPage.jsx";
 import { AttendanceDashboardPage } from "../pages/AttendanceDashboardPage.jsx";
+import { StudentAttendanceManagementPage } from "../pages/StudentAttendanceManagementPage.jsx";
 import { AdmissionsDashboardPage } from "../pages/AdmissionsDashboardPage.jsx";
 import { DigitalMarketingManagementPage } from "../pages/DigitalMarketingManagementPage.jsx";
 import { EmployeeOperationsPage } from "../pages/EmployeeOperationsPage.jsx";
@@ -48,7 +49,7 @@ export function Shell() {
     if (!isAdminDashboard && window.innerWidth >= 1024) localStorage.setItem(sidebarStorageKey, String(!open));
   }, [isAdminDashboard, open, sidebarStorageKey]);
 
-  const Page = active === "offers" ? OfferLettersPage : active === "certificates" ? CertificatesPage : active === "receipts" ? ReceiptsPage : active === "attendance" ? AttendanceDashboardPage : active === "admissions" ? AdmissionsDashboardPage : isEmployeeOperations ? EmployeeOperationsPage : canManageEnrollment && active === "users" ? UserApprovalPage : canManageEnrollment && active === "digital-marketing-management" ? DigitalMarketingManagementPage : canManageEnrollment && active === "courses" ? CourseManagementPage : canManageEnrollment && active === "batches" ? BatchManagementPage : canManageEnrollment && active === "students" ? StudentManagementPage : isDashboard ? DashboardPage : isLeadWorkflow ? LeadsPage : ModulePage;
+  const Page = active === "offers" ? OfferLettersPage : active === "certificates" ? CertificatesPage : active === "receipts" ? ReceiptsPage : active === "employee-attendance" ? AttendanceDashboardPage : active === "student-attendance" ? StudentAttendanceManagementPage : active === "admissions" ? AdmissionsDashboardPage : isEmployeeOperations ? EmployeeOperationsPage : canManageEnrollment && active === "users" ? UserApprovalPage : canManageEnrollment && active === "digital-marketing-management" ? DigitalMarketingManagementPage : canManageEnrollment && active === "courses" ? CourseManagementPage : canManageEnrollment && active === "batches" ? BatchManagementPage : canManageEnrollment && active === "students" ? StudentManagementPage : isDashboard ? DashboardPage : isLeadWorkflow ? LeadsPage : ModulePage;
 
   return (
     <div className={`min-h-screen bg-[#f8f5ef] text-[#111315] lg:grid ${isAdminDashboard || open ? "lg:grid-cols-[270px_minmax(0,1fr)]" : "lg:grid-cols-[0_minmax(0,1fr)]"}`}>

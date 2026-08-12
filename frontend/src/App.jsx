@@ -7,6 +7,7 @@ import { AboutPage, ContactPage, CoursesPage, HomePage, ITServicesPage, Services
 import { CourseDetailPage } from "./pages/CourseDetailPage.jsx";
 import { StudentPortal } from "./student/StudentPortal.jsx";
 import { MarketingPortal } from "./marketing/MarketingPortal.jsx";
+import { AttendanceScanPage } from "./pages/AttendanceScanPage.jsx";
 
 function usePath() {
   const [path, setPath] = useState(window.location.pathname || "/");
@@ -40,6 +41,11 @@ function Root() {
   const [dark, setDark] = useState(false);
 
   if (loading) return <div className="grid min-h-screen place-items-center text-sm text-slate-600">Loading secure workspace...</div>;
+
+  if (path === "/attendance/scan") {
+    if (user?.role === "Student") return <StudentPortal path="/student/dashboard" />;
+    return <AttendanceScanPage />;
+  }
 
   if (path === "/student" || path.startsWith("/student/")) {
     if (!user) return <LoginPage />;

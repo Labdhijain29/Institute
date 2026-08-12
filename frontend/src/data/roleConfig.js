@@ -48,7 +48,8 @@ export const baseMenu = [
   { label: "Students", path: "students", icon: UsersRound, roles: ["Super Admin", "Admin", "Faculty", "Accountant"] },
   { label: "Courses", path: "courses", icon: BookOpen, roles: ["Super Admin", "Admin", "Faculty"] },
   { label: "Batches", path: "batches", icon: CalendarDays, roles: ["Super Admin", "Admin", "Faculty"] },
-  { label: "Attendance", path: "attendance", icon: ClipboardCheck, roles: ["Super Admin", "Admin", "Faculty", "HR", "Student", "Parent"] },
+  { label: "Student Attendance", path: "student-attendance", icon: ClipboardCheck, roles: ["Super Admin", "Admin", "Faculty"] },
+  { label: "Employee Attendance", path: "employee-attendance", icon: Clock, roles: ["Super Admin", "Admin", "HR"] },
   { label: "My Employee Desk", path: "employee-desk", icon: Clock, roles: ["Manager", "HR", "Telecaller", "Counsellor", "Faculty", "Accountant", "Receptionist", "Developer/IT Staff", "Digital Marketing Executive"] },
   { label: "Employee Reports", path: "employee-reports", icon: ClipboardCheck, roles: ["Super Admin", "Admin", "HR"] },
   { label: "Payroll", path: "payroll", icon: ReceiptIndianRupee, roles: ["Super Admin", "Admin", "HR", "Accountant"] },
@@ -78,7 +79,7 @@ export const sidebarGroups = [
     icon: UsersRound,
     items: [
       { path: "students", label: "All Students" },
-      { path: "attendance", label: "Student Attendance" },
+      { path: "student-attendance", label: "Student Attendance" },
       { path: "certificates" }
     ]
   },
@@ -89,6 +90,7 @@ export const sidebarGroups = [
     icon: BriefcaseBusiness,
     items: [
       { path: "employee-desk", label: "Employees Overview" },
+      { path: "employee-attendance", label: "Employee Attendance" },
       { path: "manager-dashboard" },
       { path: "telecaller-dashboard" },
       { path: "counsellor-dashboard" },

@@ -252,6 +252,7 @@ export const logoutAttendance = asyncHandler(async (req, res) => {
 
   attendance.logoutTime = now;
   attendance.totalWorkingMinutes = Math.max(Math.round((now - attendance.loginTime) / 60000), 0);
+  attendance.totalHours = Number((attendance.totalWorkingMinutes / 60).toFixed(2));
   const requiredMinutes = REQUIRED_WORKING_HOURS * 60;
   if (attendance.totalWorkingMinutes < requiredMinutes / 2) attendance.status = "Half Day";
   else if (attendance.status !== "Late") attendance.status = "Present";
@@ -328,12 +329,13 @@ export const calculatePayroll = asyncHandler(async (req, res) => {
   const leaveDays = rows.filter((row) => row.status === "Leave").length;
   const halfDays = rows.filter((row) => row.status === "Half Day").length;
   const lateMarks = rows.filter((row) => row.status === "Late").length;
-  const payableDays = presentDays + leaveDays + halfDays * 0.5;
-  // Attendance remains recorded for reporting, but only an explicitly entered
-  // leave deduction can reduce the salary on the payroll slip.
-  const explicitLeaveDeduction = Number(leaveDeduction || 0);
   const totalWorkingDays = workingDays === undefined || workingDays === null ? days : Number(workingDays);
-  const netAmount = Math.max(grossAmount - explicitLeaveDeduction - Number(deductions) - Number(advanceSalary), 0);
+  const unpaidLeave = 0;
+  const absentDays = Math.max(totalWorkingDays - presentDays - leaveDays - halfDays, 0);
+  const payableDays = presentDays + leaveDays + halfDays * 0.5;
+  const explicitLeaveDeduction = Number(leaveDeduction || 0);
+  const attendanceDeduction = perDaySalary * (absentDays + unpaidLeave + halfDays * 0.5);
+  const netAmount = Math.max(grossAmount - attendanceDeduction - explicitLeaveDeduction - Number(deductions) - Number(advanceSalary), 0);
   const payroll = await Salary.findOneAndUpdate(
     { user, month },
     {
@@ -353,13 +355,18 @@ export const calculatePayroll = asyncHandler(async (req, res) => {
       perDaySalary,
       payableDays,
       presentDays,
+      absentDays,
       leaveDays,
+      unpaidLeave,
       lateMarks,
       halfDays,
+      totalWorkingHours: Number((rows.reduce((total, row) => total + (row.totalWorkingMinutes || 0), 0) / 60).toFixed(2)),
+      overtimeHours: 0,
       grossAmount,
-      deductions: Number(deductions) + explicitLeaveDeduction,
+      deductions: Number(deductions) + explicitLeaveDeduction + attendanceDeduction,
       leaveDeduction: explicitLeaveDeduction,
       otherDeduction: Number(deductions),
+      attendanceDeduction,
       bonus: 0,
       incentives: 0,
       advanceSalary,

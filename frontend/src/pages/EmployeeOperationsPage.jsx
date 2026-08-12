@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Download, Edit3, Eye, FileText, LogIn, LogOut, Plus, RefreshCw, Save, Trash2 } from "lucide-react";
+import { Download, Edit3, Eye, FileText, Plus, RefreshCw, Save, ScanLine, Trash2 } from "lucide-react";
 import { api } from "../api/client.js";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
@@ -88,6 +88,7 @@ export function EmployeeOperationsPage({ module }) {
   const [ipForm, setIpForm] = useState({ label: "", ipAddress: "", remarks: "" });
   const [salarySlip, setSalarySlip] = useState({ open: false, loading: false, data: null });
   const [editingPayroll, setEditingPayroll] = useState(null);
+  const [attendanceSummary, setAttendanceSummary] = useState(null);
 
   const loadBase = async () => {
     setLoading(true);
@@ -141,6 +142,18 @@ export function EmployeeOperationsPage({ module }) {
       .then((data) => setUsers(data.items || []))
       .catch(() => setUsers([]));
   }, [canPayroll]);
+
+  useEffect(() => {
+    if (!canPayroll || !payrollForm.user || !payrollForm.month) { setAttendanceSummary(null); return; }
+    api(`/attendance/monthly/${payrollForm.user}?month=${payrollForm.month}`)
+      .then((data) => {
+        setAttendanceSummary(data);
+        setPayrollForm((current) => current.user === payrollForm.user && current.month === payrollForm.month
+          ? { ...current, workingDays: data.workingDays, paidLeave: data.paidLeave }
+          : current);
+      })
+      .catch(() => setAttendanceSummary(null));
+  }, [canPayroll, payrollForm.user, payrollForm.month]);
 
   const attendanceColumns = [
     { key: "date", label: "Date", render: (row) => row.date?.slice(0, 10) || "-" },
@@ -196,28 +209,6 @@ export function EmployeeOperationsPage({ module }) {
     ];
     return attendanceColumns;
   }, [path]);
-
-  const login = async () => {
-    try {
-      const result = await api("/employee/attendance/login", { method: "POST", body: JSON.stringify({}) });
-      setMessage(result.message);
-      await loadBase();
-      await loadRows();
-    } catch (error) {
-      setMessage(error.message);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      const result = await api("/employee/attendance/logout", { method: "POST", body: JSON.stringify({}) });
-      setMessage(result.message);
-      await loadBase();
-      await loadRows();
-    } catch (error) {
-      setMessage(error.message);
-    }
-  };
 
   const submitLeave = async (event) => {
     event.preventDefault();
@@ -370,10 +361,8 @@ export function EmployeeOperationsPage({ module }) {
       {path === "employee-desk" && (
         <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
           <Panel title="Today Attendance">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button onClick={login} className={buttonClass}><LogIn size={16} /> Login</button>
-              <button onClick={logout} className={secondaryButtonClass}><LogOut size={16} /> Logout</button>
-            </div>
+            <a href="/attendance/scan" className={buttonClass}><ScanLine size={16} /> Open QR Scanner</a>
+            <p className="mt-3 text-sm text-slate-500">Use the employee QR code to check in and check out. Your signed-in account is used automatically.</p>
             <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
               <p><span className="text-slate-500">Status:</span> <strong>{me?.todayAttendance?.status || "Not logged"}</strong></p>
               <p><span className="text-slate-500">Login:</span> <strong>{formatTime(me?.todayAttendance?.loginTime)}</strong></p>
@@ -428,6 +417,7 @@ export function EmployeeOperationsPage({ module }) {
       {path === "payroll" && canPayroll && (
         <Panel title={editingPayroll ? "Edit Payroll" : "Calculate Payroll"} action={editingPayroll ? <button type="button" onClick={() => { setEditingPayroll(null); setPayrollForm(payrollDefaults()); }} className="text-sm font-semibold text-[#c2410c]">Cancel Edit</button> : null}>
           <p className="mb-4 text-sm text-slate-500">Complete all employee and salary fields for a proper payslip. Salary is reduced only by the deductions you explicitly enter below.</p>
+          {attendanceSummary && <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950"><p className="font-bold">Attendance summary · {attendanceSummary.month}</p><div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4"><span>Present: <strong>{attendanceSummary.presentDays}</strong></span><span>Absent: <strong>{attendanceSummary.absentDays}</strong></span><span>Late: <strong>{attendanceSummary.lateDays}</strong></span><span>Working: <strong>{attendanceSummary.totalHours}h</strong></span><span>Paid leave: <strong>{attendanceSummary.paidLeave}</strong></span><span>Half days: <strong>{attendanceSummary.halfDays}</strong></span><span>Unpaid leave: <strong>{attendanceSummary.unpaidLeave}</strong></span><span>Working days: <strong>{attendanceSummary.workingDays}</strong></span></div></div>}
           <form onSubmit={calculatePayroll} className="grid gap-3 md:grid-cols-4">
             <PayrollField label="Employee"><select required className={inputClass} value={payrollForm.user} onChange={(event) => selectPayrollEmployee(event.target.value)}><option value="">Select employee</option>{users.map((item) => <option key={item._id} value={item._id}>{item.name} ({item.role})</option>)}</select></PayrollField>
             <PayrollField label="Payroll Month"><input type="month" className={inputClass} value={payrollForm.month} onChange={(event) => setPayrollForm({ ...payrollForm, month: event.target.value })} /></PayrollField>

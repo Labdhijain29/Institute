@@ -11,6 +11,7 @@ const attendanceSchema = new mongoose.Schema(
     loginTime: Date,
     logoutTime: Date,
     totalWorkingMinutes: { type: Number, default: 0 },
+    totalHours: { type: Number, default: 0 },
     breakDurationMinutes: { type: Number, default: 0 },
     ipAddress: String,
     publicIp: String,
@@ -50,6 +51,14 @@ const attendanceSchema = new mongoose.Schema(
     remarks: String
   },
   baseOptions
+);
+
+// Employee scans always store a normalized start-of-day date.  The partial
+// index leaves the existing student-attendance data untouched while ensuring a
+// staff user cannot have more than one record for a calendar day.
+attendanceSchema.index(
+  { user: 1, date: 1 },
+  { unique: true, partialFilterExpression: { user: { $exists: true } } }
 );
 
 export const Attendance = mongoose.model("Attendance", attendanceSchema);

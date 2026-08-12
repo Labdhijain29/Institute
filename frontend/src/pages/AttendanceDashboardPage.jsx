@@ -18,6 +18,7 @@ import {
   Printer,
   RefreshCw,
   Save,
+  ScanLine,
   Search,
   ShieldAlert,
   Smartphone,
@@ -30,13 +31,14 @@ import {
 } from "lucide-react";
 import { api } from "../api/client.js";
 import { SearchableSelect } from "../components/SearchableSelect.jsx";
+import QRCode from "qrcode";
 
 const inputClass = "h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-[#f97316] focus:ring-2 focus:ring-[#f97316]/10 disabled:bg-slate-100 disabled:text-slate-400";
 const labelClass = "mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-500";
 const actionClass = "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-[#f97316] hover:bg-[#fff3e8] hover:text-[#c2410c]";
 const primaryActionClass = "inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#f97316] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#111315]";
 const statusOptions = ["Present", "Absent", "Late", "Half Day", "Leave", "Pending Logout"];
-const typeOptions = ["Student", "Faculty", "Staff"];
+const typeOptions = ["Faculty", "Staff"];
 const asOptions = (items) => items.map((item) => ({ value: item, label: item }));
 const dropdownClass = "mt-0";
 
@@ -422,6 +424,7 @@ export function AttendanceDashboardPage() {
   const [batches, setBatches] = useState([]);
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
+  const [attendanceQr, setAttendanceQr] = useState("");
   const [loading, setLoading] = useState(false);
   const [savingTimeId, setSavingTimeId] = useState("");
   const [selectedRow, setSelectedRow] = useState(null);
@@ -446,7 +449,7 @@ export function AttendanceDashboardPage() {
   });
   const [form, setForm] = useState({
     date: today(),
-    type: "Student",
+    type: "Staff",
     student: "",
     user: "",
     batch: "",
@@ -466,7 +469,7 @@ export function AttendanceDashboardPage() {
         api("/batches?limit=100"),
         api("/users?limit=100")
       ]);
-      setAttendance(attendanceData.items || []);
+      setAttendance((attendanceData.items || []).filter((row) => row.type !== "Student"));
       setStudents(studentsData.items || []);
       setBatches(batchesData.items || []);
       setUsers(usersData.items || []);
@@ -479,6 +482,10 @@ export function AttendanceDashboardPage() {
 
   useEffect(() => {
     loadData();
+  }, []);
+
+  useEffect(() => {
+    QRCode.toDataURL(`${window.location.origin}/attendance/scan`, { width: 180, margin: 1 }).then(setAttendanceQr).catch(() => setAttendanceQr(""));
   }, []);
 
   useEffect(() => {
@@ -581,10 +588,8 @@ export function AttendanceDashboardPage() {
   const averageWorking = todaysRows.length ? Math.round(todaysRows.reduce((sum, row) => sum + (row.totalWorkingMinutes || 0), 0) / todaysRows.length) : 0;
   const attendancePercentage = todaysRows.length ? Math.round((todaysRows.filter((row) => ["Present", "Late", "Pending Logout"].includes(row.status)).length / todaysRows.length) * 100) : 0;
 
-  const candidatePeople = form.type === "Student"
-    ? students
-    : users.filter((item) => form.type === "Faculty" ? item.role === "Faculty" : item.role !== "Student");
-  const selectedPerson = form.type === "Student" ? studentMap[form.student] : userMap[form.user];
+  const candidatePeople = users.filter((item) => form.type === "Faculty" ? item.role === "Faculty" : !["Student", "Parent"].includes(item.role));
+  const selectedPerson = userMap[form.user];
   const formWorkingMinutes = workingMinutesForTimes(form.date, form.loginTime, form.logoutTime);
   const formSystemStatus = form.loginTime && !form.logoutTime && ["Present", "Pending Logout"].includes(form.status)
     ? "Pending Logout"
@@ -594,12 +599,7 @@ export function AttendanceDashboardPage() {
 
   const submitAttendance = async (event) => {
     event.preventDefault();
-    const selectedStudent = studentMap[form.student];
-    if (form.type === "Student" && !form.student) {
-      setMessage("Please select a student.");
-      return;
-    }
-    if (form.type !== "Student" && !form.user) {
+    if (!form.user) {
       setMessage(`Please select a ${form.type.toLowerCase()}.`);
       return;
     }
@@ -610,9 +610,7 @@ export function AttendanceDashboardPage() {
       type: form.type,
       status: formSystemStatus,
       remarks: form.remarks,
-      batch: form.batch || selectedStudent?.batch || undefined,
-      student: form.type === "Student" ? form.student : undefined,
-      user: form.type === "Student" ? undefined : form.user,
+      user: form.user,
       loginTime: combineDateAndTime(baseDate, form.loginTime),
       logoutTime: combineDateAndTime(baseDate, form.logoutTime),
       totalWorkingMinutes: formWorkingMinutes,
@@ -622,7 +620,7 @@ export function AttendanceDashboardPage() {
     try {
       await api("/attendance", { method: "POST", body: JSON.stringify(payload) });
       setMessage("Attendance marked successfully");
-      setForm({ ...form, student: "", user: "", status: "Present", loginTime: "", logoutTime: "", remarks: "" });
+      setForm({ ...form, user: "", status: "Present", loginTime: "", logoutTime: "", remarks: "" });
       setFilters((current) => ({
         ...current,
         date: baseDate,
@@ -752,6 +750,10 @@ export function AttendanceDashboardPage() {
 
       {message && <p className="rounded-md border border-[#f97316]/20 bg-[#fff3e8] px-4 py-3 text-sm font-bold text-[#c2410c]">{message}</p>}
 
+      <Panel title="Employee QR Attendance" icon={ScanLine} action={<a href="/attendance/scan" className={actionClass}>Open scan page</a>}>
+        <div className="flex flex-wrap items-center gap-4"><div className="rounded-lg border border-slate-200 bg-white p-2">{attendanceQr ? <img src={attendanceQr} alt="Employee attendance QR" className="h-28 w-28" /> : <span className="grid h-28 w-28 place-items-center text-xs text-slate-400">Generating QR…</span>}</div><p className="max-w-xl text-sm text-slate-500">This QR opens the secure attendance scanner only. It contains no employee ID; the authenticated CRM session determines who is checking in or out.</p></div>
+      </Panel>
+
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
         <StatTile icon={UserCheck} label="Present Today" value={presentToday} tone="green" trend="+ Live" chart={[presentToday, presentToday + 1, presentToday, todaysRows.length, presentToday]} />
         <StatTile icon={UserMinus} label="Absent Today" value={absentToday} tone="red" chart={[1, absentToday, 2, absentToday, 1]} />
@@ -789,12 +791,11 @@ export function AttendanceDashboardPage() {
       <div className="grid gap-5 2xl:grid-cols-[1fr_320px]">
         <div className="space-y-5">
           <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-            <Panel title="Attendance Entry" icon={CalendarCheck} action={<span className="text-xs font-bold text-slate-500">Auto captures browser, OS and device</span>}>
+            {/* <Panel title="Attendance Entry" icon={CalendarCheck} action={<span className="text-xs font-bold text-slate-500">Auto captures browser, OS and device</span>}>
               <form onSubmit={submitAttendance} className="grid gap-3 md:grid-cols-2">
                 <label><span className={labelClass}>Date</span><input type="date" className={inputClass} value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} /></label>
-                <label><span className={labelClass}>Person Type</span><SearchableSelect className={dropdownClass} options={asOptions(typeOptions)} value={form.type} onChange={(type) => setForm({ ...form, type, student: "", user: "" })} placeholder="Select type..." searchPlaceholder="Search type..." /></label>
-                <label><span className={labelClass}>Search Employee / Student</span><SearchableSelect className={dropdownClass} options={candidatePeople.map((item) => ({ value: item._id, label: `${item.name} ${item.employeeId || item.studentId || item.role ? `(${item.employeeId || item.studentId || item.role})` : ""}` }))} value={form.type === "Student" ? form.student : form.user} onChange={(value) => setForm(form.type === "Student" ? { ...form, student: value, batch: studentMap[value]?.batch || form.batch } : { ...form, user: value })} placeholder={`Select ${form.type.toLowerCase()}...`} searchPlaceholder={`Search ${form.type.toLowerCase()}...`} /></label>
-                <label><span className={labelClass}>Batch</span><SearchableSelect className={dropdownClass} options={[{ value: "", label: "Auto / no batch" }, ...batches.map((batch) => ({ value: batch._id, label: batch.name }))]} value={form.batch} onChange={(batch) => setForm({ ...form, batch })} placeholder="Auto / no batch" searchPlaceholder="Search batch..." /></label>
+                <label><span className={labelClass}>Employee Type</span><SearchableSelect className={dropdownClass} options={asOptions(typeOptions)} value={form.type} onChange={(type) => setForm({ ...form, type, user: "" })} placeholder="Select type..." searchPlaceholder="Search type..." /></label>
+                <label><span className={labelClass}>Search Employee</span><SearchableSelect className={dropdownClass} options={candidatePeople.map((item) => ({ value: item._id, label: `${item.name} (${item.employeeId || item.role || "Employee"})` }))} value={form.user} onChange={(value) => setForm({ ...form, user: value })} placeholder={`Select ${form.type.toLowerCase()}...`} searchPlaceholder={`Search ${form.type.toLowerCase()}...`} /></label>
                 <div className="md:col-span-2 grid gap-3 lg:grid-cols-[0.7fr_1.3fr]">
                   <label><span className={labelClass}>Attendance Status</span><SearchableSelect className={dropdownClass} options={asOptions(statusOptions)} value={form.status} onChange={(status) => setForm({ ...form, status })} placeholder="Select status..." searchPlaceholder="Search status..." /></label>
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -810,9 +811,9 @@ export function AttendanceDashboardPage() {
                 <input className={`${inputClass} md:col-span-2`} placeholder="Remarks" value={form.remarks} onChange={(event) => setForm({ ...form, remarks: event.target.value })} />
                 <button className={`${primaryActionClass} md:col-span-2`}><Save size={16} /> Save Attendance</button>
               </form>
-            </Panel>
+            </Panel> */}
 
-            <Panel title="Advanced Filters" icon={Filter} action={<button className="text-xs font-black text-[#c2410c]" onClick={clearFilters}>Reset filters</button>}>
+            {/* <Panel title="Advanced Filters" icon={Filter} action={<button className="text-xs font-black text-[#c2410c]" onClick={clearFilters}>Reset filters</button>}>
               <div className="grid gap-3 md:grid-cols-2">
                 <label className="md:col-span-2"><span className={labelClass}>Search</span><div className="flex h-10 items-center gap-2 rounded-md border border-slate-300 bg-white px-3 focus-within:border-[#f97316]"><Search size={16} className="text-slate-400" /><input className="w-full bg-transparent text-sm outline-none" value={filters.search} onChange={(event) => setFilters({ ...filters, search: event.target.value })} placeholder="Search employee, department, IP, location..." /></div></label>
                 <label><span className={labelClass}>Date</span><input type="date" className={inputClass} value={filters.date} onChange={(event) => setFilters({ ...filters, date: event.target.value })} /></label>
@@ -828,7 +829,7 @@ export function AttendanceDashboardPage() {
                 <label><span className={labelClass}>Device</span><SearchableSelect className={dropdownClass} options={asOptions(["All", ...devices])} value={filters.device} onChange={(device) => setFilters({ ...filters, device })} /></label>
                 <label className="md:col-span-2"><span className={labelClass}>Location</span><input className={inputClass} value={filters.location} onChange={(event) => setFilters({ ...filters, location: event.target.value })} placeholder="City, state or country" /></label>
               </div>
-            </Panel>
+            </Panel> */}
           </div>
 
           <Panel title="Analytics" icon={BarChart3}>

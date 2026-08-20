@@ -1,10 +1,9 @@
 import React from "react";
 import { useEffect, useMemo, useState } from "react";
-import { Download, Edit3, Eye, PhoneCall, Plus, Send, UserCheck, X } from "lucide-react";
+import { Edit3, Eye, PhoneCall, Plus, Send, UserCheck, X } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
-import { EmployeeDashboardWidget } from "../components/EmployeeDashboardWidget.jsx";
 import { SearchableSelect } from "../components/SearchableSelect.jsx";
 import { StatCard } from "../components/StatCard.jsx";
 import { courses as publicCourses } from "../data/publicContent.js";
@@ -116,14 +115,7 @@ export function LeadsPage({ module }) {
   const [followUps, setFollowUps] = useState([]);
   const [savingFollowUp, setSavingFollowUp] = useState(false);
   const [message, setMessage] = useState("");
-  const [sortBy, setSortBy] = useState("date");
-  const [sortDirection, setSortDirection] = useState("desc");
   const [leadStatusFilter, setLeadStatusFilter] = useState("");
-  const [enquirySearch, setEnquirySearch] = useState("");
-  const [courseFilter, setCourseFilter] = useState("");
-  const [sourceFilter, setSourceFilter] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
   const role = user?.role || "";
   const workflowRole = module?.workflowRole || role;
 
@@ -372,47 +364,51 @@ export function LeadsPage({ module }) {
     }), { all: 0, today: 0, fresh: 0, npc: 0, detailSent: 0, followUp: 0, callback: 0, complete: 0 });
   }, [workflowStatLeads, isTelecallerFlow, isCounsellorFlow, facultyHandoffs]);
 
-  const sortedLeads = useMemo(() => {
-    const search = enquirySearch.trim().toLowerCase();
-    const filtered = visibleLeads.filter((lead) => (
-      (!isTelecallerFlow || !leadStatusFilter || telecallerLeadStatus(lead) === leadStatusFilter)
-      && (!search || [lead.name, lead.mobile].some((value) => String(value || "").toLowerCase().includes(search)))
-      && (!courseFilter || courseName(lead) === courseFilter)
-      && (!sourceFilter || lead.source === sourceFilter)
-      && (!cityFilter || lead.city === cityFilter)
-      && (!dateFilter || dateInput(lead.leadDate || lead.createdAt) === dateFilter)
-    ));
-    const direction = sortDirection === "asc" ? 1 : -1;
-    return [...filtered].sort((left, right) => {
-      const leftValue = sortBy === "name"
-        ? left.name || ""
-        : sortBy === "course"
-          ? courseName(left)
-          : new Date(left.createdAt || left.leadDate || 0).getTime();
-      const rightValue = sortBy === "name"
-        ? right.name || ""
-        : sortBy === "course"
-          ? courseName(right)
-          : new Date(right.createdAt || right.leadDate || 0).getTime();
-      if (typeof leftValue === "number" && typeof rightValue === "number") return (leftValue - rightValue) * direction;
-      return String(leftValue).localeCompare(String(rightValue), undefined, { sensitivity: "base" }) * direction;
-    });
-  }, [visibleLeads, isTelecallerFlow, leadStatusFilter, enquirySearch, courseFilter, sourceFilter, cityFilter, dateFilter, sortBy, sortDirection, courses]);
+  const matchesLeadStatusFilter = (lead) => {
+    if (!leadStatusFilter) return true;
 
-  const exportEnquiries = () => {
-    const headers = ["Enquiry ID", "Date", "Name", "Mobile", "Email", "City", "College", "Qualification", "Course", "Learning Mode", "Source", "Status"];
-    const quote = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
-    const rows = sortedLeads.map((lead) => [lead._id, formatDate(lead.leadDate || lead.createdAt), lead.name, lead.mobile, lead.email, lead.city, lead.college, lead.qualification, courseName(lead), lead.learningMode, lead.source, lead.status]);
-    const blob = new Blob([[headers, ...rows].map((row) => row.map(quote).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
-    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `enquiries-${new Date().toISOString().slice(0, 10)}.csv`; link.click(); URL.revokeObjectURL(link.href);
+    const today = new Date();
+    const isToday = (value) => {
+      if (!value) return false;
+      const date = new Date(value);
+      return date.getFullYear() === today.getFullYear()
+        && date.getMonth() === today.getMonth()
+        && date.getDate() === today.getDate();
+    };
+    const calls = lead.callHistory || [];
+    const disposition = String(calls[calls.length - 1]?.status || lead.status || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, " ");
+
+    switch (leadStatusFilter) {
+      case "Pending": return telecallerLeadStatus(lead) === "Pending";
+      case "Active": return telecallerLeadStatus(lead) === "Active";
+      case "Rejected": return telecallerLeadStatus(lead) === "Rejected";
+      case "NPC": return ["npc", "not picking call", "not picked", "no answer"].includes(disposition);
+      case "Today": return isToday(lead.leadDate || lead.createdAt);
+      case "Fresh": return ["New", "Assigned"].includes(lead.status) && !calls.length;
+      case "Detail Sent": return ["detail sent", "details sent"].includes(disposition);
+      case "Today's Follow-up": return isToday(lead.followUpDate);
+      case "Callback": return ["call back", "callback", "call back later"].includes(disposition);
+      case "Complete": return leadStage(lead) === "completed";
+      default: return true;
+    }
   };
+
+  const sortedLeads = useMemo(() => {
+    return visibleLeads
+      .filter(matchesLeadStatusFilter)
+      .sort((left, right) => new Date(right.createdAt || right.leadDate || 0) - new Date(left.createdAt || left.leadDate || 0));
+  }, [visibleLeads, leadStatusFilter, facultyHandoffs]);
 
   const renderActions = (row) => {
     const actions = [];
+    const iconButtonClass = "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-200 text-slate-600 transition-colors hover:border-[#f97316] hover:bg-[#fff3e8] hover:text-[#c2410c]";
 
     if ((canWorkTelecaller || canWorkCounsellor) && !row.convertedStudent) {
       actions.push(
-        <button key="edit" onClick={() => openEditLead(row)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Edit lead">
+        <button key="edit" onClick={() => openEditLead(row)} className={iconButtonClass} title="Edit lead" aria-label="Edit lead">
           <Edit3 size={16} />
         </button>
       );
@@ -420,12 +416,12 @@ export function LeadsPage({ module }) {
 
     if (canWorkTelecaller && !row.counsellorAssigned && !row.convertedStudent) {
       actions.push(
-        <button key="followup" onClick={() => openFollowUp(row)} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-2 text-xs font-semibold text-[#ea580c] hover:bg-[#fff3e8]" title="Follow Up">
+        <button key="followup" onClick={() => openFollowUp(row)} className="inline-flex h-10 shrink-0 items-center justify-center gap-1 rounded-md border border-orange-200 bg-orange-50 px-3 text-xs font-semibold text-[#ea580c] transition-colors hover:bg-[#fff3e8]" title="Follow Up">
           <PhoneCall size={15} /> Follow Up
         </button>
       );
       actions.push(
-        <button key="counsellor" onClick={() => forward(row)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="Forward to counsellor">
+        <button key="counsellor" onClick={() => forward(row)} className={iconButtonClass} title="Forward to counsellor" aria-label="Forward to counsellor">
           <Send size={16} />
         </button>
       );
@@ -433,7 +429,7 @@ export function LeadsPage({ module }) {
 
     if (canWorkCounsellor && isCounsellorLead(row) && !isFacultyLead(row) && !row.convertedStudent) {
       actions.push(
-        <button key="followup" onClick={() => openFollowUp(row)} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-2 text-xs font-semibold text-[#ea580c] hover:bg-[#fff3e8]" title="Follow Up">
+        <button key="followup" onClick={() => openFollowUp(row)} className="inline-flex h-10 shrink-0 items-center justify-center gap-1 rounded-md border border-orange-200 bg-orange-50 px-3 text-xs font-semibold text-[#ea580c] transition-colors hover:bg-[#fff3e8]" title="Follow Up">
           <PhoneCall size={15} /> Follow Up
         </button>
       );
@@ -449,7 +445,7 @@ export function LeadsPage({ module }) {
               <option key={faculty._id} value={faculty._id}>{faculty.name}</option>
             ))}
           </select>
-          <button onClick={() => forwardFaculty(row)} disabled={!facultyUsers.length} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8] disabled:cursor-not-allowed disabled:opacity-50" title="Forward to faculty">
+          <button onClick={() => forwardFaculty(row)} disabled={!facultyUsers.length} className={`${iconButtonClass} disabled:cursor-not-allowed disabled:opacity-50`} title="Forward to faculty" aria-label="Forward to faculty">
             <Send size={16} />
           </button>
         </div>
@@ -458,19 +454,19 @@ export function LeadsPage({ module }) {
 
     if (canWorkFaculty && isFacultyLead(row) && admissionStatus(row) !== "Done") {
       actions.push(
-        <button key="approve" onClick={() => approveAdmission(row)} className="rounded-md border border-slate-200 p-2 text-[#ea580c] hover:bg-[#fff3e8]" title="Approve admission">
+        <button key="approve" onClick={() => approveAdmission(row)} className={iconButtonClass} title="Approve admission" aria-label="Approve admission">
           <UserCheck size={16} />
         </button>
       );
     }
 
     actions.push(
-      <button key="details" onClick={() => openDetails(row)} className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50" title="Lead details">
+      <button key="details" onClick={() => openDetails(row)} className={iconButtonClass} title="Lead details" aria-label="Lead details">
         <Eye size={16} />
       </button>
     );
 
-    return <div className="flex gap-2">{actions.length ? actions : <span className="text-slate-400">-</span>}</div>;
+    return <div className="flex items-center justify-center gap-2">{actions.length ? actions : <span className="text-slate-400">-</span>}</div>;
   };
 
   const pageTitle = isTelecallerFlow ? "Telecaller Dashboard" : isCounsellorFlow ? "Counsellor Dashboard" : isFacultyFlow ? "Faculty Dashboard" : isAdmissionsFlow ? "Admissions" : "Lead Forwarding & Admission Flow";
@@ -486,34 +482,36 @@ export function LeadsPage({ module }) {
 
   const columns = [
     { key: "enquiryId", label: "Enquiry ID", render: (row) => String(row._id || "").slice(-8).toUpperCase() },
-    { key: "leadDate", label: "Date", render: (row) => formatDate(row.leadDate || row.createdAt) },
-    { key: "name", label: "Name" },
-    { key: "mobile", label: "Mobile" },
+    { key: "leadDate", label: "Date", className: "whitespace-nowrap", render: (row) => formatDate(row.leadDate || row.createdAt) },
+    { key: "name", label: "Name", className: "min-w-[110px] font-medium" },
+    { key: "mobile", label: "Mobile", className: "whitespace-nowrap" },
     { key: "email", label: "Email" },
-    { key: "courseInterested", label: "Course", render: (row) => courseName(row) },
+    { key: "courseInterested", label: "Course", className: "min-w-[95px]", render: (row) => courseName(row) },
     { key: "college", label: "College" },
     { key: "city", label: "City" },
     { key: "qualification", label: "Qualification" },
-    { key: "learningMode", label: "Learning Mode" },
-    { key: "source", label: "Source" },
+    { key: "learningMode", label: "Learning Mode", className: "min-w-[90px]" },
+    { key: "source", label: "Source", className: "whitespace-nowrap" },
     { key: "priority", label: "Priority" },
-    { key: "status", label: "Status", render: (row) => isTelecallerFlow ? <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${statusBadgeClass(telecallerLeadStatus(row))}`}>{telecallerLeadStatus(row)}</span> : row.status },
+    { key: "status", label: "Status", className: "whitespace-nowrap", render: (row) => isTelecallerFlow ? <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${statusBadgeClass(telecallerLeadStatus(row))}`}>{telecallerLeadStatus(row)}</span> : row.status },
     { key: "telecallerAssigned", label: "Assigned Telecaller", render: (row) => row.telecallerAssigned?.name || row.telecallerAssigned || "Unassigned" },
     { key: "followUpStatus", label: "Follow-up Status", render: (row) => row.followUpDate ? "Scheduled" : "Pending" },
-    { key: "admissionStatus", label: "Admission", render: (row) => admissionStatus(row) },
-    { key: "remarks", label: "Remarks" },
-    { key: "counsellorAssigned", label: "Counsellor", render: (row) => row.counsellorAssigned || "-" },
+    { key: "admissionStatus", label: "Admission", className: "whitespace-nowrap", render: (row) => admissionStatus(row) },
+    { key: "remarks", label: "Remarks", className: "min-w-[180px] max-w-[240px] whitespace-normal break-words leading-6" },
+    { key: "counsellorAssigned", label: "Counsellor", className: "min-w-[110px]", render: (row) => row.counsellorAssigned || "-" },
     { key: "facultyAssigned", label: "Faculty", render: (row) => facultyHandoffs[row._id]?.facultyName || row.facultyAssigned || "-" },
     { key: "followUpDate", label: "Follow-up", render: (row) => (row.followUpDate ? new Date(row.followUpDate).toLocaleDateString() : "-") },
     {
       key: "actions",
       label: "Actions",
+      className: "min-w-[210px]",
+      headerClassName: "text-center",
       render: renderActions
     }
   ];
 
-  // Keep the telecaller and counsellor work queues focused on the fields they need
-  // to act on. Other lead-management views still retain the complete record.
+  // Keep dashboard tables within the available screen width. Full lead details
+  // remain available from the View action, so no horizontal table scroll is needed.
   const dashboardHiddenColumnKeys = new Set([
     "enquiryId",
     "email",
@@ -521,10 +519,13 @@ export function LeadsPage({ module }) {
     "city",
     "qualification",
     "priority",
+    "learningMode",
     "telecallerAssigned",
     "followUpStatus",
     "facultyAssigned",
-    "followUpDate"
+    "followUpDate",
+    "admissionStatus",
+    "counsellorAssigned"
   ]);
   const displayedColumns = (isTelecallerFlow || isCounsellorFlow)
     ? columns.filter((column) => !dashboardHiddenColumnKeys.has(column.key))
@@ -559,37 +560,22 @@ export function LeadsPage({ module }) {
             <StatCard label="Complete" value={leadStats.complete} tone="coral" />
           </section>
         )}
-        <EmployeeDashboardWidget compact />
         {isTelecallerFlow && (
-          <section className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-4">
-            <label className="text-sm font-semibold text-slate-600">Search name or mobile<input className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={enquirySearch} onChange={(e) => setEnquirySearch(e.target.value)} /></label>
-            <label className="text-sm font-semibold text-slate-600">Date<input type="date" className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} /></label>
-            <label className="text-sm font-semibold text-slate-600">Course<select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)}><option value="">All courses</option>{[...new Set(visibleLeads.map(courseName).filter(Boolean))].map((item) => <option key={item}>{item}</option>)}</select></label>
-            <label className="text-sm font-semibold text-slate-600">Source<select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)}><option value="">All sources</option>{[...new Set(visibleLeads.map((lead) => lead.source).filter(Boolean))].map((item) => <option key={item}>{item}</option>)}</select></label>
-            <label className="text-sm font-semibold text-slate-600">City<select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}><option value="">All cities</option>{[...new Set(visibleLeads.map((lead) => lead.city).filter(Boolean))].map((item) => <option key={item}>{item}</option>)}</select></label>
-            <label className="text-sm font-semibold text-slate-600">
-              Sort by
-              <select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-                <option value="date">Date</option>
-                <option value="name">Name</option>
-                <option value="course">Course</option>
-              </select>
-            </label>
-            <button type="button" onClick={exportEnquiries} className="inline-flex h-10 items-center justify-center gap-2 self-end rounded-md border border-slate-300 px-3 text-sm font-semibold hover:border-[#f97316]"><Download size={16} /> Export CSV / Excel</button>
-            <label className="text-sm font-semibold text-slate-600">
-              Order
-              <select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={sortDirection} onChange={(event) => setSortDirection(event.target.value)}>
-                <option value="desc">Descending</option>
-                <option value="asc">Ascending</option>
-              </select>
-            </label>
+          <section className="rounded-lg border border-slate-200 bg-white p-4">
             <label className="text-sm font-semibold text-slate-600">
               Lead status
-              <select className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={leadStatusFilter} onChange={(event) => setLeadStatusFilter(event.target.value)}>
-                <option value="">All statuses</option>
+              <select className="mt-1 w-full max-w-md rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-[#f97316]" value={leadStatusFilter} onChange={(event) => setLeadStatusFilter(event.target.value)}>
+                <option value="">All Leads</option>
                 <option value="Pending">Pending</option>
                 <option value="Active">Active</option>
                 <option value="Rejected">Rejected</option>
+                <option value="NPC">NPC</option>
+                <option value="Today">Today</option>
+                <option value="Fresh">Fresh</option>
+                <option value="Detail Sent">Detail Sent</option>
+                <option value="Today's Follow-up">Today&apos;s Follow-up</option>
+                <option value="Callback">Callback</option>
+                <option value="Complete">Complete</option>
               </select>
             </label>
           </section>

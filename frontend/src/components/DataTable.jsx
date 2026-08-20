@@ -7,15 +7,15 @@ export function DataTable({ columns, rows }) {
         <thead className="bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
             {columns.map((column) => (
-              <th key={column.key} className="px-4 py-3 font-semibold">{column.label}</th>
+              <th key={column.key} className={`px-4 py-3 font-semibold ${column.headerClassName || ""}`}>{column.label}</th>
             ))}
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
           {rows.map((row, index) => (
-            <tr key={row._id || index} className="hover:bg-slate-50">
+            <tr key={row._id || index} className="align-middle hover:bg-slate-50">
               {columns.map((column) => (
-                <td key={column.key} className={`px-4 py-3 ${column.key === "actions" ? "whitespace-nowrap" : ""}`}>{column.render ? column.render(row) : row[column.key] || "-"}</td>
+                <td key={column.key} className={`px-4 py-3 align-middle ${column.key === "actions" ? "whitespace-nowrap text-center" : ""} ${column.className || ""}`}>{column.render ? column.render(row) : row[column.key] || "-"}</td>
               ))}
             </tr>
           ))}
